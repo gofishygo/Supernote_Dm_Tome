@@ -196,6 +196,7 @@ view from a read-only DOC view.
 | Button appears, view stays blank, no error | two copies of React in the bundle (nested `node_modules/node_modules` or a symlinked path). A hello-world bundle is about 520 modules and 260 KB zipped; a doubled one about 880 and 450 KB | delete the nested folder, rebuild, run `check_plugin.py` |
 | Device shows two copies of the plugin | `pluginID` changed | restore the original id |
 | Plugin crashes on open | RN version ≠ 0.79.2 or SDK API missing on firmware | pin RN; check firmware |
+| Runtime dies on a `FileUtils` call | `getExternalDirPath`, `getFileList`, `getImageList` need an Activity that PluginHost does not have | use `listFiles(path)` on `Document`, `Note`, etc. under `getExportPath()` minus `/EXPORT` |
 | `unknown pageSize` thrown | passed a scaled view size to PointUtils | use `getPageSize` result |
 | `got 3 arguments, expected 4` | omitted optional arg to a native method | pass `null` explicitly |
 | Build runs Gradle unexpectedly | a dependency ships Java/Kotlin, or a ReactPackage was added | drop it or accept the toolchain |

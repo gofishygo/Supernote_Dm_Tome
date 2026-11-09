@@ -32,6 +32,20 @@ const DEVICE_NAMES = ['A5', 'A6', 'A6X', 'A5X', 'Nomad', 'Manta'];
 
 const PERM_FILE_READ = 'plugin.permission.FILE:READ';
 
+/** Print everything a thrown error carries, since native rejections hide
+ *  their detail in code/userInfo rather than message. */
+function describe(e: unknown): string {
+  const o = e as Record<string, unknown> | null;
+  if (!o || typeof o !== 'object') {
+    return String(e);
+  }
+  const keys = ['name', 'code', 'message', 'userInfo', 'nativeStackAndroid'];
+  const parts = keys
+    .filter(k => o[k] !== undefined)
+    .map(k => `${k}=${typeof o[k] === 'string' ? o[k] : JSON.stringify(o[k])}`);
+  return parts.length ? parts.join(' ') : String(e);
+}
+
 /** Format an APIResponse as a short string. */
 function fmt(raw: unknown): string {
   const res = raw as ApiResponse<unknown> | null | undefined;
@@ -67,7 +81,6 @@ async function currentPage(): Promise<number> {
 }
 
 async function pageSize(): Promise<{width: number; height: number}> {
-  await ensureFileRead();
   const path = await currentFile();
   const page = await currentPage();
   return unwrap(
@@ -79,17 +92,40 @@ async function pageSize(): Promise<{width: number; height: number}> {
   );
 }
 
+/** Walk a folder with FileUtils.listFiles, which takes a plain path. */
+async function listRecursive(dir: string, suffix: string, depth: number): Promise<string[]> {
+  let entries: string[] = [];
+  try {
+    entries = (await FileUtils.listFiles(dir)) ?? [];
+  } catch (e) {
+    return [`[${dir}: ${describe(e)}]`];
+  }
+  const out: string[] = [];
+  for (const p of entries) {
+    if (p.toLowerCase().endsWith(suffix)) {
+      out.push(p);
+    } else if (depth > 0 && !/\.[A-Za-z0-9]{1,5}$/.test(p)) {
+      out.push(...(await listRecursive(p, suffix, depth - 1)));
+    }
+  }
+  return out;
+}
+
 /** Ask for file read permission if we do not already have it. */
 async function ensureFileRead(): Promise<string> {
-  const has = await PluginManager.hasPermission(PERM_FILE_READ);
-  if (has && has > 0) {
-    return `already granted (${has})`;
+  try {
+    const has = await PluginManager.hasPermission(PERM_FILE_READ);
+    if (has && has > 0) {
+      return `granted(${has})`;
+    }
+    const choice = await PluginManager.requestPermission(
+      PERM_FILE_READ,
+      'DM Tome needs to read notes and PDFs to build links and tasks.',
+    );
+    return `choice ${choice} (0 deny, 1 once, 2 always, -1 cancel)`;
+  } catch (e) {
+    return `perm-api REJECTED ${describe(e)}`;
   }
-  const choice = await PluginManager.requestPermission(
-    PERM_FILE_READ,
-    'DM Tome needs to list your PDFs to build reference links.',
-  );
-  return `user chose ${choice} (0 deny, 1 once, 2 always, -1 cancelled)`;
 }
 
 /** Probes that run automatically when the console opens. */
@@ -140,16 +176,47 @@ export const STATUS_PROBES: Probe[] = [
     run: async () => fmt(await PluginCommAPI.getPenInfo()),
   },
   {
-    key: 'paths',
-    label: 'Storage paths',
-    unlocks: 'where PDFs, notes and exports live',
+    key: 'pluginDir',
+    label: 'Plugin directory',
+    unlocks: 'where the plugin may write its own files',
+    run: async () => String(await PluginManager.getPluginDirPath()),
+  },
+  {
+    key: 'exportDir',
+    label: 'Export directory',
+    unlocks: 'root of device storage (parent of Note, Document, MyStyle)',
+    run: async () => String(await FileUtils.getExportPath()),
+  },
+  // FileUtils.getExternalDirPath() and getFileList() call getCurrentActivity()
+  // in the host's native module, which is null inside PluginHost and crashes
+  // the runtime. Never call them. listFiles() takes a plain path and is safe.
+  {
+    key: 'hasPerm',
+    label: 'hasPermission(FILE:READ) raw',
+    unlocks: 'knowing whether the permission API exists on this firmware',
     run: async () => {
-      const plugin = await PluginManager.getPluginDirPath();
-      const external = await FileUtils.getExternalDirPath();
-      const exportDir = await FileUtils.getExportPath();
-      return `plugin=${plugin} | external=${JSON.stringify(
-        external,
-      )} | export=${exportDir}`;
+      try {
+        return `status ${String(await PluginManager.hasPermission(PERM_FILE_READ))}`;
+      } catch (e) {
+        return `REJECTED ${describe(e)}`;
+      }
+    },
+  },
+  {
+    key: 'reqPerm',
+    label: 'requestPermission(FILE:READ) raw',
+    unlocks: 'the permission dialog, or the reason it never appears',
+    run: async () => {
+      try {
+        return `choice ${String(
+          await PluginManager.requestPermission(
+            PERM_FILE_READ,
+            'DM Tome needs to read notes and PDFs to build links and tasks.',
+          ),
+        )}`;
+      } catch (e) {
+        return `REJECTED ${describe(e)}`;
+      }
     },
   },
 ];
@@ -183,9 +250,11 @@ export const ACTION_PROBES: Probe[] = [
     unlocks: 'the reference index',
     run: async () => {
       const perm = await ensureFileRead();
-      const list = (await FileUtils.getFileList(['pdf'])) ?? [];
-      const head = list.slice(0, 8).join(' ; ');
-      return `perm ${perm} | ${list.length} PDFs. First: ${head}`;
+      const root = (await FileUtils.getExportPath()).replace(/\/EXPORT$/, '');
+      const list = await listRecursive(`${root}/Document`, '.pdf', 3);
+      return `perm ${perm} | ${list.length} PDFs under ${root}/Document. First: ${list
+        .slice(0, 6)
+        .join(' ; ')}`;
     },
   },
   {
@@ -194,9 +263,11 @@ export const ACTION_PROBES: Probe[] = [
     unlocks: 'campaign and session note discovery',
     run: async () => {
       const perm = await ensureFileRead();
-      const list = (await FileUtils.getFileList(['note'])) ?? [];
-      const head = list.slice(0, 8).join(' ; ');
-      return `perm ${perm} | ${list.length} notes. First: ${head}`;
+      const root = (await FileUtils.getExportPath()).replace(/\/EXPORT$/, '');
+      const list = await listRecursive(`${root}/Note`, '.note', 3);
+      return `perm ${perm} | ${list.length} notes under ${root}/Note. First: ${list
+        .slice(0, 6)
+        .join(' ; ')}`;
     },
   },
   {

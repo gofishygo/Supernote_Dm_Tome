@@ -30,7 +30,7 @@ import {
   STATUS_PROBES,
 } from './src/probes';
 
-const VERSION = '0.2.1';
+const VERSION = '0.2.2';
 
 type Line = {label: string; text: string; ok: boolean};
 
@@ -39,7 +39,15 @@ async function runProbe(probe: Probe): Promise<Line> {
     const text = await probe.run();
     return {label: probe.label, text, ok: !text.startsWith('FAILED')};
   } catch (e) {
-    return {label: probe.label, text: `THREW ${String(e)}`, ok: false};
+    const o = e as Record<string, unknown> | null;
+    const detail =
+      o && typeof o === 'object'
+        ? ['name', 'code', 'message', 'userInfo']
+            .filter(k => o[k] !== undefined)
+            .map(k => `${k}=${typeof o[k] === 'string' ? o[k] : JSON.stringify(o[k])}`)
+            .join(' ')
+        : String(e);
+    return {label: probe.label, text: `THREW ${detail || String(e)}`, ok: false};
   }
 }
 

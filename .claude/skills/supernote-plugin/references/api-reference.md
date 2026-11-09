@@ -191,10 +191,16 @@ Path-based. Works on files that are not open. All `page` are 0-based.
 ### FileUtils (no content read or write)
 
 `exists(path)`, `makeDir(dir)`, `copyFile(src, dst)`, `renameToFile(src, dst)`,
-`deleteFile(path)`, `deleteDir(dir)`, `listFiles(dir)`, `getFileList(suffixes)`
-(device-wide by extension, e.g. `['pdf']`), `getImageList()`, `getFileMD5(path)`,
-`getExternalDirPath()` (array), `getExportPath()`, `openFilePath(path)` (file
-manager), `getStorageAvailableSpace()`.
+`deleteFile(path)`, `deleteDir(dir)`, `listFiles(dir)`, `getFileMD5(path)`,
+`getExportPath()`, `openFilePath(path)` (file manager),
+`getStorageAvailableSpace()`.
+
+**Crash on device:** `getExternalDirPath()`, `getFileList(suffixes)` and
+`getImageList()` call `getCurrentActivity()` in the host module, which is null
+inside PluginHost. They kill the runtime with no JS error. Walk
+`listFiles()` from the storage root instead: `getExportPath()` returns
+`<root>/EXPORT`; siblings are `Document` (PDFs, EPUBs), `Note` (.note),
+`INBOX`, `MyStyle`, `SCREENSHOT`.
 
 ### NativeUIUtils
 

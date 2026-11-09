@@ -104,6 +104,27 @@ the code.
   with no JS error captured, so one of them fails natively. 0.2.1 runs them
   one per tap to name it.
 
+## Confirmed on the Manta (0.2.1, 2026-11-09)
+
+- **`FileUtils.getExternalDirPath()` crashes the plugin runtime.** The SDK
+  package ships the host module's Java source: it calls
+  `getCurrentActivity().getSystemService(...)`, and inside PluginHost there is
+  no current activity, so it dereferences null. `getFileList()` and
+  `getImageList()` use the same call. Avoid all three. `listFiles(path)`,
+  `exists`, `getExportPath` and `getPluginDirPath` take plain paths and are
+  safe.
+- Device folder layout, from the same source: under external storage
+  (`getExportPath()` minus `/EXPORT`) sit `Document`, `EXPORT`, `INBOX`,
+  `MyStyle`, `Note`, `SCREENSHOT`. PDFs live under `Document`, notes under
+  `Note`.
+- `hasPermission` / `requestPermission` go through a host-side
+  `HostCommonAPI`; if the host has not initialised it the call rejects with
+  "HostCommonAPI not initialized". On this firmware the request failed; 0.2.2
+  prints the raw rejection to learn which case it is.
+- Plugin-private storage is under
+  `/data/data/com.ratta.supernote.testfile/files/plugins/<pluginID>`; the
+  native layer refuses paths under another plugin's folder.
+
 ## Open questions version 0.2 answers on-device
 
 - Does `getFileList(['pdf'])` need `FILE:READ` permission, and what paths does
