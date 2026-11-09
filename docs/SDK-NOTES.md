@@ -78,7 +78,21 @@ anywhere in that chain. Rule: when a plugin's buttons work but its view does
 not, compare bundle module counts against a fresh template before touching
 the code.
 
-## Open questions version 0.1 answers on-device
+## Confirmed on the Manta (0.1.2, 2026-11-09)
+
+- The plugin view is **1024 × 1365 dp** (`useWindowDimensions`). With a
+  1920 × 2560 px panel that is a density of about 1.875. Layout in dp; convert
+  only when talking to page coordinates, which are in px.
+- The host does constrain the root view's height: a centered template view
+  rendered centered. `flex: 1` layouts are safe.
+- The button event has more fields than the documented `{id, name, icon}`:
+  at least `bgColor` (string, "0") and a press-type number were present.
+  Treat the object as open-ended and read only the documented keys.
+- `ErrorUtils.setGlobalHandler` works inside the plugin runtime and nothing
+  fired during startup, so `init()` and `registerButton()` resolve cleanly
+  on current firmware with SDK 0.2.3.
+
+## Open questions version 0.2 answers on-device
 
 - Does `getFileList(['pdf'])` need `FILE:READ` permission, and what paths does
   it return? (We need absolute paths for `openFile` and link `destPath`.)
