@@ -84,6 +84,16 @@ the way to reference icons.
    lasso buttons after a lasso selection; selection buttons after selecting
    text in DOC.
 
+Scripting the copy on Windows: the device is MTP, so it has no drive letter
+and `Copy-Item` cannot see it. Use Explorer's object model instead:
+`(New-Object -ComObject Shell.Application).NameSpace(17)` is This PC; find the
+device item by name, then `Internal shared storage`, then `MyStyle`, and call
+`CopyHere(item, 16)` on the folder. The copy is asynchronous, so poll
+`ParseName` until the file appears. `scripts/push_to_supernote.ps1` does this;
+a `.cmd` wrapper calling `powershell -ExecutionPolicy Bypass -File` makes it
+double-clickable. Upload under a versioned file name to avoid overwrite
+prompts and to see which build you are installing on the device.
+
 Upgrading: same `pluginID`, higher `versionCode`. If the host refuses to
 install over the old version, remove it in the Plugins page first.
 

@@ -102,34 +102,47 @@ Git from https://git-scm.com/download/win with default options.
 ## Step 4: Clone and build
 
 ```powershell
-cd $HOME\Documents
-git clone https://github.com/gofishygo/Supernote_Dm_Tome.git
-cd Supernote_Dm_Tome
+cd H:\Supernote_projects
+git clone https://github.com/gofishygo/Supernote_Dm_Tome.git DMtome
+cd DMtome
 git checkout claude/gifted-ramanujan-qgcoa7
-npm install
 ```
 
-Then build. This runs `buildPlugin.ps1`, the official Supernote script.
-
-```powershell
-npm run build:win
-```
-
-The output is `build\outputs\DmTome.snplg`. The first build takes a minute
-or two because Metro has to walk `node_modules`. Later builds are faster.
+Then double-click `tools\deploy.cmd` (see the everyday loop below). To build
+without deploying, run `npm run build:win`; the output is
+`build\outputs\DmTome.snplg`. The first build takes a minute or two because
+Metro has to walk `node_modules`. Later builds are faster.
 
 ## Everyday loop
 
-1. Pull my latest changes: `git pull`
-2. Build: `npm run build:win`
-3. Copy `build\outputs\DmTome.snplg` to the Manta's `MyStyle` folder.
-4. On the Manta: **Settings → Apps → Plugins**, remove the old DM Tome, then
-   **Add Plugin** and install the new file. (Reinstalling over the top may
-   work too; we will find out on the first upgrade.)
+The working copy lives at `H:\Supernote_projects\DMtome`.
+
+1. Pull my latest changes:
+
+```powershell
+cd H:\Supernote_projects\DMtome
+git pull
+```
+
+2. Plug the Manta in over USB and unlock it. It appears in Explorer as
+   **This PC → Supernote A5 X2 Manta → Internal shared storage**.
+3. Double-click `tools\deploy.cmd`. It installs dependencies on the first
+   run, builds, finds the Manta, and copies `DmTome-<version>.snplg` into
+   `MyStyle`. The window stays open so you can read any red line.
+   `tools\send-only.cmd` skips the build and sends the last one.
+4. On the Manta: **Settings → Apps → Plugins → Add Plugin**, pick the
+   versioned file, **Install**. If the install is refused, remove the old DM
+   Tome on that page first.
 5. Open a note and test.
 
+Why a script instead of drag and drop: the Manta is an MTP device, so it has
+no drive letter and ordinary copy commands cannot see it. The script asks
+Windows Explorer's own object model (Shell.Application) to do the copy, which
+is exactly what a drag and drop does, minus the mouse.
+
 Because the `pluginID` in `PluginConfig.json` never changes, the device treats
-every build as the same plugin. Do not edit that field.
+every build as the same plugin. Do not edit that field. Bump `versionCode`
+and `versionName` for each build you intend to install.
 
 ## Optional: let me build on your PC directly
 

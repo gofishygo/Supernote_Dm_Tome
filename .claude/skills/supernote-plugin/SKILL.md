@@ -21,6 +21,8 @@ the detail it holds:
 - `references/build-and-install.md`: toolchain, build scripts, package layout,
   install steps, troubleshooting.
 - `scripts/check_plugin.py`: validates a plugin project's config before a build.
+- `scripts/push_to_supernote.ps1`: copies a file to the device's MyStyle folder
+  from Windows over USB (MTP has no drive letter, so this drives Explorer).
 
 ## The mental model that prevents most mistakes
 
@@ -113,7 +115,8 @@ powershell -ExecutionPolicy Bypass -File buildPlugin.ps1   # Windows
 ```
 
 Output `build/outputs/<name>.snplg`. Copy it to the device's `MyStyle`
-folder over USB (MTP), then Settings → Apps → Plugins → Add Plugin. If
+folder over USB (MTP; on Windows use `scripts/push_to_supernote.ps1` or drag
+and drop in Explorer), then Settings → Apps → Plugins → Add Plugin. If
 Settings → Apps has no Plugins entry, the firmware predates plugins; update
 via Settings → System Update first. Run `python3 scripts/check_plugin.py
 <project-dir>` before building to catch the config mismatches above.
