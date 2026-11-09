@@ -110,7 +110,8 @@ def main(root):
         parts = text.split("\n__d(")[1:]
         bodies = [re.sub(r",\d+,\[[\d,]*\]\);?\s*$", "", x.strip()) for x in parts]
         dupes = len(bodies) - len(set(bodies))
-        if dupes > 50:
+        # A clean bundle has ~10% trivially identical modules; a doubled graph ~45%.
+        if bodies and dupes / len(bodies) > 0.3:
             errors.append(f"{bundle.name}: {len(bodies)} modules but {dupes} duplicates; the dependency graph is doubled (nested node_modules or a symlinked path)")
 
     # The build runs Gradle only when the project defines a ReactPackage or a
