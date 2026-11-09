@@ -30,7 +30,7 @@ import {
   STATUS_PROBES,
 } from './src/probes';
 
-const VERSION = '0.2.0';
+const VERSION = '0.2.1';
 
 type Line = {label: string; text: string; ok: boolean};
 
@@ -59,16 +59,6 @@ function Console(): React.JSX.Element {
 
   const append = useCallback((line: Line) => {
     setLines(prev => [...prev, line]);
-  }, []);
-
-  const runStatus = useCallback(async () => {
-    setBusy('status');
-    const results: Line[] = [];
-    for (const p of STATUS_PROBES) {
-      results.push(await runProbe(p));
-    }
-    setLines(prev => [...prev, ...results]);
-    setBusy(null);
   }, []);
 
   const runCapture = useCallback(async () => {
@@ -135,14 +125,18 @@ function Console(): React.JSX.Element {
         </ScrollView>
 
         <ScrollView style={styles.actions}>
-          <Text style={styles.sectionTitle}>Probes</Text>
-          <Pressable
-            disabled={disabled}
-            style={[styles.button, disabled && styles.buttonDisabled]}
-            onPress={runStatus}>
-            <Text style={styles.buttonText}>Run status probes</Text>
-            <Text style={styles.buttonHint}>device, file, page, size, pen, paths</Text>
-          </Pressable>
+          <Text style={styles.sectionTitle}>Status (one call each)</Text>
+          {STATUS_PROBES.map(p => (
+            <Pressable
+              key={p.key}
+              disabled={disabled}
+              style={[styles.button, disabled && styles.buttonDisabled]}
+              onPress={() => runAction(p)}>
+              <Text style={styles.buttonText}>{p.label}</Text>
+              <Text style={styles.buttonHint}>unlocks: {p.unlocks}</Text>
+            </Pressable>
+          ))}
+          <Text style={styles.sectionTitle}>Actions</Text>
           {openedByLasso && (
             <Pressable
               disabled={disabled}

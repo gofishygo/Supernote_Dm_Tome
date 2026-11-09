@@ -149,7 +149,9 @@ The display is reflective e-ink that refreshes slowly and ghosts.
 `plugin.permission.FILE:READ`, `FILE:WRITE`, `FILE:DELETE`, `INTERNET`.
 Request returns the user's choice: 0 deny, 1 once, 2 always, -1 cancelled.
 Request lazily, right before the first call that needs it, with a `desc`
-that says what the user gets.
+that says what the user gets. Path-based `PluginFileAPI` calls (keywords,
+titles, elements, page size) fail with error **1503 "file read permission
+denied"** until `FILE:READ` is granted, even for the file that is open.
 
 ## Writing text and links into a note
 

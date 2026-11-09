@@ -92,6 +92,18 @@ the code.
   fired during startup, so `init()` and `registerButton()` resolve cleanly
   on current firmware with SDK 0.2.3.
 
+## Confirmed on the Manta (0.2.0, 2026-11-09)
+
+- `PluginCommAPI.jumpToPage(0)` returns `success: true` from inside the
+  plugin view.
+- `PluginFileAPI.getKeyWords` and `getTitles` fail with **error 1503, "file
+  read permission denied"** until `plugin.permission.FILE:READ` is granted.
+  Expect the same for every path-based `PluginFileAPI` call. Request the
+  permission lazily before the first such call.
+- Running the eight status probes back to back crashed the plugin runtime
+  with no JS error captured, so one of them fails natively. 0.2.1 runs them
+  one per tap to name it.
+
 ## Open questions version 0.2 answers on-device
 
 - Does `getFileList(['pdf'])` need `FILE:READ` permission, and what paths does

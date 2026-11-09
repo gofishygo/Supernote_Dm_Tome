@@ -67,6 +67,7 @@ async function currentPage(): Promise<number> {
 }
 
 async function pageSize(): Promise<{width: number; height: number}> {
+  await ensureFileRead();
   const path = await currentFile();
   const page = await currentPage();
   return unwrap(
@@ -181,9 +182,10 @@ export const ACTION_PROBES: Probe[] = [
     label: 'List PDFs on device',
     unlocks: 'the reference index',
     run: async () => {
+      const perm = await ensureFileRead();
       const list = (await FileUtils.getFileList(['pdf'])) ?? [];
       const head = list.slice(0, 8).join(' ; ');
-      return `${list.length} PDFs. First: ${head}`;
+      return `perm ${perm} | ${list.length} PDFs. First: ${head}`;
     },
   },
   {
@@ -191,9 +193,10 @@ export const ACTION_PROBES: Probe[] = [
     label: 'List .note files on device',
     unlocks: 'campaign and session note discovery',
     run: async () => {
+      const perm = await ensureFileRead();
       const list = (await FileUtils.getFileList(['note'])) ?? [];
       const head = list.slice(0, 8).join(' ; ');
-      return `${list.length} notes. First: ${head}`;
+      return `perm ${perm} | ${list.length} notes. First: ${head}`;
     },
   },
   {
@@ -216,9 +219,10 @@ export const ACTION_PROBES: Probe[] = [
     label: 'Read keywords on this page',
     unlocks: 'storing task metadata inside the note',
     run: async () => {
+      const perm = await ensureFileRead();
       const path = await currentFile();
       const page = await currentPage();
-      return fmt(await PluginFileAPI.getKeyWords(path, [page]));
+      return `perm ${perm} | ${fmt(await PluginFileAPI.getKeyWords(path, [page]))}`;
     },
   },
   {
@@ -226,6 +230,7 @@ export const ACTION_PROBES: Probe[] = [
     label: 'Read titles in this note',
     unlocks: 'scene headings and navigation',
     run: async () => {
+      await ensureFileRead();
       const path = await currentFile();
       const total = unwrap<number>(
         await PluginFileAPI.getNoteTotalPageNum(path),
