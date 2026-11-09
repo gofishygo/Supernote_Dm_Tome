@@ -96,6 +96,23 @@ def main(root):
     else:
         errors.append("index.js missing")
 
+    # A nested node_modules/node_modules (left by a stray copy) is found by
+    # Node's parent-directory lookup, so React Native resolves a second copy
+    # of react. Metro then bundles everything twice and the plugin view never
+    # mounts, with no error anywhere. Buttons still appear, which misleads.
+    nested = root / "node_modules" / "node_modules"
+    if nested.exists():
+        errors.append("node_modules/node_modules exists: delete it, or the bundle will contain two copies of React and the view will stay blank")
+
+    bundle_dir = root / "build" / "generated"
+    for bundle in bundle_dir.glob("*.bundle") if bundle_dir.exists() else []:
+        text = bundle.read_text(encoding="utf-8", errors="ignore")
+        parts = text.split("\n__d(")[1:]
+        bodies = [re.sub(r",\d+,\[[\d,]*\]\);?\s*$", "", x.strip()) for x in parts]
+        dupes = len(bodies) - len(set(bodies))
+        if dupes > 50:
+            errors.append(f"{bundle.name}: {len(bodies)} modules but {dupes} duplicates; the dependency graph is doubled (nested node_modules or a symlinked path)")
+
     # The build runs Gradle only when the project defines a ReactPackage or a
     # third-party node module ships Java/Kotlin. The template's own
     # MainActivity/MainApplication do not count.

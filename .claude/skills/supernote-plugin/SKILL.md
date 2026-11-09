@@ -191,6 +191,7 @@ view from a read-only DOC view.
 | Symptom | Cause | Fix |
 |---|---|---|
 | Installed, no button appears | `pluginKey` ≠ `app.json` name | make them equal |
+| Button appears, view stays blank, no error | two copies of React in the bundle (nested `node_modules/node_modules` or a symlinked path). A hello-world bundle is about 520 modules and 260 KB zipped; a doubled one about 880 and 450 KB | delete the nested folder, rebuild, run `check_plugin.py` |
 | Device shows two copies of the plugin | `pluginID` changed | restore the original id |
 | Plugin crashes on open | RN version ≠ 0.79.2 or SDK API missing on firmware | pin RN; check firmware |
 | `unknown pageSize` thrown | passed a scaled view size to PointUtils | use `getPageSize` result |

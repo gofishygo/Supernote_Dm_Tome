@@ -65,8 +65,10 @@ Useful `package.json` scripts:
    `reactPackages` and `nativeCodePackage` into the manifest.
 5. Zips `build/generated/*` to `build/outputs/<name>.snplg`.
 
-Bundle size for hello-world is about 1 MB raw, 260 KB zipped; a small real
-plugin about 1.8 MB raw, 450 KB zipped.
+Bundle size for hello-world is about 1 MB raw, 260 KB zipped, around 520
+modules (`grep -c '__d(' build/generated/*.bundle`). A small real plugin adds
+only tens of KB. If a build comes out near 1.8 MB / 880 modules, the graph is
+duplicated; see troubleshooting.
 
 Only the `index.js` entry is bundled, so `require('./data.json')` is the way
 to ship static data, and `Image.resolveAssetSource(require('./assets/x.png')).uri`
@@ -119,6 +121,7 @@ PluginHost has no desktop emulator. Practical loop:
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | Plugin installs, no buttons | `pluginKey` ≠ `app.json.name` | match them; rebuild |
+| Buttons appear, tapping shows nothing, template hello-world works | bundle holds the dependency graph twice: `node_modules/node_modules` exists or the project path goes through a symlink. Node resolves `react` from the nested copy for RN internals and from the top copy for your code, so the native `runApplication` lands in an `AppRegistry` with nothing registered | `rm -rf node_modules/node_modules`; build from a real path; compare `grep -c '__d(' build/generated/*.bundle` with a fresh template (~520) |
 | Two entries in Plugins page | `pluginID` changed | restore old id |
 | White screen on open | JS exception during first render | wrap root in an error boundary that prints the error |
 | Button works in NOTE, fails in DOC | NOTE-only API called | check `canHandwrite()` and branch |

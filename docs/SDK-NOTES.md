@@ -63,6 +63,21 @@ Also present on the native side but without a documented wrapper yet:
    `PluginFileAPI.getPageSize(path, page)`. Manta portrait is 1920 × 2560.
 7. **Pages are 0-based** everywhere except keyword `index`, which is 1-based.
 
+## Lesson from the blank-screen hunt (2026-11-09)
+
+Versions 0.1.0 and 0.1.1 installed and showed their button but opened to
+nothing, while the untouched template rendered. Bisecting with side-by-side
+packages showed the manifest was fine and the SDK versions were equivalent.
+The real cause was in the build machine: a stray `node_modules/node_modules`
+folder. Node's lookup walks parent directories, so React Native's own files
+resolved `react` from the nested copy while `index.js` used the top copy.
+Metro bundled the whole graph twice (878 modules instead of 525), both copies
+of `AppRegistry` registered with the bridge, and the host's request to run
+`DmTome` reached the copy with nothing registered. No error is raised
+anywhere in that chain. Rule: when a plugin's buttons work but its view does
+not, compare bundle module counts against a fresh template before touching
+the code.
+
 ## Open questions version 0.1 answers on-device
 
 - Does `getFileList(['pdf'])` need `FILE:READ` permission, and what paths does
