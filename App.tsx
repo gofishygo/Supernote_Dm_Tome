@@ -20,6 +20,8 @@ import {
 } from 'react-native';
 import {PluginManager} from 'sn-plugin-lib';
 import {BUTTONS} from './src/buttons';
+import {getCrashLog, subscribeCrashLog} from './src/crashLog';
+import {ErrorBoundary} from './src/ErrorBoundary';
 import {getLastButton, subscribeLastButton} from './src/lastButton';
 import {
   ACTION_PROBES,
@@ -30,7 +32,7 @@ import {
 
 type Line = {label: string; text: string; ok: boolean};
 
-const VERSION = '0.1.0';
+const VERSION = '0.1.1';
 
 async function runProbe(probe: Probe): Promise<Line> {
   try {
@@ -41,8 +43,9 @@ async function runProbe(probe: Probe): Promise<Line> {
   }
 }
 
-function App(): React.JSX.Element {
+function Console(): React.JSX.Element {
   const [lines, setLines] = useState<Line[]>([]);
+  const [crashCount, setCrashCount] = useState(getCrashLog().length);
   const [busy, setBusy] = useState<string | null>(null);
   const [mode, setMode] = useState<'console' | 'capture'>('console');
   const scroll = useRef<ScrollView>(null);
@@ -80,20 +83,17 @@ function App(): React.JSX.Element {
     [append],
   );
 
-  // Decide what to do from the button that opened us, now and on later presses.
+  // Remember which button opened us. Probes run only when tapped, so a
+  // failing SDK call can never blank the first paint.
   useEffect(() => {
     const handle = (id: number | undefined) => {
-      if (id === BUTTONS.CAPTURE) {
-        setMode('capture');
-        runCapture();
-      } else {
-        setMode('console');
-        runStatus();
-      }
+      setMode(id === BUTTONS.CAPTURE ? 'capture' : 'console');
     };
     handle(getLastButton()?.id);
     return subscribeLastButton(ev => handle(ev.id));
-  }, [runCapture, runStatus]);
+  }, []);
+
+  useEffect(() => subscribeCrashLog(() => setCrashCount(getCrashLog().length)), []);
 
   useEffect(() => {
     scroll.current?.scrollToEnd({animated: false});
@@ -116,8 +116,24 @@ function App(): React.JSX.Element {
 
       <View style={styles.body}>
         <ScrollView ref={scroll} style={styles.log}>
+          <Text style={styles.lineLabel}>✓ Plugin UI rendered</Text>
+          <Text style={styles.lineText}>
+            Opened by button: {JSON.stringify(getLastButton())}
+          </Text>
+          {crashCount > 0 && (
+            <View style={styles.crashBox}>
+              <Text style={styles.lineLabel}>✗ {crashCount} captured error(s)</Text>
+              {getCrashLog().map((c, i) => (
+                <Text key={i} style={styles.lineText} selectable>
+                  [{c.when}] {c.fatal ? 'FATAL ' : ''}{c.message}
+                </Text>
+              ))}
+            </View>
+          )}
           {lines.length === 0 && (
-            <Text style={styles.muted}>Running probes…</Text>
+            <Text style={styles.muted}>
+              Tap an action on the right. Start with "Run status probes".
+            </Text>
           )}
           {lines.map((l, i) => (
             <View key={i} style={styles.line}>
@@ -134,6 +150,22 @@ function App(): React.JSX.Element {
 
         <ScrollView style={styles.actions}>
           <Text style={styles.sectionTitle}>Actions</Text>
+          <Pressable
+            disabled={busy !== null}
+            style={[styles.button, busy !== null && styles.buttonDisabled]}
+            onPress={runStatus}>
+            <Text style={styles.buttonText}>Run status probes</Text>
+            <Text style={styles.buttonHint}>device, file, page, size, pen, paths</Text>
+          </Pressable>
+          {mode === 'capture' && (
+            <Pressable
+              disabled={busy !== null}
+              style={[styles.button, busy !== null && styles.buttonDisabled]}
+              onPress={runCapture}>
+              <Text style={styles.buttonText}>Recognize lasso</Text>
+              <Text style={styles.buttonHint}>unlocks: task capture</Text>
+            </Pressable>
+          )}
           {ACTION_PROBES.map(p => (
             <Pressable
               key={p.key}
@@ -150,15 +182,17 @@ function App(): React.JSX.Element {
             onPress={() => setLines([])}>
             <Text style={styles.buttonText}>Clear log</Text>
           </Pressable>
-          <Pressable
-            disabled={busy !== null}
-            style={[styles.button, busy !== null && styles.buttonDisabled]}
-            onPress={runStatus}>
-            <Text style={styles.buttonText}>Re-run status probes</Text>
-          </Pressable>
         </ScrollView>
       </View>
     </View>
+  );
+}
+
+function App(): React.JSX.Element {
+  return (
+    <ErrorBoundary>
+      <Console />
+    </ErrorBoundary>
   );
 }
 
@@ -197,6 +231,7 @@ const styles = StyleSheet.create({
   lineLabel: {fontSize: 22, fontWeight: '700', color: INK},
   lineText: {fontSize: 20, color: INK, fontFamily: 'monospace'},
   muted: {fontSize: 20, color: INK, fontStyle: 'italic'},
+  crashBox: {borderWidth: 3, borderColor: INK, padding: 12, marginBottom: 14},
   button: {
     borderWidth: 3,
     borderColor: INK,
