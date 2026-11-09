@@ -8,8 +8,8 @@
  * @format
  */
 
-import {AppRegistry, Image} from 'react-native';
-import App from './App';
+import React from 'react';
+import {AppRegistry, Image, ScrollView, Text} from 'react-native';
 import {name as appName} from './app.json';
 import {PluginManager} from 'sn-plugin-lib';
 import {BUTTONS} from './src/buttons';
@@ -19,7 +19,33 @@ import {installGlobalErrorHandler, recordError} from './src/crashLog';
 // First, so anything below that throws is captured and shown in the UI.
 installGlobalErrorHandler();
 
-AppRegistry.registerComponent(appName, () => App);
+// Release bundles inline requires, so App.tsx and everything it imports are
+// evaluated the first time the host asks for the component, not at startup.
+// If that evaluation throws, the view would mount nothing and the error would
+// be invisible. Load App lazily inside the factory and print any failure.
+AppRegistry.registerComponent(appName, () => {
+  try {
+    return require('./App').default;
+  } catch (e) {
+    recordError(e, true);
+    const message = `${e && e.message}\n\n${(e && e.stack) || ''}`;
+    return () =>
+      React.createElement(
+        ScrollView,
+        {style: {flex: 1, backgroundColor: '#ffffff', padding: 24}},
+        React.createElement(
+          Text,
+          {style: {fontSize: 26, fontWeight: '700', color: '#000000'}},
+          'DM Tome failed to load App.tsx',
+        ),
+        React.createElement(
+          Text,
+          {style: {fontSize: 18, color: '#000000', fontFamily: 'monospace'}, selectable: true},
+          message,
+        ),
+      );
+  }
+});
 
 // init() is async; a rejection here (for example a native method missing on
 // older firmware) would otherwise vanish silently.
