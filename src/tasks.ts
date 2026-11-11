@@ -1,16 +1,34 @@
 /**
- * Back Burner tasks live inside the note as keywords, one per task.
+ * Back Burner entries live inside the note as keywords, one per entry.
  *
- * Grammar (kept human-readable so it still makes sense in Supernote's own
- * keyword search):
- *   S12 | Pay the ferryman          due session 12
- *   S? | Red moon rises             no due session
- *   S10 | Hooded stranger [x]       done
+ * Grammar, kept human-readable so it still makes sense in Supernote's own
+ * keyword search:
+ *   Strong start S12 | The inn is already burning     dated, one per session
+ *   Scene S12 | Negotiation with the ferryman         dated
+ *   Plot S13 | The letter names the mayor             dated
+ *   Hero | Thorin owes the guild a favor              persistent, no due
+ *   NPC | Mira the fence, hates the guard captain     persistent, no due
+ *   S12 | Pay the ferryman                            legacy plain task
+ *   ... [x]                                           done / retired
  * The session counter is its own keyword on page 0:  DM session 12
  */
 import {PluginCommAPI, PluginFileAPI, PluginNoteAPI} from 'sn-plugin-lib';
 
+export type EntryType = 'strong' | 'scene' | 'plot' | 'hero' | 'npc' | 'task';
+
+export const TYPE_META: Record<EntryType, {word: string; label: string; plural: string; dated: boolean; order: number}> = {
+  strong: {word: 'Strong start', label: 'Strong start', plural: 'Strong starts', dated: true, order: 0},
+  scene: {word: 'Scene', label: 'Scene', plural: 'Scenes', dated: true, order: 1},
+  plot: {word: 'Plot', label: 'Plot point', plural: 'Plot points', dated: true, order: 2},
+  hero: {word: 'Hero', label: 'Hero', plural: 'Heroes', dated: false, order: 3},
+  npc: {word: 'NPC', label: 'NPC', plural: 'NPCs', dated: false, order: 4},
+  task: {word: '', label: 'Task', plural: 'Tasks', dated: true, order: 5},
+};
+
+export const CAPTURE_TYPES: EntryType[] = ['strong', 'scene', 'plot', 'hero', 'npc', 'task'];
+
 export type Task = {
+  type: EntryType;
   text: string;
   due: number | null;
   done: boolean;
@@ -22,12 +40,22 @@ export type Task = {
 type ApiResponse<T> = {success: boolean; result: T | null; error: {code: number; message: string} | null};
 type KeyWord = {keyword: string; page: number; index: number};
 
-const TASK_RE = /^S(\d+|\?)\s*\|\s*(.*?)\s*(\[x\])?$/i;
+const TASK_RE = /^(Strong start|Scene|Plot|Hero|NPC)?\s*(?:S(\d+|\?))?\s*\|\s*(.*?)\s*(\[x\])?$/i;
 const SESSION_RE = /^DM session (\d+)$/i;
 
-export function formatTask(text: string, due: number | null, done = false): string {
-  const clean = text.replace(/\s+/g, ' ').trim().slice(0, 80);
-  return `S${due ?? '?'} | ${clean}${done ? ' [x]' : ''}`;
+const WORD_TO_TYPE: Record<string, EntryType> = {
+  'strong start': 'strong',
+  scene: 'scene',
+  plot: 'plot',
+  hero: 'hero',
+  npc: 'npc',
+};
+
+export function formatTask(type: EntryType, text: string, due: number | null, done = false): string {
+  const clean = text.replace(/[|\n\r]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+  const meta = TYPE_META[type];
+  const head = meta.dated ? `${meta.word}${meta.word ? ' ' : ''}S${due ?? '?'}` : meta.word;
+  return `${head} | ${clean}${done ? ' [x]' : ''}`;
 }
 
 export function parseTask(kw: KeyWord): Task | null {
@@ -35,10 +63,18 @@ export function parseTask(kw: KeyWord): Task | null {
   if (!m) {
     return null;
   }
+  const word = (m[1] ?? '').toLowerCase();
+  const type: EntryType = word ? WORD_TO_TYPE[word] ?? 'task' : 'task';
+  if (!word && m[2] === undefined) {
+    // A bare "| text" keyword is not ours.
+    return null;
+  }
+  const dated = TYPE_META[type].dated;
   return {
-    text: m[2],
-    due: m[1] === '?' ? null : Number(m[1]),
-    done: !!m[3],
+    type,
+    text: m[3],
+    due: dated && m[2] !== undefined && m[2] !== '?' ? Number(m[2]) : null,
+    done: !!m[4],
     page: kw.page,
     index: kw.index,
     raw: kw.keyword,
@@ -101,22 +137,25 @@ export async function loadBoard(): Promise<Board> {
   return {path, session, tasks, keywordCount: kws.length};
 }
 
-export async function addTask(path: string, page: number, text: string, due: number | null): Promise<string> {
-  const keyword = formatTask(text, due);
+export async function addTask(path: string, page: number, type: EntryType, text: string, due: number | null): Promise<string> {
+  const keyword = formatTask(type, text, due);
   await flush();
   unwrap<boolean>(await PluginFileAPI.insertKeyWord(path, page, keyword), 'insertKeyWord');
   return keyword;
 }
 
-/** Replace a task's keyword (delete + insert) to mark it done or undone. */
-export async function setDone(path: string, task: Task, done: boolean): Promise<void> {
+/** Replace a task's keyword (delete + insert) with new fields. */
+export async function rewriteTask(path: string, task: Task, patch: Partial<Pick<Task, 'due' | 'done' | 'text' | 'type'>>): Promise<void> {
+  const next = {...task, ...patch};
   await flush();
   unwrap<boolean>(await PluginFileAPI.deleteKeyWord(path, task.page, task.index), 'deleteKeyWord');
   unwrap<boolean>(
-    await PluginFileAPI.insertKeyWord(path, task.page, formatTask(task.text, task.due, done)),
+    await PluginFileAPI.insertKeyWord(path, task.page, formatTask(next.type, next.text, next.due, next.done)),
     'insertKeyWord',
   );
 }
+
+export const setDone = (path: string, task: Task, done: boolean) => rewriteTask(path, task, {done});
 
 export async function setSession(path: string, kws: {page: number; index: number} | null, session: number): Promise<void> {
   await flush();
@@ -133,12 +172,20 @@ export async function findSessionKeyword(path: string): Promise<{page: number; i
   return hit ? {page: hit.page, index: hit.index} : null;
 }
 
-export function bucket(task: Task, session: number): 'done' | 'overdue' | 'due' | 'upcoming' | 'someday' {
+export type Bucket = 'strongNow' | 'overdue' | 'due' | 'always' | 'upcoming' | 'someday' | 'done';
+
+export function bucket(task: Task, session: number): Bucket {
   if (task.done) {
     return 'done';
   }
+  if (!TYPE_META[task.type].dated) {
+    return 'always';
+  }
   if (task.due === null) {
     return 'someday';
+  }
+  if (task.type === 'strong' && task.due === session) {
+    return 'strongNow';
   }
   if (task.due < session) {
     return 'overdue';

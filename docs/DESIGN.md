@@ -34,18 +34,28 @@ there:
 | Tasks | keywords on a dedicated **Back Burner** page, one per task, in a tiny grammar | `getKeyWords` |
 | Flags during play | five-star marks next to handwriting | `searchFiveStars` |
 
-Task keyword grammar (one keyword per task; human-readable so it still makes
-sense in Supernote's own keyword search):
+Entry keyword grammar (one keyword per entry; human-readable so it still
+makes sense in Supernote's own keyword search). Types come from the Lazy DM
+shape of a session: a Strong Start to open, Scenes and Plot points that are
+due on a session, and Heroes and NPCs that are always in play.
 
 ```
-S12 | Pay the ferryman's debt
-D1492-03-14 | Red moon rises
-S10 ✓ | Introduce the hooded stranger
+Strong start S12 | The inn is already burning when they arrive
+Scene S12 | Negotiation with the ferryman
+Plot S13 | The letter names the mayor
+Hero | Thorin owes the thieves' guild a favor
+NPC | Mira the fence, hates the guard captain
+S12 | Pay the ferryman                       (legacy plain task)
+... [x]                                      done or retired
 ```
 
-`S<n>` = due session number, `D<yyyy-mm-dd>` = in-game date, trailing `✓` =
-done. The console parses these, sorts, and marks overdue. Editing a keyword on
-the device also edits the task, which is a feature.
+Dated types carry `S<n>`; `S?` means someday. Persistent types carry no
+session and sit in an "Always on" section until retired. The board shows the
+current session's Strong start in its own panel at the top (and nags when
+there is none), then Overdue, Due this session grouped by type, Always on,
+Upcoming, Someday, Done. "Push +1" moves a dated entry to the next session,
+the most common edit at the table. Editing a keyword on the device also edits
+the entry, which is a feature.
 
 ## Permissions
 
@@ -126,6 +136,7 @@ known printed page, read `getCurrentPageNum`, store the offset.
 | 0.1–0.2 (done) | SDK probe console. Learn what works on the Manta. | getDeviceType, getCurrentFilePath/PageNum, getPageSize, getPageDisplaySize, canHandwrite, getPenInfo, paths, insertText, permissions, getFileList, jumpToPage, openFile, getKeyWords, getTitles, getLassoElements, recognizeElements |
 | 0.3 (verified) | Back Burner: lasso capture → keyword task with due session; board with overdue/due/upcoming/someday, Done, jump to page; session counter kept as a page-0 keyword. | insertKeyWord, deleteKeyWord, getNoteTotalPageNum, jumpToPage, setLassoBoxState |
 | 0.4 (built) | References: list documents under `Document`, open at last page, bookmark the page being read (keyword `REF name \| path \| page` on page 0 of `Note/DM Tome Index.note`, created on first use), open bookmarks at page, insert a text link to a bookmark into the current note, read a PDF page's text layer. Capture lasso registered for DOC too; Capture can also save the recognized text as a bookmark. | openFile, createNote, insertTextLink, getCurrentDocText, listFiles |
+| 0.4.1 (built) | Entry types: Strong start, Scene, Plot point (dated); Hero, NPC (persistent); legacy Task. Two-step capture; board regrouped; Push +1. Probes: reinstall helper via `openFilePath`, full native method dump. | openFilePath |
 | 0.4.x | Seed table of 5e 2024 monsters/spells/conditions with page offsets per book, calibrated against the user's PDFs; digest page written into the note. | insertNotePage, insertText |
 | 0.4 | Script pages: Markdown → JSON → scene pages with titles and text boxes. | setLassoTitle or title insert, insertText batches, insertNotePage |
 | 0.5 | Polish: config button for campaign settings, session counter, review screen, star sweep. | registerConfigButton, searchFiveStars |

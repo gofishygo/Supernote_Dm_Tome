@@ -229,6 +229,17 @@ export const STATUS_PROBES: Probe[] = [
     },
   },
   {
+    key: 'allKeys',
+    label: 'Dump every native method name',
+    unlocks: 'spotting undocumented calls (install, reload, ...)',
+    run: async () => {
+      const mods: Record<string, unknown> = {FileUtils, NativePluginManager, NativePluginAPI};
+      return Object.entries(mods)
+        .map(([n, m]) => `${n}: ${Object.keys(m as object).sort().join(', ')}`)
+        .join(' || ');
+    },
+  },
+  {
     key: 'handwrite',
     label: 'Can handwrite here',
     unlocks: 'NOTE vs DOC behaviour',
@@ -308,6 +319,34 @@ export const ACTION_PROBES: Probe[] = [
     label: 'Request file-read permission',
     unlocks: 'listing PDFs for the reference index',
     run: ensureFileRead,
+  },
+  {
+    key: 'reinstall',
+    label: 'Open newest DM Tome package in MyStyle',
+    unlocks: 'faster reinstall during development (experiment)',
+    run: async () => {
+      // No install API exists in the SDK. openFilePath opens a path in the
+      // device file manager; if a .snplg there offers Install, this saves the
+      // trip through Settings. Falls back to opening the MyStyle folder.
+      const perm = await ensureFileRead();
+      const root = String(await FileUtils.getExportPath()).replace(/\/EXPORT$/, '');
+      const dir = `${root}/MyStyle`;
+      const files = toPathList(await FileUtils.listFiles(dir))
+        .filter(f => /DmTome.*\.snplg$/i.test(f))
+        .sort((a, b) => {
+          const va = (a.match(/(\d+)\.(\d+)\.(\d+)/) ?? []).slice(1).map(Number);
+          const vb = (b.match(/(\d+)\.(\d+)\.(\d+)/) ?? []).slice(1).map(Number);
+          for (let i = 0; i < 3; i++) {
+            if ((va[i] ?? 0) !== (vb[i] ?? 0)) {
+              return (vb[i] ?? 0) - (va[i] ?? 0);
+            }
+          }
+          return b.localeCompare(a);
+        });
+      const target = files[0] ?? dir;
+      const ok = await FileUtils.openFilePath(target);
+      return `perm ${perm} | ${files.length} packages | openFilePath(${target}) -> ${String(ok)}`;
+    },
   },
   {
     key: 'listRaw',
