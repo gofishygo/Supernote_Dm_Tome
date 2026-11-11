@@ -4,9 +4,11 @@ A Supernote plugin for dungeon masters: scene script, page-deep links into
 rulebook PDFs, in-session note organization, and a back-burner task list with
 due sessions. Built for the Supernote Manta (A5X2) with `sn-plugin-lib` 0.2.3.
 
-Hobby project. Current release: **0.1.0, SDK probe console**. It installs,
-registers a toolbar button and a lasso button, and prints what each SDK
-primitive returns on the device so the real features can be built on facts.
+Hobby project. Current release: **0.3.0, Back Burner**. Lasso a handwritten
+task, tap Capture, pick a due session; the task is stored as a keyword on
+that page. The toolbar button opens the board (overdue, due, upcoming,
+someday, done) with jump-to-page, plus the SDK probe console as a second tab.
+Verified on a Manta running Chauvet 3.31.45.
 
 ## Docs
 
@@ -37,6 +39,11 @@ App.tsx           full-screen UI (version 0.1: probe console)
 src/buttons.ts    stable button ids
 src/lastButton.ts which button opened the UI
 src/probes.ts     one function per SDK primitive under test
+src/permissions.ts declare → check → request for FILE:READ / FILE:WRITE
+src/tasks.ts      task grammar and keyword storage
+src/ui.tsx        shared e-ink widgets
+src/screens/      CaptureScreen, BackBurnerScreen, ProbeConsole
+tools/            deploy.cmd / send-only.cmd for Windows
 PluginConfig.json plugin manifest; never change pluginID
 assets/icon.png   toolbar icon
 buildPlugin.*     official Supernote packaging scripts

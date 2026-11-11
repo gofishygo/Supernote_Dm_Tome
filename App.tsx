@@ -1,238 +1,75 @@
 /**
- * DM Tome - version 0.2.0, the probe console.
- *
- * Step 2: the view is known to mount (0.1.2), so this screen brings back one
- * button per SDK primitive the DM features depend on. Nothing runs on mount;
- * every probe is a tap, and every result is printed in monospace so it can
- * be photographed or transcribed.
+ * DM Tome - 0.3.0. Lasso button → Capture screen. Toolbar button → hub with
+ * Back Burner and Probes tabs. Everything renders black on white, sized to
+ * the window, with no SDK call before the first paint.
  *
  * @format
  */
 
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Pressable, Text, useWindowDimensions, View} from 'react-native';
 import {PluginManager} from 'sn-plugin-lib';
 import {BUTTONS} from './src/buttons';
-import {getCrashLog, subscribeCrashLog} from './src/crashLog';
 import {ErrorBoundary} from './src/ErrorBoundary';
 import {getLastButton, subscribeLastButton} from './src/lastButton';
-import {
-  ACTION_PROBES,
-  Probe,
-  recognizeLasso,
-  STATUS_PROBES,
-} from './src/probes';
+import {BackBurnerScreen} from './src/screens/BackBurnerScreen';
+import {CaptureScreen} from './src/screens/CaptureScreen';
+import {ProbeConsole} from './src/screens/ProbeConsole';
+import {PAPER, styles} from './src/ui';
 
-const VERSION = '0.2.5';
+const VERSION = '0.3.0';
+type Tab = 'burner' | 'probes';
 
-type Line = {label: string; text: string; ok: boolean};
-
-async function runProbe(probe: Probe): Promise<Line> {
-  try {
-    const text = await probe.run();
-    return {label: probe.label, text, ok: !text.startsWith('FAILED')};
-  } catch (e) {
-    const o = e as Record<string, unknown> | null;
-    const detail =
-      o && typeof o === 'object'
-        ? ['name', 'code', 'message', 'userInfo']
-            .filter(k => o[k] !== undefined)
-            .map(k => `${k}=${typeof o[k] === 'string' ? o[k] : JSON.stringify(o[k])}`)
-            .join(' ')
-        : String(e);
-    return {label: probe.label, text: `THREW ${detail || String(e)}`, ok: false};
-  }
-}
-
-function Console(): React.JSX.Element {
-  const {width, height} = useWindowDimensions();
-  const [button, setButton] = useState(getLastButton());
-  const [crashes, setCrashes] = useState(getCrashLog().length);
-  const [lines, setLines] = useState<Line[]>([]);
-  const [busy, setBusy] = useState<string | null>(null);
-  const log = useRef<ScrollView>(null);
-
-  useEffect(() => subscribeLastButton(ev => setButton(ev)), []);
-  useEffect(() => subscribeCrashLog(() => setCrashes(getCrashLog().length)), []);
-  useEffect(() => {
-    log.current?.scrollToEnd({animated: false});
-  }, [lines]);
-
-  const append = useCallback((line: Line) => {
-    setLines(prev => [...prev, line]);
-  }, []);
-
-  const runCapture = useCallback(async () => {
-    setBusy('capture');
-    try {
-      append({label: 'Recognize lasso', text: await recognizeLasso(), ok: true});
-    } catch (e) {
-      append({label: 'Recognize lasso', text: `THREW ${String(e)}`, ok: false});
-    }
-    setBusy(null);
-  }, [append]);
-
-  const runAction = useCallback(
-    async (probe: Probe) => {
-      setBusy(probe.key);
-      append(await runProbe(probe));
-      setBusy(null);
-    },
-    [append],
-  );
-
-  const openedByLasso = button?.id === BUTTONS.CAPTURE;
-  const disabled = busy !== null;
-
+function Hub(): React.JSX.Element {
+  const [tab, setTab] = useState<Tab>('burner');
   return (
-    <View style={[styles.root, {width, height}]}>
+    <View style={{flex: 1}}>
       <View style={styles.header}>
-        <Text style={styles.title}>
-          DM Tome {VERSION} · {openedByLasso ? 'Capture' : 'Probe console'}
-        </Text>
-        <Pressable
-          style={styles.closeButton}
-          onPress={() => PluginManager.closePluginView()}>
-          <Text style={styles.closeText}>Close ✕</Text>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <Text style={[styles.h1, {marginRight: 20}]}>DM Tome {VERSION}</Text>
+          {(['burner', 'probes'] as Tab[]).map(t => (
+            <Pressable key={t} style={[styles.tab, tab === t && styles.tabActive]} onPress={() => setTab(t)}>
+              <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>{t === 'burner' ? 'Back Burner' : 'Probes'}</Text>
+            </Pressable>
+          ))}
+        </View>
+        <Pressable style={styles.tab} onPress={() => PluginManager.closePluginView()}>
+          <Text style={styles.tabText}>Close ✕</Text>
         </Pressable>
       </View>
-
-      <View style={styles.body}>
-        <ScrollView ref={log} style={styles.log}>
-          <Text style={styles.lineLabel}>✓ View mounted</Text>
-          <Text style={styles.lineText}>
-            window {Math.round(width)}×{Math.round(height)} dp · errors {crashes}
-          </Text>
-          <Text style={styles.lineText} selectable>
-            button event: {JSON.stringify(button)}
-          </Text>
-          {getCrashLog().map((c, i) => (
-            <Text key={`c${i}`} style={styles.lineText} selectable>
-              ✗ [{c.when}] {c.message}
-            </Text>
-          ))}
-          {lines.map((l, i) => (
-            <View key={i} style={styles.line}>
-              <Text style={styles.lineLabel}>
-                {l.ok ? '✓' : '✗'} {l.label}
-              </Text>
-              <Text style={styles.lineText} selectable>
-                {l.text}
-              </Text>
-            </View>
-          ))}
-          {busy && <Text style={styles.muted}>working: {busy}…</Text>}
-          <View style={styles.spacer} />
-        </ScrollView>
-
-        <ScrollView style={styles.actions}>
-          <Text style={styles.sectionTitle}>Status (one call each)</Text>
-          {STATUS_PROBES.map(p => (
-            <Pressable
-              key={p.key}
-              disabled={disabled}
-              style={[styles.button, disabled && styles.buttonDisabled]}
-              onPress={() => runAction(p)}>
-              <Text style={styles.buttonText}>{p.label}</Text>
-              <Text style={styles.buttonHint}>unlocks: {p.unlocks}</Text>
-            </Pressable>
-          ))}
-          <Text style={styles.sectionTitle}>Actions</Text>
-          {openedByLasso && (
-            <Pressable
-              disabled={disabled}
-              style={[styles.button, disabled && styles.buttonDisabled]}
-              onPress={runCapture}>
-              <Text style={styles.buttonText}>Recognize lasso</Text>
-              <Text style={styles.buttonHint}>unlocks: task capture</Text>
-            </Pressable>
-          )}
-          {ACTION_PROBES.map(p => (
-            <Pressable
-              key={p.key}
-              disabled={disabled}
-              style={[styles.button, disabled && styles.buttonDisabled]}
-              onPress={() => runAction(p)}>
-              <Text style={styles.buttonText}>{p.label}</Text>
-              <Text style={styles.buttonHint}>unlocks: {p.unlocks}</Text>
-            </Pressable>
-          ))}
-          <Pressable
-            disabled={disabled}
-            style={[styles.button, disabled && styles.buttonDisabled]}
-            onPress={() => setLines([])}>
-            <Text style={styles.buttonText}>Clear log</Text>
-          </Pressable>
-          <View style={styles.spacer} />
-        </ScrollView>
-      </View>
+      {tab === 'burner' ? <BackBurnerScreen /> : <ProbeConsole />}
     </View>
   );
 }
 
-function App(): React.JSX.Element {
+function Root(): React.JSX.Element {
+  const {width, height} = useWindowDimensions();
+  const [button, setButton] = useState(getLastButton());
+  useEffect(() => subscribeLastButton(ev => setButton(ev)), []);
+  const capture = button?.id === BUTTONS.CAPTURE;
   return (
-    <ErrorBoundary>
-      <Console />
-    </ErrorBoundary>
+    <View style={{width, height, backgroundColor: PAPER}}>
+      {capture ? (
+        <View style={{flex: 1}}>
+          <View style={styles.header}>
+            <Text style={styles.h1}>DM Tome {VERSION}</Text>
+            <Pressable style={styles.tab} onPress={() => PluginManager.closePluginView()}>
+              <Text style={styles.tabText}>Close ✕</Text>
+            </Pressable>
+          </View>
+          <CaptureScreen />
+        </View>
+      ) : (
+        <Hub />
+      )}
+    </View>
   );
 }
 
-const INK = '#000000';
-const PAPER = '#ffffff';
-
-const styles = StyleSheet.create({
-  root: {backgroundColor: PAPER},
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-    borderBottomWidth: 3,
-    borderBottomColor: INK,
-  },
-  title: {fontSize: 26, fontWeight: '700', color: INK},
-  closeButton: {
-    borderWidth: 3,
-    borderColor: INK,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  closeText: {fontSize: 20, fontWeight: '700', color: INK},
-  body: {flex: 1, flexDirection: 'row'},
-  log: {flex: 3, paddingHorizontal: 20, paddingTop: 12},
-  actions: {
-    flex: 2,
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    borderLeftWidth: 3,
-    borderLeftColor: INK,
-  },
-  sectionTitle: {fontSize: 20, fontWeight: '700', color: INK, marginBottom: 8},
-  line: {marginTop: 12},
-  lineLabel: {fontSize: 19, fontWeight: '700', color: INK},
-  lineText: {fontSize: 16, color: INK, fontFamily: 'monospace'},
-  muted: {fontSize: 17, color: INK, fontStyle: 'italic', marginTop: 12},
-  spacer: {height: 80},
-  button: {
-    borderWidth: 3,
-    borderColor: INK,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 10,
-    backgroundColor: PAPER,
-  },
-  buttonDisabled: {opacity: 0.4},
-  buttonText: {fontSize: 18, fontWeight: '700', color: INK},
-  buttonHint: {fontSize: 14, color: INK, marginTop: 2},
-});
-
-export default App;
+export default function App(): React.JSX.Element {
+  return (
+    <ErrorBoundary>
+      <Root />
+    </ErrorBoundary>
+  );
+}

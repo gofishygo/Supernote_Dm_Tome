@@ -122,8 +122,9 @@ known printed page, read `getCurrentPageNum`, store the offset.
 
 | Version | Goal | New SDK calls exercised |
 |---|---|---|
-| 0.1 | SDK probe console. Learn what works on the Manta. | getDeviceType, getCurrentFilePath/PageNum, getPageSize, getPageDisplaySize, canHandwrite, getPenInfo, paths, insertText, permissions, getFileList, jumpToPage, openFile, getKeyWords, getTitles, getLassoElements, recognizeElements |
-| 0.2 | Back Burner: capture tasks via lasso, store as keywords, digest page with due/overdue. Also probe `getCurrentDocText`. | insertKeyWord, deleteKeyWord, getNoteTotalPageNum, insertNotePage, getCurrentDocText |
+| 0.1–0.2 (done) | SDK probe console. Learn what works on the Manta. | getDeviceType, getCurrentFilePath/PageNum, getPageSize, getPageDisplaySize, canHandwrite, getPenInfo, paths, insertText, permissions, getFileList, jumpToPage, openFile, getKeyWords, getTitles, getLassoElements, recognizeElements |
+| 0.3 (built) | Back Burner: lasso capture → keyword task with due session; board with overdue/due/upcoming/someday, Done, jump to page; session counter kept as a page-0 keyword. | insertKeyWord, deleteKeyWord, getNoteTotalPageNum, jumpToPage, setLassoBoxState |
+| 0.3.x | Digest page written into the note; probe `getCurrentDocText`. | insertNotePage, insertText, getCurrentDocText |
 | 0.3 | Reference index: compiled JSON, console search, openFile, insert links into note. | insertTextLink, openFile with real PDF paths |
 | 0.4 | Script pages: Markdown → JSON → scene pages with titles and text boxes. | setLassoTitle or title insert, insertText batches, insertNotePage |
 | 0.5 | Polish: config button for campaign settings, session counter, review screen, star sweep. | registerConfigButton, searchFiveStars |

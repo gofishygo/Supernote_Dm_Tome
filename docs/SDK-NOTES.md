@@ -165,6 +165,16 @@ Present and therefore usable: `NativePluginManager.hasPermission`,
 `insertTextLink`, `insertKeyWord`, `getCurrentDocText`, `insertPageElements`,
 `deleteElements`, `getPageSize` (95 native methods in total).
 
+## Probe phase closed (0.2.5, 2026-11-11)
+
+With `FILE:READ` granted and the listing code accepting any result shape,
+`listFiles` walks `Document` and `Note` successfully, and
+`getLassoElements` → `recognizeElements` returned the handwritten word.
+Every primitive in the release plan has now run on the Manta. Remaining
+unknowns are behavioural (how keywords show up in the NOTE app after
+`insertKeyWord`, whether `openFile` closes the plugin view) and get answered
+by using the features.
+
 ## Open questions version 0.2 answers on-device
 
 - Does `getFileList(['pdf'])` need `FILE:READ` permission, and what paths does
