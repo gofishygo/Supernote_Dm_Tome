@@ -80,7 +80,14 @@ the detail it holds:
    the SDK source. Nothing is true until it has run on the device. Build a
    probe first, print raw results, and keep a per-firmware notes file.
 
-8. **Permissions are declared, then checked, then requested.** Shared
+8. **The hosting app scopes the API, not just permissions.** A plugin
+   opened from DOC (a PDF) gets `102 This app is not allowed to use this
+   API` for note-file calls such as `getNoteTotalPageNum` and `createNote`,
+   even with every permission granted. Branch on the open file's type: use
+   `PluginDocAPI` for documents, keep note writes for when NOTE is hosting,
+   and store per-document data as keywords on the document itself.
+
+9. **Permissions are declared, then checked, then requested.** Shared
    storage and the network are closed until the user grants access, and a
    permission must be listed in the manifest's `uses-permissions` before it
    can even be asked for. Reading a lasso selection counts as a file read.
@@ -248,6 +255,7 @@ view from a read-only DOC view.
 | View blank only for your plugin, bundle size normal | `App.tsx` throws when first evaluated (inline requires) | load `App` lazily in the `registerComponent` factory and render the exception |
 | View disappears on a tap, log lost | native crash in that call (e.g. `FileUtils.getExternalDirPath`) | one call per tap; avoid the call; see verified-on-device.md |
 | `requestPermission` rejects "This permission has not been declared" (1500) | missing from `uses-permissions` in the manifest | add it, rebuild, reinstall |
+| `102 This app is not allowed to use this API` | the hosting app (DOC vs NOTE) does not offer that call; typical when note-file APIs run with a PDF open | check the open file's type and use the DOC-side API or defer the note write |
 | Reads fail with 1503, writes with 1501 | permission not granted, or "allow this time" expired when the plugin closed | check `hasPermission() === 1` on every open and request again |
 | `TypeError: undefined is not a function` around an SDK call | the firmware lacks the native method, or your code called a string method on a non-string result | print `Object.keys(module)`, `typeof module.method`, and `JSON.stringify(raw)` |
 | `unknown pageSize` thrown | a scaled view size was passed to PointUtils | use `getPageSize` for the current file and page |

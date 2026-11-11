@@ -64,6 +64,15 @@ re-probe rather than assume.
 | `FileUtils.getExportPath()` | `<storage root>/EXPORT` |
 | `FileUtils.listFiles(dir)` | present; walking `Document` and `Note` lists PDFs and notes once the result is normalised (see below) |
 
+## Hosting-app scope (error 102)
+
+With a PDF open in DOC: `getNoteTotalPageNum(pdfPath)` and
+`createNote(...)` / `insertKeyWord(notePath, ...)` on a `.note` return
+`102 This app is not allowed to use this API, please call a different API`.
+The same calls succeed with a note open in NOTE. Use
+`PluginDocAPI.getCurrentTotalPages()` for page counts in DOC. Whether DOC may
+read a note's keywords, or NOTE a document's, is being probed.
+
 ## Calls that crash or mislead
 
 - `FileUtils.getExternalDirPath()` **kills the plugin runtime** with no JS

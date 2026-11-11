@@ -10,6 +10,7 @@ import {
   FileUtils,
   NativePluginManager,
   PluginCommAPI,
+  PluginDocAPI,
   PluginFileAPI,
   PluginManager,
   PluginNoteAPI,
@@ -319,6 +320,40 @@ export const ACTION_PROBES: Probe[] = [
     label: 'Request file-read permission',
     unlocks: 'listing PDFs for the reference index',
     run: ensureFileRead,
+  },
+  {
+    key: 'docPages',
+    label: 'PluginDocAPI.getCurrentTotalPages',
+    unlocks: 'page counts while a document is open',
+    run: async () => fmt(await PluginDocAPI.getCurrentTotalPages()),
+  },
+  {
+    key: 'xNote',
+    label: 'Keywords of a .note from here (cross-app)',
+    unlocks: 'whether DOC may read notes (error 102 rule)',
+    run: async () => {
+      const root = String(await FileUtils.getExportPath()).replace(/\/EXPORT$/, '');
+      const notes = await listRecursive(`${root}/Note`, '.note', 2);
+      const target = notes.find(n => n.endsWith('.note'));
+      if (!target) {
+        return 'no .note found under Note';
+      }
+      return `${target.split('/').pop()}: ${fmt(await PluginFileAPI.getKeyWords(target, [0]))}`;
+    },
+  },
+  {
+    key: 'xDoc',
+    label: 'Keywords of a PDF from here (cross-app)',
+    unlocks: 'whether NOTE may read document keywords (error 102 rule)',
+    run: async () => {
+      const root = String(await FileUtils.getExportPath()).replace(/\/EXPORT$/, '');
+      const pdfs = await listRecursive(`${root}/Document`, '.pdf', 3);
+      const target = pdfs.find(n => n.endsWith('.pdf'));
+      if (!target) {
+        return 'no .pdf found under Document';
+      }
+      return `${target.split('/').pop()}: ${fmt(await PluginFileAPI.getKeyWords(target, [0, 1, 2]))}`;
+    },
   },
   {
     key: 'reinstall',

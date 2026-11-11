@@ -175,6 +175,18 @@ unknowns are behavioural (how keywords show up in the NOTE app after
 `insertKeyWord`, whether `openFile` closes the plugin view) and get answered
 by using the features.
 
+## Error 102: the hosting app decides the API set (0.4.0, 2026-11-11)
+
+With a PDF open in DOC, `getNoteTotalPageNum` and the index-note path
+(`createNote` / `insertKeyWord` on a `.note`) fail with
+`102 This app is not allowed to use this API, please call a different API`.
+The same calls work with a note open in NOTE. Reading: the API surface is
+scoped to the app hosting the plugin, not only to permissions. 0.4.2 uses
+`PluginDocAPI.getCurrentTotalPages` for page counts in DOC and stores a
+bookmark as a keyword on the document itself when the index note is refused.
+Three probes establish the full rule: can DOC read a note's keywords, can
+NOTE read a document's keywords, and does `getCurrentTotalPages` work.
+
 ## Open questions 0.4 answers on-device
 
 - Does a type-2 lasso button registered for `['NOTE','DOC']` appear over a

@@ -8,7 +8,7 @@
  */
 import {FileUtils, PluginCommAPI, PluginDocAPI, PluginFileAPI} from 'sn-plugin-lib';
 
-export type Ref = {name: string; path: string; page: number; index: number};
+export type Ref = {name: string; path: string; page: number; index: number; storedIn: string; storedPage: number};
 type ApiResponse<T> = {success: boolean; result: T | null; error: {code: number; message: string} | null};
 type KeyWord = {keyword: string; page: number; index: number};
 
@@ -92,10 +92,12 @@ export function formatRef(name: string, path: string, page: number): string {
   return `REF ${clean} | ${path} | ${page}`;
 }
 
-export function parseRef(kw: KeyWord): Ref | null {
+export function parseRef(kw: KeyWord, storedIn: string): Ref | null {
   const m = REF_RE.exec(kw.keyword.trim());
-  return m ? {name: m[1], path: m[2], page: Number(m[3]), index: kw.index} : null;
+  return m ? {name: m[1], path: m[2], page: Number(m[3]), index: kw.index, storedIn, storedPage: kw.page} : null;
 }
+
+const isNotAllowed = (e: unknown) => /\b102\b/.test(String((e as Error)?.message ?? e));
 
 /** Create the index note if it does not exist. Returns its path. */
 export async function ensureIndexNote(): Promise<string> {
@@ -110,29 +112,66 @@ export async function ensureIndexNote(): Promise<string> {
   return path;
 }
 
-export async function loadRefs(): Promise<{path: string; refs: Ref[]}> {
+/**
+ * Bookmarks come from two places: the shared index note (writable only while
+ * NOTE is hosting us, it seems) and REF keywords stored on documents
+ * themselves (the fallback when DOC is hosting). `extraDoc` lets the caller
+ * add the currently open document's own keywords.
+ */
+export async function loadRefs(extraDoc?: {path: string; pages: number}): Promise<{path: string; refs: Ref[]; notes: string[]}> {
   const path = await indexNotePath();
-  if (!(await FileUtils.exists(path))) {
-    return {path, refs: []};
+  const refs: Ref[] = [];
+  const notes: string[] = [];
+  try {
+    if (await FileUtils.exists(path)) {
+      const res = (await PluginFileAPI.getKeyWords(path, [0])) as ApiResponse<KeyWord[]>;
+      if (res?.success) {
+        refs.push(...(res.result ?? []).map(k => parseRef(k, path)).filter((r): r is Ref => r !== null));
+      } else {
+        notes.push(`index note: ${res?.error?.code ?? '?'} ${res?.error?.message ?? ''}`);
+      }
+    }
+  } catch (e) {
+    notes.push(`index note: ${String((e as Error)?.message ?? e)}`);
   }
-  const res = (await PluginFileAPI.getKeyWords(path, [0])) as ApiResponse<KeyWord[]>;
-  if (!res?.success) {
-    throw new Error(`getKeyWords(index) failed: ${res?.error?.code ?? '?'} ${res?.error?.message ?? ''}`);
+  if (extraDoc) {
+    try {
+      const pages = Array.from({length: extraDoc.pages}, (_, i) => i);
+      const res = (await PluginFileAPI.getKeyWords(extraDoc.path, pages)) as ApiResponse<KeyWord[]>;
+      if (res?.success) {
+        refs.push(...(res.result ?? []).map(k => parseRef(k, extraDoc.path)).filter((r): r is Ref => r !== null));
+      } else {
+        notes.push(`this document: ${res?.error?.code ?? '?'} ${res?.error?.message ?? ''}`);
+      }
+    } catch (e) {
+      notes.push(`this document: ${String((e as Error)?.message ?? e)}`);
+    }
   }
-  const refs = (res.result ?? []).map(parseRef).filter((r): r is Ref => r !== null);
-  return {path, refs: refs.sort((a, b) => a.name.localeCompare(b.name))};
+  return {path, refs: refs.sort((a, b) => a.name.localeCompare(b.name)), notes};
 }
 
+/**
+ * Save a bookmark. Prefer the shared index note; if the hosting app refuses
+ * note APIs (error 102, seen inside DOC), store the REF keyword on the
+ * document page itself so it is not lost, and say where it went.
+ */
 export async function addRef(name: string, docPath: string, page: number): Promise<string> {
-  const index = await ensureIndexNote();
   const keyword = formatRef(name, docPath, page);
-  unwrap<boolean>(await PluginFileAPI.insertKeyWord(index, 0, keyword), 'insertKeyWord');
-  return keyword;
+  try {
+    const index = await ensureIndexNote();
+    unwrap<boolean>(await PluginFileAPI.insertKeyWord(index, 0, keyword), 'insertKeyWord(index)');
+    return `${keyword} → index note`;
+  } catch (e) {
+    if (!isNotAllowed(e)) {
+      throw e;
+    }
+    unwrap<boolean>(await PluginFileAPI.insertKeyWord(docPath, page, keyword), 'insertKeyWord(document)');
+    return `${keyword} → stored on the document itself (index note not allowed from this app)`;
+  }
 }
 
 export async function removeRef(ref: Ref): Promise<void> {
-  const index = await indexNotePath();
-  unwrap<boolean>(await PluginFileAPI.deleteKeyWord(index, 0, ref.index), 'deleteKeyWord');
+  unwrap<boolean>(await PluginFileAPI.deleteKeyWord(ref.storedIn, ref.storedPage, ref.index), 'deleteKeyWord');
 }
 
 export async function openAt(path: string, page: number): Promise<void> {

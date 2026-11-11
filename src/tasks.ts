@@ -12,7 +12,13 @@
  *   ... [x]                                           done / retired
  * The session counter is its own keyword on page 0:  DM session 12
  */
-import {PluginCommAPI, PluginFileAPI, PluginNoteAPI} from 'sn-plugin-lib';
+import {PluginCommAPI, PluginDocAPI, PluginFileAPI, PluginNoteAPI} from 'sn-plugin-lib';
+
+const DOC_SUFFIXES = ['.pdf', '.epub', '.cbz', '.xps', '.fb2'];
+export const isDocPath = (path: string) => DOC_SUFFIXES.some(s => path.toLowerCase().endsWith(s));
+
+/** Error 102 means the hosting app (NOTE or DOC) does not offer this API. */
+export const isNotAllowed = (e: unknown) => /\b102\b/.test(String((e as Error)?.message ?? e));
 
 export type EntryType = 'strong' | 'scene' | 'plot' | 'hero' | 'npc' | 'task';
 
@@ -106,8 +112,16 @@ async function flush(): Promise<void> {
   }
 }
 
+/** Page count of the open file, using the API the hosting app allows. */
+export async function totalPages(path: string): Promise<number> {
+  if (isDocPath(path)) {
+    return unwrap<number>(await PluginDocAPI.getCurrentTotalPages(), 'getCurrentTotalPages');
+  }
+  return unwrap<number>(await PluginFileAPI.getNoteTotalPageNum(path), 'getNoteTotalPageNum');
+}
+
 async function allKeywords(path: string): Promise<KeyWord[]> {
-  const total = unwrap<number>(await PluginFileAPI.getNoteTotalPageNum(path), 'getNoteTotalPageNum');
+  const total = await totalPages(path);
   const pages = Array.from({length: total}, (_, i) => i);
   const res = (await PluginFileAPI.getKeyWords(path, pages)) as ApiResponse<KeyWord[]>;
   if (!res?.success) {

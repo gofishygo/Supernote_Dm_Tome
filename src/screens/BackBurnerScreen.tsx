@@ -3,7 +3,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {ScrollView, Text, View} from 'react-native';
 import {PluginCommAPI, PluginManager} from 'sn-plugin-lib';
 import {ensureRead, ensureWrite} from '../permissions';
-import {Board, bucket, Bucket, findSessionKeyword, loadBoard, rewriteTask, setSession, Task, TYPE_META} from '../tasks';
+import {Board, bucket, Bucket, findSessionKeyword, isNotAllowed, loadBoard, rewriteTask, setSession, Task, TYPE_META} from '../tasks';
 import {Button, Row, styles} from '../ui';
 
 const ORDER: Bucket[] = ['strongNow', 'overdue', 'due', 'always', 'upcoming', 'someday', 'done'];
@@ -34,7 +34,11 @@ export function BackBurnerScreen(): React.JSX.Element {
       await ensureRead();
       setBoard(await loadBoard());
     } catch (e) {
-      setError(String((e as Error)?.message ?? e));
+      setError(
+        isNotAllowed(e)
+          ? `${String((e as Error)?.message ?? e)}\nThe app hosting the plugin does not offer this call. Open your campaign note and try again.`
+          : String((e as Error)?.message ?? e),
+      );
     } finally {
       setBusy(false);
     }
