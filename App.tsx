@@ -15,10 +15,11 @@ import {getLastButton, subscribeLastButton} from './src/lastButton';
 import {BackBurnerScreen} from './src/screens/BackBurnerScreen';
 import {CaptureScreen} from './src/screens/CaptureScreen';
 import {ProbeConsole} from './src/screens/ProbeConsole';
+import {ReferenceScreen} from './src/screens/ReferenceScreen';
 import {PAPER, styles} from './src/ui';
 
-const VERSION = '0.3.0';
-type Tab = 'burner' | 'probes';
+const VERSION = '0.4.0';
+type Tab = 'burner' | 'refs' | 'probes';
 
 function Hub(): React.JSX.Element {
   const [tab, setTab] = useState<Tab>('burner');
@@ -27,9 +28,11 @@ function Hub(): React.JSX.Element {
       <View style={styles.header}>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <Text style={[styles.h1, {marginRight: 20}]}>DM Tome {VERSION}</Text>
-          {(['burner', 'probes'] as Tab[]).map(t => (
+          {(['burner', 'refs', 'probes'] as Tab[]).map(t => (
             <Pressable key={t} style={[styles.tab, tab === t && styles.tabActive]} onPress={() => setTab(t)}>
-              <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>{t === 'burner' ? 'Back Burner' : 'Probes'}</Text>
+              <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
+                {t === 'burner' ? 'Back Burner' : t === 'refs' ? 'References' : 'Probes'}
+              </Text>
             </Pressable>
           ))}
         </View>
@@ -37,7 +40,7 @@ function Hub(): React.JSX.Element {
           <Text style={styles.tabText}>Close ✕</Text>
         </Pressable>
       </View>
-      {tab === 'burner' ? <BackBurnerScreen /> : <ProbeConsole />}
+      {tab === 'burner' ? <BackBurnerScreen /> : tab === 'refs' ? <ReferenceScreen /> : <ProbeConsole />}
     </View>
   );
 }

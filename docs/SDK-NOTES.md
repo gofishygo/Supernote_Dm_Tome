@@ -175,6 +175,20 @@ unknowns are behavioural (how keywords show up in the NOTE app after
 `insertKeyWord`, whether `openFile` closes the plugin view) and get answered
 by using the features.
 
+## Open questions 0.4 answers on-device
+
+- Does a type-2 lasso button registered for `['NOTE','DOC']` appear over a
+  PDF annotation, and does `getLassoElements` + `recognizeElements` work
+  there? (`getPageSize` is note-only; Capture falls back to the device's
+  native page size for documents.)
+- Does `createNote` succeed for `Note/DM Tome Index.note` with template
+  `style_blank`? If not, the user creates that note by hand once.
+- Keyword length: a `REF` keyword carries a full path (~100 characters).
+- Does `openFile` close the plugin view, or must we close it ourselves?
+- `getCurrentDocText(page)`: text layer quality on a real module PDF.
+- `insertTextLink` with `linkType: 2`: does tapping the link open the PDF at
+  `destPage`?
+
 ## Open questions version 0.2 answers on-device
 
 - Does `getFileList(['pdf'])` need `FILE:READ` permission, and what paths does

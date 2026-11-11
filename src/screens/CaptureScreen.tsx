@@ -6,6 +6,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {ScrollView, Text, TextInput, View} from 'react-native';
 import {PluginCommAPI, PluginFileAPI, PluginManager} from 'sn-plugin-lib';
 import {ensureRead, ensureWrite} from '../permissions';
+import {addRef, isDocument} from '../refs';
 import {addTask, currentFile, currentPage, loadBoard} from '../tasks';
 import {Button, Row, styles} from '../ui';
 
@@ -36,11 +37,22 @@ export function CaptureScreen(): React.JSX.Element {
         const pg = await currentPage();
         setPath(p);
         setPage(pg);
-        const size = unwrap<{width: number; height: number}>(await PluginFileAPI.getPageSize(p, pg), 'getPageSize');
+        // getPageSize is a note API; on a document fall back to the device's
+        // native page size (Manta 1920x2560, others 1404x1872).
+        let size: {width: number; height: number};
+        try {
+          size = unwrap<{width: number; height: number}>(await PluginFileAPI.getPageSize(p, pg), 'getPageSize');
+        } catch (sizeErr) {
+          const dev = await PluginManager.getDeviceType();
+          size = dev === 5 ? {width: 1920, height: 2560} : {width: 1404, height: 1872};
+          setStatus(`page size fallback ${size.width}x${size.height} (${String((sizeErr as Error)?.message ?? sizeErr)})`);
+        }
         const elements = unwrap<Object[]>(await PluginCommAPI.getLassoElements(), 'getLassoElements');
         const recognized = unwrap<string>(await PluginCommAPI.recognizeElements(elements, size), 'recognizeElements');
         setText(recognized.replace(/\s+/g, ' ').trim());
-        setStatus(`${elements.length} strokes on page ${pg + 1}. Edit if needed, then pick when it is due.`);
+        setStatus(prev =>
+          `${elements.length} strokes on page ${pg + 1}. Edit if needed, then pick when it is due.${prev.startsWith('page size fallback') ? ' · ' + prev : ''}`,
+        );
         try {
           const board = await loadBoard();
           setSession(board.session);
@@ -81,9 +93,33 @@ export function CaptureScreen(): React.JSX.Element {
     [path, page, text],
   );
 
+  const saveRef = useCallback(async () => {
+    if (!text.trim()) {
+      setError('Nothing to save: the recognized text is empty.');
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      await ensureWrite();
+      const kw = await addRef(text, path, page);
+      setStatus(`Bookmarked: ${kw}`);
+      try {
+        await PluginCommAPI.setLassoBoxState(2);
+      } catch {
+        // lasso may already be gone
+      }
+      await PluginManager.closePluginView();
+    } catch (e) {
+      setError(String((e as Error)?.message ?? e));
+    } finally {
+      setSaving(false);
+    }
+  }, [path, page, text]);
+
   return (
     <ScrollView style={styles.screen}>
-      <Text style={styles.h1}>Capture to Back Burner</Text>
+      <Text style={styles.h1}>Capture</Text>
       <Text style={styles.muted}>{status}</Text>
       {error && (
         <Text style={styles.error} selectable>
@@ -105,6 +141,15 @@ export function CaptureScreen(): React.JSX.Element {
         <Button label={`S${session + 3}`} disabled={saving} onPress={() => save(session + 3)} />
         <Button label="This session" disabled={saving} onPress={() => save(session)} />
         <Button label="Someday" hint="no due session" disabled={saving} onPress={() => save(null)} />
+      </Row>
+      <Text style={styles.h2}>Or bookmark this page under that name</Text>
+      <Row>
+        <Button
+          label={isDocument(path) ? 'Save as reference' : 'Save as reference (note page)'}
+          hint={`${path.split('/').pop() ?? ''} p.${page + 1}`}
+          disabled={saving}
+          onPress={saveRef}
+        />
       </Row>
       <View style={{height: 24}} />
       <Button label="Cancel" disabled={saving} onPress={() => PluginManager.closePluginView()} />

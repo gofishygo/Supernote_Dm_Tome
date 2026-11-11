@@ -63,10 +63,11 @@ Promise.resolve(
   }),
 ).catch(e => recordError(e));
 
-// Type 2: lasso button. Appears after circling strokes or text in a NOTE.
-// editDataTypes 0 = handwritten strokes, 3 = text boxes.
+// Type 2: lasso button. Appears after circling strokes or text. The official
+// first-plugin example registers it for DOC as well as NOTE, so PDF
+// annotations can be captured too. editDataTypes 0 = strokes, 3 = text.
 Promise.resolve(
-  PluginManager.registerButton(2, ['NOTE'], {
+  PluginManager.registerButton(2, ['NOTE', 'DOC'], {
     id: BUTTONS.CAPTURE,
     name: 'Capture',
     icon,

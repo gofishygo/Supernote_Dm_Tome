@@ -87,8 +87,9 @@ Two ways to use it:
 - **In the note**: "Insert reference" writes `insertTextLink` entries so a scene
   page carries its own tappable stat-block links. Links must be on layer 0.
 
-The actual PDF paths come from version 0.1's "List PDFs" probe, which is why
-that probe exists.
+Bookmarks made on the device are the first layer of this index: they carry
+the real path and page, so the compiled table can be reconciled against
+them later.
 
 For 5e 2024 the index starts as a seed of common monsters, conditions, and
 spells with page numbers you confirm against your PDFs. Page numbers in a PDF
@@ -123,9 +124,9 @@ known printed page, read `getCurrentPageNum`, store the offset.
 | Version | Goal | New SDK calls exercised |
 |---|---|---|
 | 0.1–0.2 (done) | SDK probe console. Learn what works on the Manta. | getDeviceType, getCurrentFilePath/PageNum, getPageSize, getPageDisplaySize, canHandwrite, getPenInfo, paths, insertText, permissions, getFileList, jumpToPage, openFile, getKeyWords, getTitles, getLassoElements, recognizeElements |
-| 0.3 (built) | Back Burner: lasso capture → keyword task with due session; board with overdue/due/upcoming/someday, Done, jump to page; session counter kept as a page-0 keyword. | insertKeyWord, deleteKeyWord, getNoteTotalPageNum, jumpToPage, setLassoBoxState |
-| 0.3.x | Digest page written into the note; probe `getCurrentDocText`. | insertNotePage, insertText, getCurrentDocText |
-| 0.3 | Reference index: compiled JSON, console search, openFile, insert links into note. | insertTextLink, openFile with real PDF paths |
+| 0.3 (verified) | Back Burner: lasso capture → keyword task with due session; board with overdue/due/upcoming/someday, Done, jump to page; session counter kept as a page-0 keyword. | insertKeyWord, deleteKeyWord, getNoteTotalPageNum, jumpToPage, setLassoBoxState |
+| 0.4 (built) | References: list documents under `Document`, open at last page, bookmark the page being read (keyword `REF name \| path \| page` on page 0 of `Note/DM Tome Index.note`, created on first use), open bookmarks at page, insert a text link to a bookmark into the current note, read a PDF page's text layer. Capture lasso registered for DOC too; Capture can also save the recognized text as a bookmark. | openFile, createNote, insertTextLink, getCurrentDocText, listFiles |
+| 0.4.x | Seed table of 5e 2024 monsters/spells/conditions with page offsets per book, calibrated against the user's PDFs; digest page written into the note. | insertNotePage, insertText |
 | 0.4 | Script pages: Markdown → JSON → scene pages with titles and text boxes. | setLassoTitle or title insert, insertText batches, insertNotePage |
 | 0.5 | Polish: config button for campaign settings, session counter, review screen, star sweep. | registerConfigButton, searchFiveStars |
 

@@ -4,11 +4,13 @@ A Supernote plugin for dungeon masters: scene script, page-deep links into
 rulebook PDFs, in-session note organization, and a back-burner task list with
 due sessions. Built for the Supernote Manta (A5X2) with `sn-plugin-lib` 0.2.3.
 
-Hobby project. Current release: **0.3.0, Back Burner**. Lasso a handwritten
-task, tap Capture, pick a due session; the task is stored as a keyword on
-that page. The toolbar button opens the board (overdue, due, upcoming,
-someday, done) with jump-to-page, plus the SDK probe console as a second tab.
-Verified on a Manta running Chauvet 3.31.45.
+Hobby project. Current release: **0.4.0**. Back Burner (verified on device):
+lasso a handwritten task, tap Capture, pick a due session; the board sorts
+tasks by overdue, due, upcoming, someday, done with jump-to-page. References
+(new): open PDFs, bookmark the page you are reading, open bookmarks at the
+exact page, insert tappable links into a note, read a PDF page's text layer.
+Bookmarks live as keywords in `Note/DM Tome Index.note`. SDK probe console
+remains as a third tab. Target: Manta on Chauvet 3.31.45.
 
 ## Docs
 
@@ -41,8 +43,9 @@ src/lastButton.ts which button opened the UI
 src/probes.ts     one function per SDK primitive under test
 src/permissions.ts declare → check → request for FILE:READ / FILE:WRITE
 src/tasks.ts      task grammar and keyword storage
+src/refs.ts       bookmark grammar, index note, document listing, links
 src/ui.tsx        shared e-ink widgets
-src/screens/      CaptureScreen, BackBurnerScreen, ProbeConsole
+src/screens/      CaptureScreen, BackBurnerScreen, ReferenceScreen, ProbeConsole
 tools/            deploy.cmd / send-only.cmd for Windows
 PluginConfig.json plugin manifest; never change pluginID
 assets/icon.png   toolbar icon
