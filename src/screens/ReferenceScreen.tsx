@@ -14,6 +14,7 @@ import {
   pageText,
   Ref,
   removeRef,
+  scanDocumentsForRefs,
   whereAmI,
 } from '../refs';
 import {Button, Row, styles} from '../ui';
@@ -145,12 +146,30 @@ export function ReferenceScreen(): React.JSX.Element {
           {n}
         </Text>
       ))}
-      {refs.length === 0 && <Text style={styles.body}>None yet. Open a PDF, come back here, and save one.</Text>}
+      {refs.length === 0 && <Text style={styles.body}>None loaded. Open a PDF and save one, or scan your documents.</Text>}
+      <Row>
+        <Button
+          small
+          label="Scan documents for bookmarks"
+          disabled={busy}
+          onPress={() =>
+            guard(async () => {
+              const found = await scanDocumentsForRefs();
+              setRefs(prev => {
+                const seen = new Set(prev.map(r => `${r.storedIn}#${r.storedPage}#${r.index}`));
+                return [...prev, ...found.refs.filter(r => !seen.has(`${r.storedIn}#${r.storedPage}#${r.index}`))].sort((a, b) => a.name.localeCompare(b.name));
+              });
+              setNotes(found.notes);
+              setStatus(`Scanned: ${found.refs.length} bookmarks found`);
+            })
+          }
+        />
+      </Row>
       {refs.map(r => (
         <View key={`${r.index}-${r.name}`} style={{borderBottomWidth: 1, borderBottomColor: '#000', paddingVertical: 8}}>
           <Text style={styles.body}>{r.name}</Text>
           <Text style={styles.muted}>
-            {fileName(r.path)} · p.{r.page + 1}{r.storedIn.endsWith('Index.note') ? '' : ' · stored on the document'}
+            {fileName(r.path)} · p.{r.page + 1}
           </Text>
           <Row>
             <Button small label="Open" disabled={busy} onPress={() => open(r.path, r.page)} />

@@ -1,10 +1,13 @@
 /**
  * References: bookmarks into documents (PDF, EPUB) at a page.
  *
- * Storage: keywords on page 0 of a dedicated index note, so bookmarks are
- * shared across every campaign note and survive sync. Grammar:
- *   REF Owlbear | /storage/emulated/0/Document/DnD/MM.pdf | 248
- * (page is 0-based, as the SDK counts; shown to the user as page+1)
+ * Storage: a keyword on the page being bookmarked, inside the document (or
+ * note) itself. Device keywords have a short maximum length (error 1001), so
+ * the file and page are implied by where the keyword sits and the keyword is
+ * just:
+ *   REF Owlbear
+ * The older long form "REF name | path | page" is still parsed for any entries
+ * written by 0.4.0–0.4.2.
  */
 import {FileUtils, PluginCommAPI, PluginDocAPI, PluginFileAPI} from 'sn-plugin-lib';
 
@@ -14,7 +17,10 @@ type KeyWord = {keyword: string; page: number; index: number};
 
 export const INDEX_NOTE_NAME = 'DM Tome Index.note';
 export const DOC_SUFFIXES = ['.pdf', '.epub', '.cbz', '.xps', '.fb2'];
-const REF_RE = /^REF\s+(.+?)\s*\|\s*(.+?)\s*\|\s*(\d+)$/;
+const REF_LONG_RE = /^REF\s+(.+?)\s*\|\s*(.+?)\s*\|\s*(\d+)$/;
+const REF_RE = /^REF\s+(.+)$/;
+/** Keep well under the device keyword limit; the probe tab measures it. */
+export const KEYWORD_MAX = 30;
 
 function unwrap<T>(raw: unknown, what: string): T {
   const res = raw as ApiResponse<T> | null | undefined;
@@ -87,14 +93,19 @@ export function isDocument(path: string): boolean {
   return DOC_SUFFIXES.some(s => lower.endsWith(s));
 }
 
-export function formatRef(name: string, path: string, page: number): string {
-  const clean = name.replace(/[|\n\r]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
-  return `REF ${clean} | ${path} | ${page}`;
+export function formatRef(name: string): string {
+  const clean = name.replace(/[|\n\r]/g, ' ').replace(/\s+/g, ' ').trim();
+  return `REF ${clean}`.slice(0, KEYWORD_MAX);
 }
 
 export function parseRef(kw: KeyWord, storedIn: string): Ref | null {
-  const m = REF_RE.exec(kw.keyword.trim());
-  return m ? {name: m[1], path: m[2], page: Number(m[3]), index: kw.index, storedIn, storedPage: kw.page} : null;
+  const text = kw.keyword.trim();
+  const long = REF_LONG_RE.exec(text);
+  if (long) {
+    return {name: long[1], path: long[2], page: Number(long[3]), index: kw.index, storedIn, storedPage: kw.page};
+  }
+  const m = REF_RE.exec(text);
+  return m ? {name: m[1], path: storedIn, page: kw.page, index: kw.index, storedIn, storedPage: kw.page} : null;
 }
 
 const isNotAllowed = (e: unknown) => /\b102\b/.test(String((e as Error)?.message ?? e));
@@ -105,10 +116,14 @@ export async function ensureIndexNote(): Promise<string> {
   if (await FileUtils.exists(path)) {
     return path;
   }
-  unwrap<boolean>(
-    await PluginFileAPI.createNote({notePath: path, template: 'style_blank', mode: 0, isPortrait: true}),
-    'createNote',
-  );
+  // Template names must come from the system list; a guessed name fails
+  // with 802 "Background template file does not exist".
+  const templates = ((await PluginCommAPI.getNoteSystemTemplates()) ?? []) as Array<{name: string}>;
+  const template = templates[0]?.name;
+  if (!template) {
+    throw new Error('createNote: no system template available');
+  }
+  unwrap<boolean>(await PluginFileAPI.createNote({notePath: path, template, mode: 0, isPortrait: true}), 'createNote');
   return path;
 }
 
@@ -150,24 +165,35 @@ export async function loadRefs(extraDoc?: {path: string; pages: number}): Promis
   return {path, refs: refs.sort((a, b) => a.name.localeCompare(b.name)), notes};
 }
 
-/**
- * Save a bookmark. Prefer the shared index note; if the hosting app refuses
- * note APIs (error 102, seen inside DOC), store the REF keyword on the
- * document page itself so it is not lost, and say where it went.
- */
+/** Save a bookmark as a keyword on the page itself. Works from NOTE and DOC. */
 export async function addRef(name: string, docPath: string, page: number): Promise<string> {
-  const keyword = formatRef(name, docPath, page);
-  try {
-    const index = await ensureIndexNote();
-    unwrap<boolean>(await PluginFileAPI.insertKeyWord(index, 0, keyword), 'insertKeyWord(index)');
-    return `${keyword} → index note`;
-  } catch (e) {
-    if (!isNotAllowed(e)) {
-      throw e;
+  const keyword = formatRef(name);
+  unwrap<boolean>(await PluginFileAPI.insertKeyWord(docPath, page, keyword), 'insertKeyWord');
+  return `${keyword} on ${fileName(docPath)} p.${page + 1}`;
+}
+
+/**
+ * Gather REF keywords from every document under Document. Page counts of
+ * closed documents are not available from NOTE, so ask for a wide page range
+ * and let the host return what exists. Errors are reported per file.
+ */
+export async function scanDocumentsForRefs(maxPages = 400): Promise<{refs: Ref[]; notes: string[]}> {
+  const refs: Ref[] = [];
+  const notes: string[] = [];
+  const pages = Array.from({length: maxPages}, (_, i) => i);
+  for (const doc of await listDocuments()) {
+    try {
+      const res = (await PluginFileAPI.getKeyWords(doc, pages)) as ApiResponse<KeyWord[]>;
+      if (res?.success) {
+        refs.push(...(res.result ?? []).map(k => parseRef(k, doc)).filter((r): r is Ref => r !== null));
+      } else {
+        notes.push(`${fileName(doc)}: ${res?.error?.code ?? '?'} ${res?.error?.message ?? ''}`);
+      }
+    } catch (e) {
+      notes.push(`${fileName(doc)}: ${String((e as Error)?.message ?? e)}`);
     }
-    unwrap<boolean>(await PluginFileAPI.insertKeyWord(docPath, page, keyword), 'insertKeyWord(document)');
-    return `${keyword} → stored on the document itself (index note not allowed from this app)`;
   }
+  return {refs: refs.sort((a, b) => a.name.localeCompare(b.name)), notes};
 }
 
 export async function removeRef(ref: Ref): Promise<void> {

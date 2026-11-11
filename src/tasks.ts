@@ -57,11 +57,16 @@ const WORD_TO_TYPE: Record<string, EntryType> = {
   npc: 'npc',
 };
 
+/** Device keywords have a short maximum length (error 1001); measured by the probe tab. */
+export const KEYWORD_MAX = 30;
+
 export function formatTask(type: EntryType, text: string, due: number | null, done = false): string {
-  const clean = text.replace(/[|\n\r]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+  const clean = text.replace(/[|\n\r]/g, ' ').replace(/\s+/g, ' ').trim();
   const meta = TYPE_META[type];
   const head = meta.dated ? `${meta.word}${meta.word ? ' ' : ''}S${due ?? '?'}` : meta.word;
-  return `${head} | ${clean}${done ? ' [x]' : ''}`;
+  const tail = done ? ' [x]' : '';
+  const room = KEYWORD_MAX - head.length - 3 - tail.length;
+  return `${head} | ${clean.slice(0, Math.max(room, 4))}${tail}`;
 }
 
 export function parseTask(kw: KeyWord): Task | null {

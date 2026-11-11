@@ -18,20 +18,20 @@ import {ProbeConsole} from './src/screens/ProbeConsole';
 import {ReferenceScreen} from './src/screens/ReferenceScreen';
 import {PAPER, styles} from './src/ui';
 
-const VERSION = '0.4.2';
-type Tab = 'burner' | 'refs' | 'probes';
+const VERSION = '0.4.3';
+type Tab = 'tonight' | 'burner' | 'refs' | 'probes';
 
 function Hub(): React.JSX.Element {
-  const [tab, setTab] = useState<Tab>('burner');
+  const [tab, setTab] = useState<Tab>('tonight');
   return (
     <View style={{flex: 1}}>
       <View style={styles.header}>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <Text style={[styles.h1, {marginRight: 20}]}>DM Tome {VERSION}</Text>
-          {(['burner', 'refs', 'probes'] as Tab[]).map(t => (
+          {(['tonight', 'burner', 'refs', 'probes'] as Tab[]).map(t => (
             <Pressable key={t} style={[styles.tab, tab === t && styles.tabActive]} onPress={() => setTab(t)}>
               <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-                {t === 'burner' ? 'Back Burner' : t === 'refs' ? 'References' : 'Probes'}
+                {t === 'tonight' ? 'Tonight' : t === 'burner' ? 'Back Burner' : t === 'refs' ? 'References' : 'Probes'}
               </Text>
             </Pressable>
           ))}
@@ -40,7 +40,15 @@ function Hub(): React.JSX.Element {
           <Text style={styles.tabText}>Close ✕</Text>
         </Pressable>
       </View>
-      {tab === 'burner' ? <BackBurnerScreen /> : tab === 'refs' ? <ReferenceScreen /> : <ProbeConsole />}
+      {tab === 'tonight' ? (
+        <BackBurnerScreen mode="tonight" />
+      ) : tab === 'burner' ? (
+        <BackBurnerScreen mode="ledger" />
+      ) : tab === 'refs' ? (
+        <ReferenceScreen />
+      ) : (
+        <ProbeConsole />
+      )}
     </View>
   );
 }

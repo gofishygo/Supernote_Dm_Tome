@@ -187,6 +187,19 @@ bookmark as a keyword on the document itself when the index note is refused.
 Three probes establish the full rule: can DOC read a note's keywords, can
 NOTE read a document's keywords, and does `getCurrentTotalPages` work.
 
+## Keyword length and templates (0.4.2, 2026-11-11)
+
+- `insertKeyWord` with a ~100-character keyword fails with
+  `1001 the keyword exceeds the maximum length limit`. Short task keywords
+  (~25 characters) succeed. The exact limit is measured by the "Find keyword
+  max length" probe; until then the code caps keywords at 30 characters and
+  bookmarks carry only `REF <name>`, with file and page implied by where the
+  keyword sits. Insert on a PDF from DOC is allowed (it failed on length, not
+  on 102), so bookmarks now live on the document itself.
+- `createNote` with template `'style_blank'` fails with
+  `802 Background template file does not exist`. Template names must come
+  from `PluginCommAPI.getNoteSystemTemplates()`.
+
 ## Open questions 0.4 answers on-device
 
 - Does a type-2 lasso button registered for `['NOTE','DOC']` appear over a

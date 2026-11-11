@@ -3,7 +3,16 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {ScrollView, Text, View} from 'react-native';
 import {PluginCommAPI, PluginManager} from 'sn-plugin-lib';
 import {ensureRead, ensureWrite} from '../permissions';
-import {Board, bucket, Bucket, findSessionKeyword, isNotAllowed, loadBoard, rewriteTask, setSession, Task, TYPE_META} from '../tasks';
+import {Board, bucket, Bucket, EntryType, findSessionKeyword, isNotAllowed, loadBoard, rewriteTask, setSession, Task, TYPE_META} from '../tasks';
+
+/**
+ * Two views over the same keywords:
+ *  - 'tonight': the session view. Strong start, due this session, always-on
+ *    split into one sub-tab per type (only the selected type shows), overdue.
+ *  - 'ledger': everything, grouped, including upcoming, someday and done.
+ */
+export type BoardMode = 'tonight' | 'ledger';
+const TONIGHT_ORDER: Bucket[] = ['strongNow', 'due', 'always', 'overdue'];
 import {Button, Row, styles} from '../ui';
 
 const ORDER: Bucket[] = ['strongNow', 'overdue', 'due', 'always', 'upcoming', 'someday', 'done'];
@@ -21,8 +30,9 @@ function byTypeThenDue(a: Task, b: Task): number {
   return TYPE_META[a.type].order - TYPE_META[b.type].order || (a.due ?? 1e9) - (b.due ?? 1e9) || a.page - b.page;
 }
 
-export function BackBurnerScreen(): React.JSX.Element {
+export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.JSX.Element {
   const [board, setBoard] = useState<Board | null>(null);
+  const [alwaysTab, setAlwaysTab] = useState<EntryType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [showDone, setShowDone] = useState(false);
@@ -118,10 +128,16 @@ export function BackBurnerScreen(): React.JSX.Element {
     );
   };
 
+  const order = mode === 'tonight' ? TONIGHT_ORDER : ORDER;
+  const alwaysTypes = Array.from(new Set((groups.always ?? []).map(t => t.type))).sort(
+    (a, b) => TYPE_META[a].order - TYPE_META[b].order,
+  );
+  const activeAlways = alwaysTab && alwaysTypes.includes(alwaysTab) ? alwaysTab : alwaysTypes[0] ?? null;
+
   return (
     <ScrollView style={styles.screen}>
       <Row>
-        <Text style={styles.h1}>Session {board?.session ?? '…'}</Text>
+        <Text style={styles.h1}>{mode === 'tonight' ? 'Tonight · session' : 'Session'} {board?.session ?? '…'}</Text>
         <View style={{width: 16}} />
         <Button small label="−" disabled={busy || !board} onPress={() => bumpSession(-1)} />
         <Button small label="+" disabled={busy || !board} onPress={() => bumpSession(1)} />
@@ -151,10 +167,33 @@ export function BackBurnerScreen(): React.JSX.Element {
         </View>
       )}
 
-      {ORDER.map(key => {
+      {order.map(key => {
         const list = groups[key] ?? [];
         if (list.length === 0) {
           return null;
+        }
+        if (key === 'always' && mode === 'tonight') {
+          const shown = list.filter(t => t.type === activeAlways);
+          return (
+            <View key={key}>
+              <Text style={styles.h2}>Always on</Text>
+              <Row>
+                {alwaysTypes.map(t => (
+                  <Button
+                    small
+                    key={t}
+                    label={`${TYPE_META[t].plural} (${list.filter(x => x.type === t).length})`}
+                    disabled={busy}
+                    onPress={() => setAlwaysTab(t)}
+                  />
+                ))}
+              </Row>
+              <Text style={[styles.muted, {marginTop: 6}]}>
+                showing {activeAlways ? TYPE_META[activeAlways].plural : ''}
+              </Text>
+              {shown.map(t => renderTask(t, key))}
+            </View>
+          );
         }
         if (key === 'done' && !showDone) {
           return (

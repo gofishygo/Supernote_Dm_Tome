@@ -322,6 +322,38 @@ export const ACTION_PROBES: Probe[] = [
     run: ensureFileRead,
   },
   {
+    key: 'kwLen',
+    label: 'Find keyword max length',
+    unlocks: 'how much text a task or bookmark may carry',
+    run: async () => {
+      const path = await currentFile();
+      const page = await currentPage();
+      const tryLen = async (n: number): Promise<string> => {
+        const kw = `probe${'x'.repeat(Math.max(0, n - 5))}`.slice(0, n);
+        const ins = (await PluginFileAPI.insertKeyWord(path, page, kw)) as {success: boolean; error: {code: number; message: string} | null};
+        if (!ins?.success) {
+          return `FAIL ${ins?.error?.code}`;
+        }
+        // delete it again: find its 1-based index on this page
+        const list = (await PluginFileAPI.getKeyWords(path, [page])) as {success: boolean; result: Array<{keyword: string; index: number}> | null};
+        const hit = (list?.result ?? []).find(k => k.keyword === kw);
+        if (hit) {
+          await PluginFileAPI.deleteKeyWord(path, page, hit.index);
+        }
+        return 'ok';
+      };
+      const out: string[] = [];
+      for (const n of [10, 20, 30, 40, 50, 60, 80, 100]) {
+        const r = await tryLen(n);
+        out.push(`${n}:${r}`);
+        if (r.startsWith('FAIL')) {
+          break;
+        }
+      }
+      return out.join(' ');
+    },
+  },
+  {
     key: 'docPages',
     label: 'PluginDocAPI.getCurrentTotalPages',
     unlocks: 'page counts while a document is open',

@@ -51,8 +51,11 @@ the detail it holds:
    time with `require('./data.json')`. A native module (Java/Kotlin) is the
    only other way, and it drags in Android Studio and Gradle.
 
-3. **The note is a database.** Keywords (`insertKeyWord`/`getKeyWords`) are a
-   per-page string store that survives sync and reinstall. Text boxes carry
+3. **The note is a database, with short rows.** Keywords
+   (`insertKeyWord`/`getKeyWords`) are a per-page string store that survives
+   sync and reinstall, but each keyword is short (error 1001 past the limit;
+   ~25 characters is safe, ~100 is not). Encode position by *where* a keyword
+   sits (file, page) rather than by writing paths into it. Text boxes carry
    `textContentFull`. Links carry `destPath` and `destPage`. Use these before
    inventing a storage layer.
 
@@ -255,6 +258,8 @@ view from a read-only DOC view.
 | View blank only for your plugin, bundle size normal | `App.tsx` throws when first evaluated (inline requires) | load `App` lazily in the `registerComponent` factory and render the exception |
 | View disappears on a tap, log lost | native crash in that call (e.g. `FileUtils.getExternalDirPath`) | one call per tap; avoid the call; see verified-on-device.md |
 | `requestPermission` rejects "This permission has not been declared" (1500) | missing from `uses-permissions` in the manifest | add it, rebuild, reinstall |
+| `1001 the keyword exceeds the maximum length limit` | keyword too long; limit is small | keep keywords short; imply file and page by placement |
+| `802 Background template file does not exist` from `createNote` | guessed template name | use a name from `getNoteSystemTemplates()` |
 | `102 This app is not allowed to use this API` | the hosting app (DOC vs NOTE) does not offer that call; typical when note-file APIs run with a PDF open | check the open file's type and use the DOC-side API or defer the note write |
 | Reads fail with 1503, writes with 1501 | permission not granted, or "allow this time" expired when the plugin closed | check `hasPermission() === 1` on every open and request again |
 | `TypeError: undefined is not a function` around an SDK call | the firmware lacks the native method, or your code called a string method on a non-string result | print `Object.keys(module)`, `typeof module.method`, and `JSON.stringify(raw)` |
