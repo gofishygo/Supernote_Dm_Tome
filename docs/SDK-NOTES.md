@@ -144,6 +144,17 @@ Also from the docs: `openFile` supports pdf, epub, cbz, xps, fb2, note and
 takes `-1` for "last viewed page"; `getPageDisplaySize` is deprecated after
 SDK 0.1.65 in favour of `getPageSize`.
 
+## Confirmed on the Manta (0.2.3, Chauvet 3.31.45, 2026-11-11)
+
+- With `uses-permissions` declared, `requestPermission` shows the
+  three-option dialog; after "Always allow", `getPageSize`, `getKeyWords`,
+  `getTitles` and the export-path call all succeed.
+- `FileUtils.listFiles` is **not present** on this firmware: calling it
+  throws `TypeError: undefined is not a function`. `FileUtils` is absent from
+  the official API reference entirely, so treat every method on it as
+  firmware-dependent and feature-test with `typeof` before calling. 0.2.4
+  prints the native method inventory to settle which ones exist.
+
 ## Open questions version 0.2 answers on-device
 
 - Does `getFileList(['pdf'])` need `FILE:READ` permission, and what paths does

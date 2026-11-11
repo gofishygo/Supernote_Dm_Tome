@@ -8,11 +8,16 @@
  */
 import {
   FileUtils,
+  NativePluginManager,
   PluginCommAPI,
   PluginFileAPI,
   PluginManager,
   PluginNoteAPI,
 } from 'sn-plugin-lib';
+// Deep import: the SDK does not re-export its native API module, and the
+// published .ts has no declaration. Used only to list native method names.
+// @ts-expect-error no type declarations for this path
+import NativePluginAPI from 'sn-plugin-lib/lib/module/module/NativePluginAPI';
 
 export type Probe = {
   key: string;
@@ -94,6 +99,13 @@ async function pageSize(): Promise<{width: number; height: number}> {
 
 /** Walk a folder with FileUtils.listFiles, which takes a plain path. */
 async function listRecursive(dir: string, suffix: string, depth: number): Promise<string[]> {
+  const fu = FileUtils as unknown as Record<string, unknown>;
+  if (typeof fu.listFiles !== 'function') {
+    // Older firmware: no listFiles. getFileList(suffixes) scans the shared
+    // folders itself; strip the leading dot from the suffix.
+    const list = (await FileUtils.getFileList([suffix.replace(/^\./, '')])) ?? [];
+    return [`(via getFileList)`, ...list];
+  }
   let entries: string[] = [];
   try {
     entries = (await FileUtils.listFiles(dir)) ?? [];
@@ -166,10 +178,26 @@ export const STATUS_PROBES: Probe[] = [
     run: async () => JSON.stringify(await pageSize()),
   },
   {
-    key: 'display',
-    label: 'Page display size',
-    unlocks: 'layout when zoomed or split',
-    run: async () => JSON.stringify(await PluginCommAPI.getPageDisplaySize()),
+    key: 'surface',
+    label: 'Native methods on this firmware',
+    unlocks: 'knowing which SDK calls exist before relying on them',
+    run: async () => {
+      const want: Record<string, string[]> = {
+        FileUtils: ['exists', 'listFiles', 'getFileList', 'getExportPath', 'getPluginDirPath', 'copyFile', 'makeDir', 'deleteFile', 'getFileMD5', 'openFilePath'],
+        NativePluginManager: ['hasPermission', 'requestPermission', 'showPluginView', 'getOrientation', 'registerConfigButton'],
+        NativePluginAPI: ['openFile', 'jumpToPage', 'canHandwrite', 'recognizeElements', 'getPenInfo', 'lassoElements', 'insertTextLink', 'insertKeyWord', 'getCurrentDocText', 'insertPageElements', 'deleteElements', 'getPageSize'],
+      };
+      const mods: Record<string, unknown> = {FileUtils, NativePluginManager, NativePluginAPI};
+      const out: string[] = [];
+      for (const [name, methods] of Object.entries(want)) {
+        const m = mods[name] as Record<string, unknown>;
+        const keys = Object.keys(m ?? {});
+        const present = methods.filter(k => typeof m?.[k] === 'function');
+        const missing = methods.filter(k => typeof m?.[k] !== 'function');
+        out.push(`${name}: ${keys.length} keys; present=[${present.join(',')}] MISSING=[${missing.join(',')}]`);
+      }
+      return out.join(' || ');
+    },
   },
   {
     key: 'handwrite',

@@ -218,6 +218,7 @@ view from a read-only DOC view.
 | Device shows two copies of the plugin | `pluginID` changed | restore the original id |
 | Plugin crashes on open | RN version ≠ 0.79.2 or SDK API missing on firmware | pin RN; check firmware |
 | `requestPermission` rejects "has not been declared" | permission missing from `uses-permissions` in the manifest | add it, rebuild, reinstall |
+| `TypeError: undefined is not a function` from an SDK call | the firmware's native module predates that method (seen: `FileUtils.listFiles` on 3.31.45) | feature-test with `typeof` and fall back; `FileUtils` is undocumented, so expect gaps |
 | Runtime dies on a `FileUtils` call | `getExternalDirPath`, `getFileList`, `getImageList` need an Activity that PluginHost does not have | use `listFiles(path)` on `Document`, `Note`, etc. under `getExportPath()` minus `/EXPORT` |
 | `unknown pageSize` thrown | passed a scaled view size to PointUtils | use `getPageSize` result |
 | `got 3 arguments, expected 4` | omitted optional arg to a native method | pass `null` explicitly |

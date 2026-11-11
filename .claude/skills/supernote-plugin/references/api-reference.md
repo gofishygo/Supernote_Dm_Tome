@@ -188,7 +188,14 @@ Path-based. Works on files that are not open. All `page` are 0-based.
 
 ## 6. Utilities
 
-### FileUtils (no content read or write)
+### FileUtils (undocumented, firmware-dependent, no content read or write)
+
+`FileUtils` is exported by the SDK but does not appear in the official API
+reference. Firmware ships its own native implementation, which can lag the
+SDK: on Chauvet 3.31.45, `listFiles` is missing and calling it throws
+`TypeError: undefined is not a function`, while `getExportPath` works.
+Feature-test with `typeof FileUtils.method === 'function'` before calling,
+and prefer documented `PluginFileAPI` calls where one exists.
 
 `exists(path)`, `makeDir(dir)`, `copyFile(src, dst)`, `renameToFile(src, dst)`,
 `deleteFile(path)`, `deleteDir(dir)`, `listFiles(dir)`, `getFileMD5(path)`,
