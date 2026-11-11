@@ -19,8 +19,16 @@ the detail it holds:
 - `references/data-model.md`: element types, layers, pen values, link types,
   coordinate systems, type shapes.
 - `references/build-and-install.md`: toolchain, build scripts, package layout,
-  install steps, troubleshooting.
-- `scripts/check_plugin.py`: validates a plugin project's config before a build.
+  install steps, the debugging playbook, troubleshooting.
+- `references/verified-on-device.md`: what actually happened on a Manta
+  (firmware 3.31.45, SDK 0.2.3): view size, working calls, crashing calls,
+  native method inventory, permission behaviour, storage layout. Read it
+  before trusting any method the docs do not cover.
+- `assets/probe-kit/`: drop-in entry file, console and probes that turn a
+  fresh template into a test instrument. Start every new plugin from it.
+- `scripts/check_plugin.py`: validates a plugin project before a build:
+  manifest, versions, init order, permission declarations, nested
+  `node_modules`, duplicated bundles.
 - `scripts/push_to_supernote.ps1`: copies a file to the device's MyStyle folder
   from Windows over USB (MTP has no drive letter, so this drives Explorer).
 
@@ -33,8 +41,10 @@ the detail it holds:
    links, titles) and the plugin screen is for setup, search and capture.
 
 2. **The SDK cannot read or write ordinary files.** `FileUtils` lists, copies,
-   moves and deletes, but nothing returns file contents. A pure-JS plugin
-   cannot read a `.md` or `.json` from disk. Text it *can* read: text boxes,
+   moves and deletes, but nothing returns file contents, and `FileUtils` is
+   not in the official API reference at all, so its return shapes are
+   firmware-defined. A pure-JS plugin cannot read a `.md` or `.json` from
+   disk. Text it *can* read: text boxes,
    titles, keywords and links inside a `.note`; page text of an open DOC via
    `PluginDocAPI.getCurrentDocText(page)`; recognized handwriting via
    `PluginCommAPI.recognizeElements`. Static content can be bundled at build
@@ -63,6 +73,17 @@ the detail it holds:
    module ships Java/Kotlin. The template's MainActivity and MainApplication
    do not trigger it. Do not
    send the user to install Android Studio for a pure-JS plugin.
+
+7. **Firmware lags the SDK, and the SDK lags its docs.** Methods exist in
+   the npm package that the device's native modules may not implement, and
+   documented behaviour (permissions, manifest fields) may be missing from
+   the SDK source. Nothing is true until it has run on the device. Build a
+   probe first, print raw results, and keep a per-firmware notes file.
+
+8. **Permissions are declared, then checked, then requested.** Shared
+   storage and the network are closed until the user grants access, and a
+   permission must be listed in the manifest's `uses-permissions` before it
+   can even be asked for. Reading a lasso selection counts as a file read.
 
 ## Workflow
 
@@ -123,12 +144,20 @@ via Settings → System Update first. Run `python3 scripts/check_plugin.py
 
 ### Iterate on hardware
 
-There is no emulator for PluginHost. Treat the first build of any feature as a
-probe: print what each SDK call returns in a plain console screen, read the
-real paths, sizes and error codes, then design on facts. In particular, probe
-on-device before relying on: paths returned by `FileUtils.getFileList`,
-whether a call needs `plugin.permission.FILE:READ`, recognition quality on
-multi-word lassos, and whether `openFile` closes the plugin view.
+There is no emulator for PluginHost and `console.log` goes nowhere. Copy
+`assets/probe-kit/` into the project and ship that first: it paints before
+any SDK call, captures startup and render errors on screen, runs one call
+per tap, prints raw result shapes and full error detail, and inventories
+which native methods the firmware really has. The user photographs the
+screen; you design on what it says. The full playbook, including bundle
+comparison and side-by-side bisect packages, is in
+`references/build-and-install.md`.
+
+Known device facts to design against are in
+`references/verified-on-device.md`. The headline ones: the Manta view is
+1024 × 1365 dp; `FileUtils.getExternalDirPath`, `getFileList` and
+`getImageList` crash the runtime; `listFiles` does not return plain strings;
+every `PluginFileAPI` read needs `FILE:READ`, including `getLassoElements`.
 
 ## E-ink UI rules
 
@@ -209,18 +238,20 @@ operation with `setLassoBoxState(2)` to dismiss the lasso UI.
 the user is. `PluginCommAPI.canHandwrite()` distinguishes a writable NOTE
 view from a read-only DOC view.
 
-## Common failures
+## Common failures, in the order to check them
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Installed, no button appears | `pluginKey` ≠ `app.json` name | make them equal |
-| Button appears, view stays blank, no error | two copies of React in the bundle (nested `node_modules/node_modules` or a symlinked path). A hello-world bundle is about 520 modules and 260 KB zipped; a doubled one about 880 and 450 KB | delete the nested folder, rebuild, run `check_plugin.py` |
+| Installed, no button appears | `pluginKey` ≠ `app.json` name, or `index.js` threw before `registerButton` | make them equal; wrap `init`/`registerButton` in catch and print |
 | Device shows two copies of the plugin | `pluginID` changed | restore the original id |
-| Plugin crashes on open | RN version ≠ 0.79.2 or SDK API missing on firmware | pin RN; check firmware |
-| `requestPermission` rejects "has not been declared" | permission missing from `uses-permissions` in the manifest | add it, rebuild, reinstall |
-| `TypeError: undefined is not a function` around an SDK call | either the firmware lacks the native method, or your code called a string method on a result that is not a string (undocumented `FileUtils` return shapes) | print `Object.keys(module)` and `typeof module.method`; print `JSON.stringify(raw)` of the result before using it |
-| Runtime dies on a `FileUtils` call | `getExternalDirPath`, `getFileList`, `getImageList` need an Activity that PluginHost does not have | use `listFiles(path)` on `Document`, `Note`, etc. under `getExportPath()` minus `/EXPORT` |
-| `unknown pageSize` thrown | passed a scaled view size to PointUtils | use `getPageSize` result |
-| `got 3 arguments, expected 4` | omitted optional arg to a native method | pass `null` explicitly |
-| Build runs Gradle unexpectedly | a dependency ships Java/Kotlin, or a ReactPackage was added | drop it or accept the toolchain |
+| Button appears, view blank, no error, template hello-world works | dependency graph bundled twice: `node_modules/node_modules` exists or the path goes through a symlink. Clean bundle ~520 modules / 260 KB; doubled ~880 / 450 KB | `rm -rf node_modules/node_modules`; rebuild; `check_plugin.py` |
+| View blank only for your plugin, bundle size normal | `App.tsx` throws when first evaluated (inline requires) | load `App` lazily in the `registerComponent` factory and render the exception |
+| View disappears on a tap, log lost | native crash in that call (e.g. `FileUtils.getExternalDirPath`) | one call per tap; avoid the call; see verified-on-device.md |
+| `requestPermission` rejects "This permission has not been declared" (1500) | missing from `uses-permissions` in the manifest | add it, rebuild, reinstall |
+| Reads fail with 1503, writes with 1501 | permission not granted, or "allow this time" expired when the plugin closed | check `hasPermission() === 1` on every open and request again |
+| `TypeError: undefined is not a function` around an SDK call | the firmware lacks the native method, or your code called a string method on a non-string result | print `Object.keys(module)`, `typeof module.method`, and `JSON.stringify(raw)` |
+| `unknown pageSize` thrown | a scaled view size was passed to PointUtils | use `getPageSize` for the current file and page |
+| `got N arguments, expected N+1` | optional argument omitted on a native method | pass `null` explicitly |
+| Build runs Gradle unexpectedly | a dependency ships Java/Kotlin, or a `ReactPackage` was added | drop it or accept the Android toolchain |
 | PowerShell refuses the script | execution policy | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
+| `Copy-Item` cannot find the device | MTP has no drive letter | `scripts/push_to_supernote.ps1` (Shell.Application) |

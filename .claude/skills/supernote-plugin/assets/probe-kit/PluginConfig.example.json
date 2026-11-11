@@ -1,0 +1,12 @@
+{
+  "name": "My Plugin",
+  "desc": "What it does, shown on the device's Plugins page.",
+  "iconPath": "assets/icon.png",
+  "versionName": "0.1.0",
+  "versionCode": "1",
+  "pluginID": "replace-with-build-generated-id",
+  "pluginKey": "MyPlugin",
+  "jsMainPath": "index",
+  "author": "you",
+  "uses-permissions": ["plugin.permission.FILE:READ", "plugin.permission.FILE:WRITE"]
+}

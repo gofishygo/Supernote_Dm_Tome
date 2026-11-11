@@ -104,17 +104,37 @@ Sideloading) is only for installing ordinary APKs, not plugins.
 
 ## Debugging without an emulator
 
-PluginHost has no desktop emulator. Practical loop:
+PluginHost has no desktop emulator and `console.log` is invisible on the
+device. Treat every first build as a measuring instrument. `assets/probe-kit/`
+in this skill is a ready-made one; the rules it encodes:
 
-- Build a console screen that prints `JSON.stringify` of each SDK response in
-  monospace. The user photographs or transcribes it.
-- Wrap every SDK call in try/catch; native methods throw on bad arguments
-  (`verifyParams` in the SDK) rather than returning `success: false`.
-- Keep a changelog of what each firmware returned; behaviour differs between
-  firmware releases and the SDK adds methods the firmware may not yet
-  implement (expect `success: false` with an error code, or a throw).
-- `console.log` output is not visible on the device. Surface everything in UI
-  or write it into a note as a text box.
+1. **Paint before you call.** Render a banner from static data first, so a
+   blank screen means "view never mounted" and nothing else.
+2. **Capture what the runtime would swallow.** Install a global error handler
+   (`ErrorUtils.setGlobalHandler`) and an error boundary, and print both on
+   screen. Load `App` lazily inside the `registerComponent` factory with a
+   try/catch, because release bundles inline requires and a throw during
+   `App.tsx` evaluation otherwise mounts nothing.
+3. **One SDK call per tap.** A native crash takes the view and its log with
+   it; the last button pressed names the culprit.
+4. **Print raw shapes.** `JSON.stringify(result)` before assuming an array of
+   strings; undocumented `FileUtils` methods return what the firmware likes.
+5. **Print whole errors.** Native rejections carry `code` and `userInfo`
+   (including a Java stack); `message` alone is often "unspecified".
+6. **Inventory the native surface.** `Object.keys(module)` and
+   `typeof module.method === 'function'` on `FileUtils`,
+   `NativePluginManager` and `NativePluginAPI` tell you which SDK calls the
+   firmware actually implements before you depend on one.
+7. **Compare the bundle to a fresh template.** Same module count and size
+   means the build is sound; a doubled count means a duplicated dependency
+   graph, which produces working buttons and a view that never appears.
+8. **Bisect with side-by-side packages.** Different `pluginKey`, `pluginID`
+   and button names let several variants install at once, so one USB trip
+   answers several questions.
+
+The user reads the screen and reports back; monospace text and short lines
+make photographs legible. Keep a notes file of what each firmware returned,
+because firmware lags the SDK and the SDK lags its own docs.
 
 ## Troubleshooting
 
