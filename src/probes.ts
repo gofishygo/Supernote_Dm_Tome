@@ -97,6 +97,35 @@ async function pageSize(): Promise<{width: number; height: number}> {
   );
 }
 
+/**
+ * Normalise whatever the native listFiles returns into string paths. The SDK
+ * source resolves string[], but the firmware's copy may return objects or a
+ * single string; assuming strings produced "undefined is not a function".
+ */
+function toPathList(raw: unknown): string[] {
+  if (raw === null || raw === undefined) {
+    return [];
+  }
+  const arr: unknown[] = Array.isArray(raw)
+    ? raw
+    : typeof raw === 'object'
+    ? Object.values(raw as Record<string, unknown>)
+    : [raw];
+  const out: string[] = [];
+  for (const item of arr) {
+    if (typeof item === 'string') {
+      out.push(item);
+    } else if (item && typeof item === 'object') {
+      const o = item as Record<string, unknown>;
+      const v = o.path ?? o.filePath ?? o.absolutePath ?? o.name ?? o.fileName;
+      if (typeof v === 'string') {
+        out.push(v);
+      }
+    }
+  }
+  return out;
+}
+
 /** Walk a folder with FileUtils.listFiles, which takes a plain path. */
 async function listRecursive(dir: string, suffix: string, depth: number): Promise<string[]> {
   const fu = FileUtils as unknown as Record<string, unknown>;
@@ -106,14 +135,14 @@ async function listRecursive(dir: string, suffix: string, depth: number): Promis
     const list = (await FileUtils.getFileList([suffix.replace(/^\./, '')])) ?? [];
     return [`(via getFileList)`, ...list];
   }
-  let entries: string[] = [];
+  let raw: unknown;
   try {
-    entries = (await FileUtils.listFiles(dir)) ?? [];
+    raw = await FileUtils.listFiles(dir);
   } catch (e) {
     return [`[${dir}: ${describe(e)}]`];
   }
   const out: string[] = [];
-  for (const p of entries) {
+  for (const p of toPathList(raw)) {
     if (p.toLowerCase().endsWith(suffix)) {
       out.push(p);
     } else if (depth > 0 && !/\.[A-Za-z0-9]{1,5}$/.test(p)) {
@@ -183,7 +212,7 @@ export const STATUS_PROBES: Probe[] = [
     unlocks: 'knowing which SDK calls exist before relying on them',
     run: async () => {
       const want: Record<string, string[]> = {
-        FileUtils: ['exists', 'listFiles', 'getFileList', 'getExportPath', 'getPluginDirPath', 'copyFile', 'makeDir', 'deleteFile', 'getFileMD5', 'openFilePath'],
+        FileUtils: ['exists', 'listFiles', 'getFileList', 'getExportPath', 'copyFile', 'makeDir', 'deleteFile', 'getFileMD5', 'openFilePath', 'getExternalDirPath', 'getImageList'],
         NativePluginManager: ['hasPermission', 'requestPermission', 'showPluginView', 'getOrientation', 'registerConfigButton'],
         NativePluginAPI: ['openFile', 'jumpToPage', 'canHandwrite', 'recognizeElements', 'getPenInfo', 'lassoElements', 'insertTextLink', 'insertKeyWord', 'getCurrentDocText', 'insertPageElements', 'deleteElements', 'getPageSize'],
       };
@@ -281,12 +310,25 @@ export const ACTION_PROBES: Probe[] = [
     run: ensureFileRead,
   },
   {
+    key: 'listRaw',
+    label: 'listFiles raw (Document folder)',
+    unlocks: 'the real shape of directory listings on this firmware',
+    run: async () => {
+      const perm = await ensureFileRead();
+      const exp = await FileUtils.getExportPath();
+      const root = String(exp).replace(/\/EXPORT$/, '');
+      const raw: unknown = await FileUtils.listFiles(`${root}/Document`);
+      const kind = Array.isArray(raw) ? `array(${(raw as unknown[]).length})` : typeof raw;
+      return `perm ${perm} | export=${JSON.stringify(exp)} | listFiles -> ${kind}: ${JSON.stringify(raw)?.slice(0, 500)}`;
+    },
+  },
+  {
     key: 'pdfs',
     label: 'List PDFs on device',
     unlocks: 'the reference index',
     run: async () => {
       const perm = await ensureFileRead();
-      const root = (await FileUtils.getExportPath()).replace(/\/EXPORT$/, '');
+      const root = String(await FileUtils.getExportPath()).replace(/\/EXPORT$/, '');
       const list = await listRecursive(`${root}/Document`, '.pdf', 3);
       return `perm ${perm} | ${list.length} PDFs under ${root}/Document. First: ${list
         .slice(0, 6)
@@ -299,7 +341,7 @@ export const ACTION_PROBES: Probe[] = [
     unlocks: 'campaign and session note discovery',
     run: async () => {
       const perm = await ensureFileRead();
-      const root = (await FileUtils.getExportPath()).replace(/\/EXPORT$/, '');
+      const root = String(await FileUtils.getExportPath()).replace(/\/EXPORT$/, '');
       const list = await listRecursive(`${root}/Note`, '.note', 3);
       return `perm ${perm} | ${list.length} notes under ${root}/Note. First: ${list
         .slice(0, 6)

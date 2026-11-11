@@ -30,7 +30,7 @@ import {
   STATUS_PROBES,
 } from './src/probes';
 
-const VERSION = '0.2.4';
+const VERSION = '0.2.5';
 
 type Line = {label: string; text: string; ok: boolean};
 

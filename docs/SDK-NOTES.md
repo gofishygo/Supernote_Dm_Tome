@@ -149,11 +149,21 @@ SDK 0.1.65 in favour of `getPageSize`.
 - With `uses-permissions` declared, `requestPermission` shows the
   three-option dialog; after "Always allow", `getPageSize`, `getKeyWords`,
   `getTitles` and the export-path call all succeed.
-- `FileUtils.listFiles` is **not present** on this firmware: calling it
-  throws `TypeError: undefined is not a function`. `FileUtils` is absent from
-  the official API reference entirely, so treat every method on it as
-  firmware-dependent and feature-test with `typeof` before calling. 0.2.4
-  prints the native method inventory to settle which ones exist.
+- `FileUtils` is absent from the official API reference, so it was suspect
+  when the folder listings threw `TypeError: undefined is not a function`.
+  The 0.2.4 inventory cleared it: `listFiles`, `getFileList`, `exists`,
+  `getExportPath`, `copyFile`, `makeDir`, `deleteFile`, `getFileMD5`,
+  `openFilePath` are all present. The TypeError came from our own code
+  assuming `listFiles` resolves string paths; 0.2.5 prints the raw shape.
+
+## Native method inventory, Chauvet 3.31.45 (0.2.4)
+
+Present and therefore usable: `NativePluginManager.hasPermission`,
+`requestPermission`, `showPluginView`, `getOrientation`,
+`registerConfigButton`; `NativePluginAPI.openFile`, `jumpToPage`,
+`canHandwrite`, `recognizeElements`, `getPenInfo`, `lassoElements`,
+`insertTextLink`, `insertKeyWord`, `getCurrentDocText`, `insertPageElements`,
+`deleteElements`, `getPageSize` (95 native methods in total).
 
 ## Open questions version 0.2 answers on-device
 
