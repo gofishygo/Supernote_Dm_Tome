@@ -40,8 +40,8 @@ import { PluginManager } from 'sn-plugin-lib';
 | `getPluginDirPath()` | `Promise<string>` | Plugin's private directory. |
 | `getPluginName()` | `Promise<string>` | |
 | `closePluginView()` / `showPluginView()` **0.2.x** | `Promise<boolean>` | |
-| `hasPermission(name)` **0.2.x** | `Promise<number>` | 0 none, 1 once, 2 always. |
-| `requestPermission(name, desc?)` **0.2.x** | `Promise<number>` | 0 deny, 1 once, 2 always, -1 cancelled. Names: `plugin.permission.FILE:READ`, `FILE:WRITE`, `FILE:DELETE`, `INTERNET`. |
+| `hasPermission(name)` **0.2.x** | `Promise<number>` | `1` granted, `0` not. Name must be listed in the manifest's `uses-permissions` or the call rejects (1500). |
+| `requestPermission(name, desc?)` **0.2.x** | `Promise<number>` | 0 deny, 1 once (expires when the plugin closes), 2 always, -1 cancelled. Names: `plugin.permission.FILE:READ`, `FILE:WRITE`, `FILE:DELETE`, `INTERNET`. |
 
 `EventType` enum: `PEN_UP`, `IMPORT_STICKER`, `MOTION_EVENT`, `PLUGIN_LIFE`.
 
@@ -56,7 +56,7 @@ Works in NOTE and DOC.
 | `getLassoRect()` | `Rect` | Pixel coords. Needs an active lasso. |
 | `lassoElements(rect)` | `boolean` | Programmatic selection within a pixel rect. |
 | `resizeLassoRect(rect)` | `boolean` | Proportional scaling only; scale around the centre of `getLassoRect()`. |
-| `getLassoElements()` | `Element[]` | Accessor fields populated. |
+| `getLassoElements()` | `Element[]` | Accessor fields populated. Needs `FILE:READ`. |
 | `getLassoElementTypeCounts()` | `LassoElementTypeNum` | Counts per type. |
 | `getLassoGeometries()` | `Geometry[]` | |
 | `deleteLassoElements()` | `boolean` | |
@@ -98,7 +98,7 @@ Works in NOTE and DOC.
 | `getCurrentPageNum()` | `number` | 0-based. |
 | `jumpToPage(page)` **0.2.x** | `boolean` | Within the open file. |
 | `canHandwrite()` **0.2.x** | `boolean` | False in read-only DOC views. |
-| `getPageDisplaySize()` **0.2.x** | `Object` | Displayed size (zoom/split aware). Shape unverified; probe it. |
+| `getPageDisplaySize()` | `APIResponse<Size>` | Deprecated after 0.1.65; use `PluginFileAPI.getPageSize` with the current file and page. |
 | `reloadFile()` | `boolean` | Reload the open file from disk. |
 | `getNoteSystemTemplates()` | `Template[]` | Not wrapped in APIResponse. |
 | `setSlideBarStatus`, `setSystemDormancyState(enable)`, `setStatusBarAndSlideBarState(lock)` | | UI chrome and sleep control. |
@@ -161,7 +161,7 @@ Path-based. Works on files that are not open. All `page` are 0-based.
 | `getFileMachineType(notePath)` | Device that created the file. |
 | `generateNotePng({NOTEPath, page, times, pngPath, type})` | `times` scale 1 or 2; `type` 0 transparent, 1 white. |
 | `generateNoteTemplatePng(notePath, page, pngPath)` | Background only. |
-| `openFile(filePath, page)` **0.2.x** | Opens a note or document at a page. Returns raw object; probe it. |
+| `openFile(filePath, page)` **0.2.x** | `APIResponse<boolean>`. Opens `pdf`, `epub`, `cbz`, `xps`, `fb2`, `note`; `page` 0-based or `-1` for last viewed. |
 
 ### Layers (NOTE only)
 

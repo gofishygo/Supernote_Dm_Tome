@@ -143,15 +143,35 @@ The display is reflective e-ink that refreshes slowly and ghosts.
 - Monospace for anything the user may transcribe (paths, ids, errors).
 - Always provide a visible Close that calls `PluginManager.closePluginView()`.
 
-## Permissions
+## Permissions (declare, check, request)
 
-`PluginManager.hasPermission(name)` and `requestPermission(name, desc)` with
-`plugin.permission.FILE:READ`, `FILE:WRITE`, `FILE:DELETE`, `INTERNET`.
-Request returns the user's choice: 0 deny, 1 once, 2 always, -1 cancelled.
-Request lazily, right before the first call that needs it, with a `desc`
-that says what the user gets. Path-based `PluginFileAPI` calls (keywords,
-titles, elements, page size) fail with error **1503 "file read permission
-denied"** until `FILE:READ` is granted, even for the file that is open.
+Shared storage (`Document`, `EXPORT`, `INBOX`, `MyStyle`, `Note`,
+`SCREENSHOT`) and the network are closed to a plugin until the user grants
+access. Only the plugin's private directory
+(`/data/data/com.ratta.supernote.pluginhost/files/plugins/<pluginID>`) is
+free. The check applies at the process boundary, so RN `fetch` and Android
+file APIs are intercepted too, not just `sn-plugin-lib`.
+
+1. **Declare** in `PluginConfig.json`:
+   `"uses-permissions": ["plugin.permission.FILE:READ", "plugin.permission.FILE:WRITE"]`.
+   Names: `FILE:READ`, `FILE:WRITE`, `FILE:DELETE`, `INTERNET`. Requesting an
+   undeclared one rejects with "This permission has not been declared"
+   (code 1500). The packaging script does not add this field; write it by hand.
+2. **Check** every time the plugin opens: `hasPermission(name)` returns `1`
+   when granted.
+3. **Request** when it returns `0`: `requestPermission(name, desc)` shows a
+   three-option dialog and returns `1` allow once, `2` always, `0` deny,
+   `-1` cancelled. "Allow this time only" dies when the plugin closes, so do
+   this before each feature, not once at install. After a "Don't allow" the
+   dialog is replaced by a prompt to Settings; `desc` is the body of that
+   prompt only.
+
+What needs what: `FILE:READ` for `getElements`, `getLassoElements`,
+`getKeyWords`, `getTitles`, `getPageSize`, `listFiles` on shared folders;
+`FILE:WRITE` for `insertElements`, `modifyElements`, `replaceElements`,
+`insertPageElements`, `deleteElements`. Error codes: 1500 undeclared, 1501
+write without `FILE:WRITE`, 1502 unknown permission name, 1503 read without
+`FILE:READ`, 1217 target path encrypted and locked.
 
 ## Writing text and links into a note
 
@@ -182,7 +202,8 @@ operation with `setLassoBoxState(2)` to dismiss the lasso UI.
 
 ## Opening files and navigating
 
-`PluginFileAPI.openFile(filePath, page)` opens a note or document at a page.
+`PluginFileAPI.openFile(filePath, page)` opens `pdf`, `epub`, `cbz`, `xps`,
+`fb2` or `note` files at a 0-based page, or at the last viewed page with `-1`.
 `PluginCommAPI.jumpToPage(page)` moves within the open file.
 `PluginCommAPI.getCurrentFilePath()` and `getCurrentPageNum()` tell you where
 the user is. `PluginCommAPI.canHandwrite()` distinguishes a writable NOTE
@@ -196,6 +217,7 @@ view from a read-only DOC view.
 | Button appears, view stays blank, no error | two copies of React in the bundle (nested `node_modules/node_modules` or a symlinked path). A hello-world bundle is about 520 modules and 260 KB zipped; a doubled one about 880 and 450 KB | delete the nested folder, rebuild, run `check_plugin.py` |
 | Device shows two copies of the plugin | `pluginID` changed | restore the original id |
 | Plugin crashes on open | RN version ≠ 0.79.2 or SDK API missing on firmware | pin RN; check firmware |
+| `requestPermission` rejects "has not been declared" | permission missing from `uses-permissions` in the manifest | add it, rebuild, reinstall |
 | Runtime dies on a `FileUtils` call | `getExternalDirPath`, `getFileList`, `getImageList` need an Activity that PluginHost does not have | use `listFiles(path)` on `Document`, `Note`, etc. under `getExportPath()` minus `/EXPORT` |
 | `unknown pageSize` thrown | passed a scaled view size to PointUtils | use `getPageSize` result |
 | `got 3 arguments, expected 4` | omitted optional arg to a native method | pass `null` explicitly |

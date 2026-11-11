@@ -47,6 +47,13 @@ S10 ✓ | Introduce the hooded stranger
 done. The console parses these, sorts, and marks overdue. Editing a keyword on
 the device also edits the task, which is a feature.
 
+## Permissions
+
+Everything that reads a note or PDF, including lasso capture, needs
+`FILE:READ`; everything that writes elements needs `FILE:WRITE`. Both are
+declared in the manifest. The console asks on open and the user should pick
+"Always allow" once; "allow this time" expires each time the plugin closes.
+
 ## How typed content reaches the device
 
 This is the one hard problem. `FileUtils` has no `readFile`. Three paths:

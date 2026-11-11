@@ -112,17 +112,25 @@ async function listRecursive(dir: string, suffix: string, depth: number): Promis
 }
 
 /** Ask for file read permission if we do not already have it. */
+/**
+ * Documented flow (docs.supernote.com/en/plugin-base/permission): the
+ * permission must be listed in PluginConfig.json "uses-permissions"; then
+ * hasPermission() === 1 means granted, otherwise requestPermission() shows a
+ * three-option dialog. "Allow this time only" expires when the plugin closes,
+ * so this runs before every file call, not once at install.
+ */
 async function ensureFileRead(): Promise<string> {
   try {
     const has = await PluginManager.hasPermission(PERM_FILE_READ);
-    if (has && has > 0) {
-      return `granted(${has})`;
+    if (has === 1) {
+      return 'granted';
     }
     const choice = await PluginManager.requestPermission(
       PERM_FILE_READ,
       'DM Tome needs to read notes and PDFs to build links and tasks.',
     );
-    return `choice ${choice} (0 deny, 1 once, 2 always, -1 cancel)`;
+    const words = {0: 'denied', 1: 'allowed once', 2: 'always allowed', '-1': 'cancelled'} as Record<string, string>;
+    return `${words[String(choice)] ?? choice}`;
   } catch (e) {
     return `perm-api REJECTED ${describe(e)}`;
   }

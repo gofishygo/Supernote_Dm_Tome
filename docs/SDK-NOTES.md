@@ -122,8 +122,27 @@ the code.
   "HostCommonAPI not initialized". On this firmware the request failed; 0.2.2
   prints the raw rejection to learn which case it is.
 - Plugin-private storage is under
-  `/data/data/com.ratta.supernote.testfile/files/plugins/<pluginID>`; the
-  native layer refuses paths under another plugin's folder.
+  `/data/data/com.ratta.supernote.pluginhost/files/plugins/<pluginID>`
+  (per the official docs); the native layer refuses paths under another
+  plugin's folder.
+
+## Permissions, solved (0.2.2 on Chauvet 3.31.45, 2026-11-11)
+
+`requestPermission` rejected with `PluginException: This permission has not
+been declared.` The official permissions page (docs.supernote.com/en/
+plugin-base/permission) explains: permissions must be declared in
+`PluginConfig.json` as `"uses-permissions": [...]`, which the packaging
+script does not generate. Flow is declare → `hasPermission() === 1` →
+otherwise `requestPermission()`. "Allow this time only" expires when the
+plugin closes, so check on every open. `getLassoElements` needs `FILE:READ`,
+so even lasso capture is gated. Error codes: 1500 undeclared, 1501 no write,
+1502 unknown name, 1503 no read, 1217 encrypted path. The plugin-private
+directory is `/data/data/com.ratta.supernote.pluginhost/files/plugins/<id>`
+(the `testfile` package name in the SDK's PluginCheck is stale).
+
+Also from the docs: `openFile` supports pdf, epub, cbz, xps, fb2, note and
+takes `-1` for "last viewed page"; `getPageDisplaySize` is deprecated after
+SDK 0.1.65 in favour of `getPageSize`.
 
 ## Open questions version 0.2 answers on-device
 

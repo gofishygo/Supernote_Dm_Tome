@@ -2,10 +2,14 @@
   "name": "DM Tome",
   "desc": "Dungeon master's companion: scene script, reference links, session notes, and back-burner tasks.",
   "iconPath": "assets/icon.png",
-  "versionName": "0.2.2",
-  "versionCode": "7",
+  "versionName": "0.2.3",
+  "versionCode": "8",
   "pluginID": "l810btisuqik3aob",
   "pluginKey": "DmTome",
   "jsMainPath": "index",
-  "author": "gofishygo"
+  "author": "gofishygo",
+  "uses-permissions": [
+    "plugin.permission.FILE:READ",
+    "plugin.permission.FILE:WRITE"
+  ]
 }

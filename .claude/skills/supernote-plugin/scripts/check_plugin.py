@@ -77,6 +77,17 @@ def main(root):
             errors.append(f"iconPath '{icon}' does not exist")
         if not str(cfg.get("versionCode", "")).isdigit():
             errors.append("versionCode must be a numeric string")
+        declared = cfg.get("uses-permissions") or []
+        valid = {"plugin.permission.FILE:READ", "plugin.permission.FILE:WRITE", "plugin.permission.FILE:DELETE", "plugin.permission.INTERNET"}
+        for name in declared:
+            if name not in valid:
+                errors.append(f"uses-permissions entry '{name}' is not a known permission")
+        src_files = [root / "index.js", root / "App.tsx"] + list((root / "src").rglob("*.ts*")) if (root / "src").exists() else [root / "index.js", root / "App.tsx"]
+        code = "\n".join(f.read_text(encoding="utf-8", errors="ignore") for f in src_files if f.exists())
+        for perm in valid:
+            short = perm.split("plugin.permission.")[1]
+            if short in code and perm not in declared:
+                errors.append(f"code mentions {short} but PluginConfig.json uses-permissions does not declare {perm} (requestPermission will fail with 1500)")
 
     index = root / "index.js"
     if index.exists():
