@@ -45,6 +45,8 @@ Scene S12 | Negotiation with the ferryman
 Plot S13 | The letter names the mayor
 Hero | Thorin owes the thieves' guild a favor
 NPC | Mira the fence, hates the guard captain
+Location | The Drowned Chapel
+Lore | The red moon wakes the old kings
 S12 | Pay the ferryman                       (legacy plain task)
 ... [x]                                      done or retired
 ```
@@ -141,6 +143,7 @@ known printed page, read `getCurrentPageNum`, store the offset.
 | 0.4 (built) | References: list documents under `Document`, open at last page, bookmark the page being read (keyword `REF name \| path \| page` on page 0 of `Note/DM Tome Index.note`, created on first use), open bookmarks at page, insert a text link to a bookmark into the current note, read a PDF page's text layer. Capture lasso registered for DOC too; Capture can also save the recognized text as a bookmark. | openFile, createNote, insertTextLink, getCurrentDocText, listFiles |
 | 0.4.1 (built) | Entry types: Strong start, Scene, Plot point (dated); Hero, NPC (persistent); legacy Task. Two-step capture; board regrouped; Push +1. Probes: reinstall helper via `openFilePath`, full native method dump. | openFilePath |
 | 0.4.3 (built) | Tonight tab: Strong start, due this session, always-on with one sub-tab per type, overdue. Bookmarks shortened to `REF name` on the page itself; scan documents for bookmarks; keyword-length probe. | getKeyWords over a wide page range |
+| 0.4.4 (built) | Location and Lore persistent types; tome and lasso-quill icons. | |
 | 0.4.x | Seed table of 5e 2024 monsters/spells/conditions with page offsets per book, calibrated against the user's PDFs; digest page written into the note. | insertNotePage, insertText |
 | 0.4 | Script pages: Markdown → JSON → scene pages with titles and text boxes. | setLassoTitle or title insert, insertText batches, insertNotePage |
 | 0.5 | Polish: config button for campaign settings, session counter, review screen, star sweep. | registerConfigButton, searchFiveStars |

@@ -52,6 +52,7 @@ AppRegistry.registerComponent(appName, () => {
 Promise.resolve(PluginManager.init()).catch(e => recordError(e));
 
 const icon = Image.resolveAssetSource(require('./assets/icon.png')).uri;
+const captureIcon = Image.resolveAssetSource(require('./assets/capture.png')).uri;
 
 // Type 1: toolbar button. Visible whenever a note or document is open.
 Promise.resolve(
@@ -70,7 +71,7 @@ Promise.resolve(
   PluginManager.registerButton(2, ['NOTE', 'DOC'], {
     id: BUTTONS.CAPTURE,
     name: 'Capture',
-    icon,
+    icon: captureIcon,
     editDataTypes: [0, 3],
     showType: 1,
   }),
