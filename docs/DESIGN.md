@@ -156,6 +156,7 @@ known printed page, read `getCurrentPageNum`, store the offset.
 | 0.4.4 (built) | Location and Lore persistent types; tome and lasso-quill icons. | |
 | 0.4.5 (built) | Quest (dated) and Treasure (persistent); Back Burner shows Task entries only; "Next up" with glyph badges and a legend. Quick Access add/remove requested; the complete native method dump confirms no such hook exists, so the request is closed by the platform. | |
 | 0.4.6–0.4.7 (built) | Keyword cap at the measured 40; helmet glyph; in-game day tracker (`DM day N` keyword on page 0) at the bottom of Tonight with a 14-day strip and step buttons. | |
+| 0.4.8 (built) | Calendar events as `Day 12 \| text` keywords on page 0; 14-day grid with event text, week scrolling, tap a day to add/remove events or make it today; events outside the window listed. Quick typed "New DM task" on Back Burner. | |
 | 0.4.x | Seed table of 5e 2024 monsters/spells/conditions with page offsets per book, calibrated against the user's PDFs; digest page written into the note. | insertNotePage, insertText |
 | 0.4 | Script pages: Markdown → JSON → scene pages with titles and text boxes. | setLassoTitle or title insert, insertText batches, insertNotePage |
 | 0.5 | Polish: config button for campaign settings, session counter, review screen, star sweep. | registerConfigButton, searchFiveStars |

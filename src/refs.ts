@@ -108,7 +108,6 @@ export function parseRef(kw: KeyWord, storedIn: string): Ref | null {
   return m ? {name: m[1], path: storedIn, page: kw.page, index: kw.index, storedIn, storedPage: kw.page} : null;
 }
 
-const isNotAllowed = (e: unknown) => /\b102\b/.test(String((e as Error)?.message ?? e));
 
 /** Create the index note if it does not exist. Returns its path. */
 export async function ensureIndexNote(): Promise<string> {

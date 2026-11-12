@@ -9,7 +9,9 @@ lasso handwriting, tap Capture, pick a type (Strong start, Scene, Plot point, Qu
 Lore, Treasure; Task) and, for dated types, a session. Tonight shows the
 session's Strong start, Next up with a glyph per type, Always on with
 sub-tabs, and Overdue; Back Burner is the DM to-do list of Task entries.
-Push +1 and jump-to-page on every row. References
+Push +1 and jump-to-page on every row. Tonight ends with an in-game
+calendar (days since arrival) with per-day events; Back Burner has a typed
+quick-add for DM tasks. References
 (new): open PDFs, bookmark the page you are reading, open bookmarks at the
 exact page, insert tappable links into a note, read a PDF page's text layer.
 Bookmarks live as keywords in `Note/DM Tome Index.note`. SDK probe console

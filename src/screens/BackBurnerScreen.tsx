@@ -1,9 +1,26 @@
 /** The prep board, read from the open note's keywords. */
 import React, {useCallback, useEffect, useState} from 'react';
-import {ScrollView, Text, View} from 'react-native';
+import {Pressable, ScrollView, Text, TextInput, View} from 'react-native';
 import {PluginCommAPI, PluginManager} from 'sn-plugin-lib';
 import {ensureRead, ensureWrite} from '../permissions';
-import {Board, bucket, Bucket, EntryType, findSessionKeyword, isNotAllowed, loadBoard, rewriteTask, setDay, setSession, Task, TYPE_META} from '../tasks';
+import {
+  addDayEvent,
+  addTask,
+  Board,
+  bucket,
+  Bucket,
+  currentPage,
+  EntryType,
+  findSessionKeyword,
+  isNotAllowed,
+  loadBoard,
+  removeDayEvent,
+  rewriteTask,
+  setDay,
+  setSession,
+  Task,
+  TYPE_META,
+} from '../tasks';
 
 /**
  * Two views over the same keywords:
@@ -34,6 +51,12 @@ function byTypeThenDue(a: Task, b: Task): number {
 export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.JSX.Element {
   const [board, setBoard] = useState<Board | null>(null);
   const [alwaysTab, setAlwaysTab] = useState<EntryType | null>(null);
+  // calendar
+  const [calStart, setCalStart] = useState<number | null>(null); // first day shown; null = follow today
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [eventText, setEventText] = useState('');
+  // quick task
+  const [quickText, setQuickText] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [showDone, setShowDone] = useState(false);
@@ -164,6 +187,39 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
           {error}
         </Text>
       )}
+      {mode === 'ledger' && board && (
+        <View style={{borderWidth: 3, borderColor: '#000', padding: 10, marginTop: 12}}>
+          <Text style={styles.h2}>New DM task</Text>
+          <TextInput
+            value={quickText}
+            onChangeText={setQuickText}
+            placeholder="e.g. Print the harbour map"
+            placeholderTextColor="#000"
+            style={{borderWidth: 2, borderColor: '#000', padding: 8, fontSize: 20, color: '#000', marginVertical: 8}}
+          />
+          <Row>
+            {[
+              {label: `This session (S${board.session})`, due: board.session},
+              {label: `Next (S${board.session + 1})`, due: board.session + 1},
+              {label: 'Someday', due: null as number | null},
+            ].map(o => (
+              <Button
+                small
+                key={o.label}
+                label={o.label}
+                disabled={busy || !quickText.trim()}
+                onPress={() =>
+                  withWrite(async () => {
+                    await addTask(board.path, await currentPage(), 'task', quickText, o.due);
+                    setQuickText('');
+                  })
+                }
+              />
+            ))}
+          </Row>
+          <Text style={styles.muted}>Saved as a keyword on the page you have open.</Text>
+        </View>
+      )}
       {board && board.tasks.filter(visible).length === 0 && (
         <Text style={[styles.body, {marginTop: 16}]}>
           {mode === 'ledger'
@@ -227,41 +283,103 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
           </View>
         );
       })}
-      {mode === 'tonight' && board && (
-        <View style={{marginTop: 24, borderTopWidth: 3, borderTopColor: '#000', paddingTop: 12}}>
-          <Row>
-            <Text style={styles.h2}>In-game day {board.day}</Text>
-            <Text style={[styles.muted, {marginLeft: 10}]}>days since arrival</Text>
-          </Row>
-          <View style={{flexDirection: 'row', flexWrap: 'wrap', marginVertical: 8}}>
-            {Array.from({length: 14}, (_, i) => Math.max(1, board.day - 6) + i).map(d => {
-              const now = d === board.day;
-              return (
-                <View
-                  key={d}
-                  style={{
-                    width: 64,
-                    height: 56,
-                    borderWidth: 2,
-                    borderColor: '#000',
-                    marginRight: -2,
-                    marginBottom: -2,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: now ? '#000' : '#fff',
-                  }}>
-                  <Text style={{fontSize: 20, fontWeight: now ? '700' : '400', color: now ? '#fff' : '#000'}}>{d}</Text>
-                </View>
-              );
-            })}
+      {mode === 'tonight' && board && (() => {
+        const first = calStart ?? Math.max(1, board.day - 6);
+        const days = Array.from({length: 14}, (_, i) => first + i);
+        const byDay = new Map<number, typeof board.events>();
+        for (const ev of board.events) {
+          (byDay.get(ev.day) ?? byDay.set(ev.day, []).get(ev.day)!).push(ev);
+        }
+        const outside = board.events.filter(ev => ev.day < first || ev.day > first + 13);
+        return (
+          <View style={{marginTop: 24, borderTopWidth: 3, borderTopColor: '#000', paddingTop: 12}}>
+            <Row>
+              <Text style={styles.h2}>In-game day {board.day}</Text>
+              <Text style={[styles.muted, {marginLeft: 10, marginRight: 16}]}>days since arrival</Text>
+              <Button small label="◀ week" disabled={busy || first <= 1} onPress={() => setCalStart(Math.max(1, first - 7))} />
+              <Button small label="week ▶" disabled={busy} onPress={() => setCalStart(first + 7)} />
+              <Button small label="today" disabled={busy || calStart === null} onPress={() => setCalStart(null)} />
+            </Row>
+            <View style={{flexDirection: 'row', flexWrap: 'wrap', marginVertical: 8}}>
+              {days.map(d => {
+                const now = d === board.day;
+                const sel = d === selectedDay;
+                const evs = byDay.get(d) ?? [];
+                return (
+                  <Pressable
+                    key={d}
+                    onPress={() => setSelectedDay(sel ? null : d)}
+                    style={{
+                      width: '14.28%',
+                      minHeight: 110,
+                      borderWidth: sel ? 4 : 2,
+                      borderColor: '#000',
+                      padding: 6,
+                      backgroundColor: now ? '#000' : '#fff',
+                    }}>
+                    <Text style={{fontSize: 20, fontWeight: '700', color: now ? '#fff' : '#000'}}>{d}</Text>
+                    {evs.map(ev => (
+                      <Text key={ev.index} style={{fontSize: 14, color: now ? '#fff' : '#000', marginTop: 2}} numberOfLines={3}>
+                        {ev.text}
+                      </Text>
+                    ))}
+                  </Pressable>
+                );
+              })}
+            </View>
+            {selectedDay !== null && (
+              <View style={{borderWidth: 3, borderColor: '#000', padding: 10, marginBottom: 8}}>
+                <Text style={styles.h2}>Day {selectedDay}</Text>
+                {(byDay.get(selectedDay) ?? []).map(ev => (
+                  <Row key={ev.index}>
+                    <Text style={[styles.body, {flex: 1}]}>{ev.text}</Text>
+                    <Button small label="Remove" disabled={busy} onPress={() => withWrite(() => removeDayEvent(board.path, ev))} />
+                  </Row>
+                ))}
+                <TextInput
+                  value={eventText}
+                  onChangeText={setEventText}
+                  placeholder="event, e.g. Ireena wedding"
+                  placeholderTextColor="#000"
+                  style={{borderWidth: 2, borderColor: '#000', padding: 8, fontSize: 20, color: '#000', marginVertical: 8}}
+                />
+                <Row>
+                  <Button
+                    small
+                    label="Add event"
+                    disabled={busy || !eventText.trim()}
+                    onPress={() =>
+                      withWrite(async () => {
+                        await addDayEvent(board.path, selectedDay, eventText);
+                        setEventText('');
+                      })
+                    }
+                  />
+                  <Button small label="Make this today" disabled={busy || selectedDay === board.day} onPress={() => withWrite(() => setDay(board.path, selectedDay))} />
+                </Row>
+              </View>
+            )}
+            <Row>
+              <Button small label="← Back a day" disabled={busy || board.day <= 1} onPress={() => withWrite(() => setDay(board.path, board.day - 1))} />
+              <Button small label="Next day →" disabled={busy} onPress={() => withWrite(() => setDay(board.path, board.day + 1))} />
+              <Button small label="+7 days" disabled={busy} onPress={() => withWrite(() => setDay(board.path, board.day + 7))} />
+            </Row>
+            {outside.length > 0 && (
+              <View style={{marginTop: 8}}>
+                <Text style={styles.muted}>Other events</Text>
+                {outside.map(ev => (
+                  <Row key={`${ev.page}-${ev.index}`}>
+                    <Text style={[styles.body, {flex: 1}]}>
+                      Day {ev.day}: {ev.text}
+                    </Text>
+                    <Button small label="Show" disabled={busy} onPress={() => { setCalStart(Math.max(1, ev.day - 6)); setSelectedDay(ev.day); }} />
+                  </Row>
+                ))}
+              </View>
+            )}
           </View>
-          <Row>
-            <Button small label="← Back a day" disabled={busy || board.day <= 1} onPress={() => withWrite(() => setDay(board.path, board.day - 1))} />
-            <Button small label="Next day →" disabled={busy} onPress={() => withWrite(() => setDay(board.path, board.day + 1))} />
-            <Button small label="+7 days" disabled={busy} onPress={() => withWrite(() => setDay(board.path, board.day + 7))} />
-          </Row>
-        </View>
-      )}
+        );
+      })()}
       <View style={{height: 80}} />
     </ScrollView>
   );

@@ -18,6 +18,8 @@
  * The session counter and the in-game day are their own keywords on page 0:
  *   DM session 12
  *   DM day 7            (days since arrival; day 1 is the arrival)
+ * Calendar events are keywords too, on page 0:
+ *   Day 12 | Battle w/ Baulder
  */
 import {PluginCommAPI, PluginDocAPI, PluginFileAPI, PluginNoteAPI} from 'sn-plugin-lib';
 
@@ -74,6 +76,9 @@ type KeyWord = {keyword: string; page: number; index: number};
 const TASK_RE = /^(Strong start|Scene|Plot|Quest|Hero|NPC|Location|Lore|Treasure|Task)?\s*(?:S(\d+|\?))?\s*\|\s*(.*?)\s*(\[x\])?$/i;
 const SESSION_RE = /^DM session (\d+)$/i;
 const DAY_RE = /^DM day (\d+)$/i;
+const DAY_EVENT_RE = /^Day (\d+)\s*\|\s*(.+)$/i;
+
+export type DayEvent = {day: number; text: string; page: number; index: number};
 
 const WORD_TO_TYPE: Record<string, EntryType> = {
   'strong start': 'strong',
@@ -166,7 +171,7 @@ async function allKeywords(path: string): Promise<KeyWord[]> {
   return res.result ?? [];
 }
 
-export type Board = {path: string; session: number; day: number; tasks: Task[]; keywordCount: number};
+export type Board = {path: string; session: number; day: number; tasks: Task[]; events: DayEvent[]; keywordCount: number};
 
 export async function loadBoard(): Promise<Board> {
   const path = await currentFile();
@@ -174,7 +179,13 @@ export async function loadBoard(): Promise<Board> {
   let session = 1;
   let day = 1;
   const tasks: Task[] = [];
+  const events: DayEvent[] = [];
   for (const kw of kws) {
+    const em = DAY_EVENT_RE.exec(kw.keyword.trim());
+    if (em) {
+      events.push({day: Number(em[1]), text: em[2], page: kw.page, index: kw.index});
+      continue;
+    }
     const sm = SESSION_RE.exec(kw.keyword.trim());
     if (sm) {
       session = Number(sm[1]);
@@ -190,7 +201,8 @@ export async function loadBoard(): Promise<Board> {
       tasks.push(t);
     }
   }
-  return {path, session, day, tasks, keywordCount: kws.length};
+  events.sort((a, b) => a.day - b.day);
+  return {path, session, day, tasks, events, keywordCount: kws.length};
 }
 
 export async function addTask(path: string, page: number, type: EntryType, text: string, due: number | null): Promise<string> {
@@ -226,6 +238,20 @@ export async function findSessionKeyword(path: string): Promise<{page: number; i
   const kws = await allKeywords(path);
   const hit = kws.find(k => SESSION_RE.test(k.keyword.trim()));
   return hit ? {page: hit.page, index: hit.index} : null;
+}
+
+export async function addDayEvent(path: string, day: number, text: string): Promise<string> {
+  const head = `Day ${day} | `;
+  const clean = text.replace(/[|\n\r]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, KEYWORD_MAX - head.length);
+  const keyword = `${head}${clean}`;
+  await flush();
+  unwrap<boolean>(await PluginFileAPI.insertKeyWord(path, 0, keyword), 'insertKeyWord');
+  return keyword;
+}
+
+export async function removeDayEvent(path: string, ev: DayEvent): Promise<void> {
+  await flush();
+  unwrap<boolean>(await PluginFileAPI.deleteKeyWord(path, ev.page, ev.index), 'deleteKeyWord');
 }
 
 /** Replace the in-game day keyword (delete the old one if present). */
