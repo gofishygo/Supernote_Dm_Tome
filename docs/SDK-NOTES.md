@@ -191,8 +191,8 @@ NOTE read a document's keywords, and does `getCurrentTotalPages` work.
 
 - `insertKeyWord` with a ~100-character keyword fails with
   `1001 the keyword exceeds the maximum length limit`. Short task keywords
-  (~25 characters) succeed. The exact limit is measured by the "Find keyword
-  max length" probe; until then the code caps keywords at 30 characters and
+  (~25 characters) succeed. Measured: 40-character keywords insert, 60 fail
+  (50 unreported). The code caps keywords at 40 characters and
   bookmarks carry only `REF <name>`, with file and page implied by where the
   keyword sits. Insert on a PDF from DOC is allowed (it failed on length, not
   on 102), so bookmarks now live on the document itself.

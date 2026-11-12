@@ -45,7 +45,7 @@ export const TYPE_META: Record<EntryType, Meta> = {
   scene: {word: 'Scene', label: 'Scene', plural: 'Scenes', dated: true, order: 1, glyph: '⚔'},
   plot: {word: 'Plot', label: 'Plot point', plural: 'Plot points', dated: true, order: 2, glyph: '❖'},
   quest: {word: 'Quest', label: 'Quest', plural: 'Quests', dated: true, order: 3, glyph: '⚑'},
-  hero: {word: 'Hero', label: 'Hero', plural: 'Heroes', dated: false, order: 4, glyph: '☺'},
+  hero: {word: 'Hero', label: 'Hero', plural: 'Heroes', dated: false, order: 4, glyph: '⛑'},
   npc: {word: 'NPC', label: 'NPC', plural: 'NPCs', dated: false, order: 5, glyph: '☻'},
   location: {word: 'Location', label: 'Location', plural: 'Locations', dated: false, order: 6, glyph: '⌂'},
   lore: {word: 'Lore', label: 'Lore', plural: 'Lore', dated: false, order: 7, glyph: '✎'},
@@ -85,8 +85,8 @@ const WORD_TO_TYPE: Record<string, EntryType> = {
   task: 'task',
 };
 
-/** Device keywords have a short maximum length (error 1001); measured by the probe tab. */
-export const KEYWORD_MAX = 30;
+/** Measured on a Manta (Chauvet 3.31.45): 40-character keywords insert, 60 fail with 1001. */
+export const KEYWORD_MAX = 40;
 
 export function formatTask(type: EntryType, text: string, due: number | null, done = false): string {
   const clean = text.replace(/[|\n\r]/g, ' ').replace(/\s+/g, ' ').trim();

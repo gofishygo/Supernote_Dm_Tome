@@ -54,7 +54,7 @@ the detail it holds:
 3. **The note is a database, with short rows.** Keywords
    (`insertKeyWord`/`getKeyWords`) are a per-page string store that survives
    sync and reinstall, but each keyword is short (error 1001 past the limit;
-   ~25 characters is safe, ~100 is not). Encode position by *where* a keyword
+   40 characters insert on a Manta, 60 do not). Encode position by *where* a keyword
    sits (file, page) rather than by writing paths into it. Text boxes carry
    `textContentFull`. Links carry `destPath` and `destPage`. Use these before
    inventing a storage layer.

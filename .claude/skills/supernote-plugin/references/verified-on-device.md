@@ -76,7 +76,8 @@ read a note's keywords, or NOTE a document's, is being probed.
 ## Keywords and templates
 
 - `insertKeyWord` rejects long keywords with `1001 the keyword exceeds the
-  maximum length limit`; ~25 characters works, ~100 does not. Inserting a
+  maximum length limit`. Measured by inserting and deleting test keywords:
+  10, 20, 30, 40 characters succeed; 60 fails. Cap at 40. Inserting a
   keyword on a PDF page from DOC is allowed.
 - `createNote` with a made-up template name fails with `802 Background
   template file does not exist`; use `getNoteSystemTemplates()[i].name`.

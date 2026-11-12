@@ -18,7 +18,7 @@ import {ProbeConsole} from './src/screens/ProbeConsole';
 import {ReferenceScreen} from './src/screens/ReferenceScreen';
 import {PAPER, styles} from './src/ui';
 
-const VERSION = '0.4.5';
+const VERSION = '0.4.6';
 type Tab = 'tonight' | 'burner' | 'refs' | 'probes';
 
 function Hub(): React.JSX.Element {

@@ -124,8 +124,8 @@ export function CaptureScreen(): React.JSX.Element {
             {CAPTURE_TYPES.map(t => (
               <Button
                 key={t}
-                label={TYPE_META[t].label}
-                hint={TYPE_META[t].dated ? 'then pick a session' : 'always on the board'}
+                label={`${TYPE_META[t].glyph}  ${TYPE_META[t].label}`}
+                hint={t === 'task' ? 'DM to-do, Back Burner only' : TYPE_META[t].dated ? 'then pick a session' : 'always on the board'}
                 disabled={saving}
                 onPress={() => pickType(t)}
               />

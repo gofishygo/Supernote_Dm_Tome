@@ -19,8 +19,8 @@ export const INDEX_NOTE_NAME = 'DM Tome Index.note';
 export const DOC_SUFFIXES = ['.pdf', '.epub', '.cbz', '.xps', '.fb2'];
 const REF_LONG_RE = /^REF\s+(.+?)\s*\|\s*(.+?)\s*\|\s*(\d+)$/;
 const REF_RE = /^REF\s+(.+)$/;
-/** Keep well under the device keyword limit; the probe tab measures it. */
-export const KEYWORD_MAX = 30;
+/** Measured on a Manta: 40-character keywords insert, 60 fail with 1001. */
+export const KEYWORD_MAX = 40;
 
 function unwrap<T>(raw: unknown, what: string): T {
   const res = raw as ApiResponse<T> | null | undefined;
