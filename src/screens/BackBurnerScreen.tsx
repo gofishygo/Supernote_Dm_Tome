@@ -7,9 +7,10 @@ import {Board, bucket, Bucket, EntryType, findSessionKeyword, isNotAllowed, load
 
 /**
  * Two views over the same keywords:
- *  - 'tonight': the session view. Strong start, due this session, always-on
- *    split into one sub-tab per type (only the selected type shows), overdue.
- *  - 'ledger': everything, grouped, including upcoming, someday and done.
+ *  - 'tonight': the session board for every type except Task. Strong start,
+ *    Next up, always-on split into one sub-tab per type, overdue.
+ *  - 'ledger' (Back Burner): the DM's to-do list, Task entries only, with
+ *    overdue, next up, upcoming, someday and done.
  */
 export type BoardMode = 'tonight' | 'ledger';
 const TONIGHT_ORDER: Bucket[] = ['strongNow', 'due', 'always', 'overdue'];
@@ -19,7 +20,7 @@ const ORDER: Bucket[] = ['strongNow', 'overdue', 'due', 'always', 'upcoming', 's
 const TITLES: Record<Bucket, string> = {
   strongNow: 'Strong start',
   overdue: 'Overdue',
-  due: 'Due this session',
+  due: 'Next up',
   always: 'Always on',
   upcoming: 'Upcoming',
   someday: 'Someday',
@@ -91,8 +92,9 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
   };
 
   const groups: Partial<Record<Bucket, Task[]>> = {};
+  const visible = (t: Task) => (mode === 'ledger' ? t.type === 'task' : t.type !== 'task');
   if (board) {
-    for (const t of board.tasks) {
+    for (const t of board.tasks.filter(visible)) {
       (groups[bucket(t, board.session)] ??= []).push(t);
     }
     for (const list of Object.values(groups)) {
@@ -105,10 +107,15 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
     const path = board!.path;
     return (
       <View key={`${t.page}-${t.index}`} style={{borderBottomWidth: 1, borderBottomColor: '#000', paddingVertical: 8}}>
-        <Text style={[styles.body, t.done && {textDecorationLine: 'line-through'}]}>
-          {b === 'due' || b === 'overdue' || b === 'upcoming' || b === 'done' || b === 'someday' ? `${TYPE_META[t.type].label}: ` : ''}
-          {t.text}
-        </Text>
+        <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
+          <View style={{borderWidth: 2, borderColor: '#000', minWidth: 36, paddingHorizontal: 6, paddingVertical: 2, marginRight: 10, alignItems: 'center'}}>
+            <Text style={{fontSize: 20, color: '#000'}}>{TYPE_META[t.type].glyph}</Text>
+          </View>
+          <Text style={[styles.body, {flex: 1}, t.done && {textDecorationLine: 'line-through'}]}>
+            {b !== 'always' && b !== 'strongNow' ? `${TYPE_META[t.type].label}: ` : ''}
+            {t.text}
+          </Text>
+        </View>
         <Row>
           <Text style={[styles.muted, {marginRight: 12}]}>
             {dated ? (t.due === null ? 'someday' : `S${t.due}`) : TYPE_META[t.type].label} · p.{t.page + 1}
@@ -137,7 +144,7 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
   return (
     <ScrollView style={styles.screen}>
       <Row>
-        <Text style={styles.h1}>{mode === 'tonight' ? 'Tonight · session' : 'Session'} {board?.session ?? '…'}</Text>
+        <Text style={styles.h1}>{mode === 'tonight' ? 'Tonight · session' : 'DM to-do · session'} {board?.session ?? '…'}</Text>
         <View style={{width: 16}} />
         <Button small label="−" disabled={busy || !board} onPress={() => bumpSession(-1)} />
         <Button small label="+" disabled={busy || !board} onPress={() => bumpSession(1)} />
@@ -146,7 +153,10 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
       </Row>
       {board && (
         <Text style={styles.muted}>
-          {board.tasks.length} entries in {board.keywordCount} keywords · {board.path.split('/').pop()}
+          {board.tasks.filter(visible).length} entries · {board.path.split('/').pop()}
+          {mode === 'tonight'
+            ? ' · ' + (['strong', 'scene', 'plot', 'quest', 'hero', 'npc', 'location', 'lore', 'treasure'] as EntryType[]).map(t => `${TYPE_META[t].glyph} ${TYPE_META[t].label}`).join('  ')
+            : ''}
         </Text>
       )}
       {error && (
@@ -154,13 +164,15 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
           {error}
         </Text>
       )}
-      {board && board.tasks.length === 0 && (
+      {board && board.tasks.filter(visible).length === 0 && (
         <Text style={[styles.body, {marginTop: 16}]}>
-          Nothing yet. Handwrite something, lasso it, tap Capture in the lasso toolbar.
+          {mode === 'ledger'
+            ? 'No DM tasks. Lasso a to-do and capture it as "Task".'
+            : 'Nothing for tonight yet. Handwrite something, lasso it, tap Capture.'}
         </Text>
       )}
 
-      {board && !(groups.strongNow?.length) && (
+      {board && mode === 'tonight' && !(groups.strongNow?.length) && (
         <View style={{borderWidth: 3, borderColor: '#000', padding: 12, marginTop: 12}}>
           <Text style={styles.h2}>Strong start</Text>
           <Text style={styles.body}>No strong start for session {board.session} yet. Capture one as "Strong start".</Text>

@@ -10,7 +10,10 @@
  *   NPC | Mira the fence, hates the guard captain     persistent, no due
  *   Location | The Drowned Chapel                     persistent, no due
  *   Lore | The red moon wakes the old kings           persistent, no due
- *   S12 | Pay the ferryman                            legacy plain task
+ *   Quest S12 | Recover the bell of Saint Orm         dated
+ *   Treasure | Ring of the drowned king (unclaimed)   persistent, no due
+ *   Task S12 | Print the harbour map                  DM to-do, Back Burner only
+ *   S12 | Pay the ferryman                            legacy plain task (= Task)
  *   ... [x]                                           done / retired
  * The session counter is its own keyword on page 0:  DM session 12
  */
@@ -22,20 +25,36 @@ export const isDocPath = (path: string) => DOC_SUFFIXES.some(s => path.toLowerCa
 /** Error 102 means the hosting app (NOTE or DOC) does not offer this API. */
 export const isNotAllowed = (e: unknown) => /\b102\b/.test(String((e as Error)?.message ?? e));
 
-export type EntryType = 'strong' | 'scene' | 'plot' | 'hero' | 'npc' | 'location' | 'lore' | 'task';
+export type EntryType =
+  | 'strong'
+  | 'scene'
+  | 'plot'
+  | 'quest'
+  | 'hero'
+  | 'npc'
+  | 'location'
+  | 'lore'
+  | 'treasure'
+  | 'task';
 
-export const TYPE_META: Record<EntryType, {word: string; label: string; plural: string; dated: boolean; order: number}> = {
-  strong: {word: 'Strong start', label: 'Strong start', plural: 'Strong starts', dated: true, order: 0},
-  scene: {word: 'Scene', label: 'Scene', plural: 'Scenes', dated: true, order: 1},
-  plot: {word: 'Plot', label: 'Plot point', plural: 'Plot points', dated: true, order: 2},
-  hero: {word: 'Hero', label: 'Hero', plural: 'Heroes', dated: false, order: 3},
-  npc: {word: 'NPC', label: 'NPC', plural: 'NPCs', dated: false, order: 4},
-  location: {word: 'Location', label: 'Location', plural: 'Locations', dated: false, order: 5},
-  lore: {word: 'Lore', label: 'Lore', plural: 'Lore', dated: false, order: 6},
-  task: {word: '', label: 'Task', plural: 'Tasks', dated: true, order: 7},
+type Meta = {word: string; label: string; plural: string; dated: boolean; order: number; glyph: string};
+
+/** `glyph` is a plain Unicode symbol so it renders in any system font on e-ink. */
+export const TYPE_META: Record<EntryType, Meta> = {
+  strong: {word: 'Strong start', label: 'Strong start', plural: 'Strong starts', dated: true, order: 0, glyph: '★'},
+  scene: {word: 'Scene', label: 'Scene', plural: 'Scenes', dated: true, order: 1, glyph: '⚔'},
+  plot: {word: 'Plot', label: 'Plot point', plural: 'Plot points', dated: true, order: 2, glyph: '❖'},
+  quest: {word: 'Quest', label: 'Quest', plural: 'Quests', dated: true, order: 3, glyph: '⚑'},
+  hero: {word: 'Hero', label: 'Hero', plural: 'Heroes', dated: false, order: 4, glyph: '☺'},
+  npc: {word: 'NPC', label: 'NPC', plural: 'NPCs', dated: false, order: 5, glyph: '☻'},
+  location: {word: 'Location', label: 'Location', plural: 'Locations', dated: false, order: 6, glyph: '⌂'},
+  lore: {word: 'Lore', label: 'Lore', plural: 'Lore', dated: false, order: 7, glyph: '✎'},
+  treasure: {word: 'Treasure', label: 'Treasure', plural: 'Treasure', dated: false, order: 8, glyph: '◆'},
+  task: {word: 'Task', label: 'Task', plural: 'Tasks', dated: true, order: 9, glyph: '☐'},
 };
 
-export const CAPTURE_TYPES: EntryType[] = ['strong', 'scene', 'plot', 'hero', 'npc', 'location', 'lore', 'task'];
+/** Order of buttons on the Capture screen. Task last: it is DM housekeeping, not session content. */
+export const CAPTURE_TYPES: EntryType[] = ['strong', 'scene', 'plot', 'quest', 'hero', 'npc', 'location', 'lore', 'treasure', 'task'];
 
 export type Task = {
   type: EntryType;
@@ -50,7 +69,7 @@ export type Task = {
 type ApiResponse<T> = {success: boolean; result: T | null; error: {code: number; message: string} | null};
 type KeyWord = {keyword: string; page: number; index: number};
 
-const TASK_RE = /^(Strong start|Scene|Plot|Hero|NPC|Location|Lore)?\s*(?:S(\d+|\?))?\s*\|\s*(.*?)\s*(\[x\])?$/i;
+const TASK_RE = /^(Strong start|Scene|Plot|Quest|Hero|NPC|Location|Lore|Treasure|Task)?\s*(?:S(\d+|\?))?\s*\|\s*(.*?)\s*(\[x\])?$/i;
 const SESSION_RE = /^DM session (\d+)$/i;
 
 const WORD_TO_TYPE: Record<string, EntryType> = {
@@ -61,6 +80,9 @@ const WORD_TO_TYPE: Record<string, EntryType> = {
   npc: 'npc',
   location: 'location',
   lore: 'lore',
+  quest: 'quest',
+  treasure: 'treasure',
+  task: 'task',
 };
 
 /** Device keywords have a short maximum length (error 1001); measured by the probe tab. */

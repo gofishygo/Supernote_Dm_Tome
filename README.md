@@ -5,10 +5,11 @@ rulebook PDFs, in-session note organization, and a back-burner task list with
 due sessions. Built for the Supernote Manta (A5X2) with `sn-plugin-lib` 0.2.3.
 
 Hobby project. Current release: **0.4.1**. Back Burner (verified on device):
-lasso handwriting, tap Capture, pick a type (Strong start, Scene, Plot
-point, Hero, NPC, Location, Lore) and, for dated types, a session; the board shows the
-session's Strong start up top, then Overdue, Due, Always on, Upcoming,
-Someday, Done, with Push +1 and jump-to-page. References
+lasso handwriting, tap Capture, pick a type (Strong start, Scene, Plot point, Quest; Hero, NPC, Location,
+Lore, Treasure; Task) and, for dated types, a session. Tonight shows the
+session's Strong start, Next up with a glyph per type, Always on with
+sub-tabs, and Overdue; Back Burner is the DM to-do list of Task entries.
+Push +1 and jump-to-page on every row. References
 (new): open PDFs, bookmark the page you are reading, open bookmarks at the
 exact page, insert tappable links into a note, read a PDF page's text layer.
 Bookmarks live as keywords in `Note/DM Tome Index.note`. SDK probe console

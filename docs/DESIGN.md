@@ -45,19 +45,29 @@ Scene S12 | Negotiation with the ferryman
 Plot S13 | The letter names the mayor
 Hero | Thorin owes the thieves' guild a favor
 NPC | Mira the fence, hates the guard captain
+Quest S12 | Recover the bell of Saint Orm
 Location | The Drowned Chapel
 Lore | The red moon wakes the old kings
-S12 | Pay the ferryman                       (legacy plain task)
+Treasure | Ring of the drowned king (unclaimed)
+Task S12 | Print the harbour map             (DM to-do; Back Burner only)
+S12 | Pay the ferryman                       (legacy plain task = Task)
 ... [x]                                      done or retired
 ```
 
 Dated types carry `S<n>`; `S?` means someday. Persistent types carry no
-session and sit in an "Always on" section until retired. The board shows the
-current session's Strong start in its own panel at the top (and nags when
-there is none), then Overdue, Due this session grouped by type, Always on,
-Upcoming, Someday, Done. "Push +1" moves a dated entry to the next session,
-the most common edit at the table. Editing a keyword on the device also edits
-the entry, which is a feature.
+session and sit in an "Always on" section until retired. Two views:
+
+- **Tonight**: every type except Task. The current session's Strong start in
+  its own panel (with a nag when missing), then Next up grouped by type with a
+  glyph badge per entry (★ strong start, ⚔ scene, ❖ plot, ⚑ quest, ☺ hero,
+  ☻ NPC, ⌂ location, ✎ lore, ◆ treasure), Always on with one sub-tab per
+  type, then Overdue.
+- **Back Burner**: the DM's to-do list, Task entries only: Overdue, Next up,
+  Upcoming, Someday, Done.
+
+"Push +1" moves a dated entry to the next session, the most common edit at
+the table. Editing a keyword on the device also edits the entry, which is a
+feature.
 
 ## Permissions
 
@@ -144,6 +154,7 @@ known printed page, read `getCurrentPageNum`, store the offset.
 | 0.4.1 (built) | Entry types: Strong start, Scene, Plot point (dated); Hero, NPC (persistent); legacy Task. Two-step capture; board regrouped; Push +1. Probes: reinstall helper via `openFilePath`, full native method dump. | openFilePath |
 | 0.4.3 (built) | Tonight tab: Strong start, due this session, always-on with one sub-tab per type, overdue. Bookmarks shortened to `REF name` on the page itself; scan documents for bookmarks; keyword-length probe. | getKeyWords over a wide page range |
 | 0.4.4 (built) | Location and Lore persistent types; tome and lasso-quill icons. | |
+| 0.4.5 (built) | Quest (dated) and Treasure (persistent); Back Burner shows Task entries only; "Next up" with glyph badges and a legend. Quick Access add/remove requested but no SDK hook exists; pending the native method dump. | |
 | 0.4.x | Seed table of 5e 2024 monsters/spells/conditions with page offsets per book, calibrated against the user's PDFs; digest page written into the note. | insertNotePage, insertText |
 | 0.4 | Script pages: Markdown → JSON → scene pages with titles and text boxes. | setLassoTitle or title insert, insertText batches, insertNotePage |
 | 0.5 | Polish: config button for campaign settings, session counter, review screen, star sweep. | registerConfigButton, searchFiveStars |
