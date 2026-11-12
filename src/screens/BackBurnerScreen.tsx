@@ -3,7 +3,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {ScrollView, Text, View} from 'react-native';
 import {PluginCommAPI, PluginManager} from 'sn-plugin-lib';
 import {ensureRead, ensureWrite} from '../permissions';
-import {Board, bucket, Bucket, EntryType, findSessionKeyword, isNotAllowed, loadBoard, rewriteTask, setSession, Task, TYPE_META} from '../tasks';
+import {Board, bucket, Bucket, EntryType, findSessionKeyword, isNotAllowed, loadBoard, rewriteTask, setDay, setSession, Task, TYPE_META} from '../tasks';
 
 /**
  * Two views over the same keywords:
@@ -227,6 +227,41 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
           </View>
         );
       })}
+      {mode === 'tonight' && board && (
+        <View style={{marginTop: 24, borderTopWidth: 3, borderTopColor: '#000', paddingTop: 12}}>
+          <Row>
+            <Text style={styles.h2}>In-game day {board.day}</Text>
+            <Text style={[styles.muted, {marginLeft: 10}]}>days since arrival</Text>
+          </Row>
+          <View style={{flexDirection: 'row', flexWrap: 'wrap', marginVertical: 8}}>
+            {Array.from({length: 14}, (_, i) => Math.max(1, board.day - 6) + i).map(d => {
+              const now = d === board.day;
+              return (
+                <View
+                  key={d}
+                  style={{
+                    width: 64,
+                    height: 56,
+                    borderWidth: 2,
+                    borderColor: '#000',
+                    marginRight: -2,
+                    marginBottom: -2,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: now ? '#000' : '#fff',
+                  }}>
+                  <Text style={{fontSize: 20, fontWeight: now ? '700' : '400', color: now ? '#fff' : '#000'}}>{d}</Text>
+                </View>
+              );
+            })}
+          </View>
+          <Row>
+            <Button small label="← Back a day" disabled={busy || board.day <= 1} onPress={() => withWrite(() => setDay(board.path, board.day - 1))} />
+            <Button small label="Next day →" disabled={busy} onPress={() => withWrite(() => setDay(board.path, board.day + 1))} />
+            <Button small label="+7 days" disabled={busy} onPress={() => withWrite(() => setDay(board.path, board.day + 7))} />
+          </Row>
+        </View>
+      )}
       <View style={{height: 80}} />
     </ScrollView>
   );

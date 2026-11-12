@@ -15,7 +15,9 @@
  *   Task S12 | Print the harbour map                  DM to-do, Back Burner only
  *   S12 | Pay the ferryman                            legacy plain task (= Task)
  *   ... [x]                                           done / retired
- * The session counter is its own keyword on page 0:  DM session 12
+ * The session counter and the in-game day are their own keywords on page 0:
+ *   DM session 12
+ *   DM day 7            (days since arrival; day 1 is the arrival)
  */
 import {PluginCommAPI, PluginDocAPI, PluginFileAPI, PluginNoteAPI} from 'sn-plugin-lib';
 
@@ -71,6 +73,7 @@ type KeyWord = {keyword: string; page: number; index: number};
 
 const TASK_RE = /^(Strong start|Scene|Plot|Quest|Hero|NPC|Location|Lore|Treasure|Task)?\s*(?:S(\d+|\?))?\s*\|\s*(.*?)\s*(\[x\])?$/i;
 const SESSION_RE = /^DM session (\d+)$/i;
+const DAY_RE = /^DM day (\d+)$/i;
 
 const WORD_TO_TYPE: Record<string, EntryType> = {
   'strong start': 'strong',
@@ -163,12 +166,13 @@ async function allKeywords(path: string): Promise<KeyWord[]> {
   return res.result ?? [];
 }
 
-export type Board = {path: string; session: number; tasks: Task[]; keywordCount: number};
+export type Board = {path: string; session: number; day: number; tasks: Task[]; keywordCount: number};
 
 export async function loadBoard(): Promise<Board> {
   const path = await currentFile();
   const kws = await allKeywords(path);
   let session = 1;
+  let day = 1;
   const tasks: Task[] = [];
   for (const kw of kws) {
     const sm = SESSION_RE.exec(kw.keyword.trim());
@@ -176,12 +180,17 @@ export async function loadBoard(): Promise<Board> {
       session = Number(sm[1]);
       continue;
     }
+    const dm = DAY_RE.exec(kw.keyword.trim());
+    if (dm) {
+      day = Number(dm[1]);
+      continue;
+    }
     const t = parseTask(kw);
     if (t) {
       tasks.push(t);
     }
   }
-  return {path, session, tasks, keywordCount: kws.length};
+  return {path, session, day, tasks, keywordCount: kws.length};
 }
 
 export async function addTask(path: string, page: number, type: EntryType, text: string, due: number | null): Promise<string> {
@@ -217,6 +226,17 @@ export async function findSessionKeyword(path: string): Promise<{page: number; i
   const kws = await allKeywords(path);
   const hit = kws.find(k => SESSION_RE.test(k.keyword.trim()));
   return hit ? {page: hit.page, index: hit.index} : null;
+}
+
+/** Replace the in-game day keyword (delete the old one if present). */
+export async function setDay(path: string, day: number): Promise<void> {
+  await flush();
+  const kws = await allKeywords(path);
+  const hit = kws.find(k => DAY_RE.test(k.keyword.trim()));
+  if (hit) {
+    unwrap<boolean>(await PluginFileAPI.deleteKeyWord(path, hit.page, hit.index), 'deleteKeyWord');
+  }
+  unwrap<boolean>(await PluginFileAPI.insertKeyWord(path, 0, `DM day ${Math.max(1, day)}`), 'insertKeyWord');
 }
 
 export type Bucket = 'strongNow' | 'overdue' | 'due' | 'always' | 'upcoming' | 'someday' | 'done';
