@@ -94,20 +94,57 @@ read a note's keywords, or NOTE a document's, is being probed.
   from the official API reference, so none of its shapes are promised.
 - `getPageDisplaySize()` is deprecated after SDK 0.1.65. Use `getPageSize`.
 
-## Native method inventory (3.31.45)
+## Native method inventory (Chauvet 3.31.45, complete)
 
-Enumerated with `Object.keys(module)` and `typeof module.x === 'function'`:
+Enumerated on the device with `Object.keys(module)`. This is the entire
+native surface a pure-JS plugin can reach on this firmware. Anything not
+listed here (for example Quick Access, favourites, shortcuts, file content
+read/write, plugin install) cannot be done without a native module.
 
-- `FileUtils` (15 keys): `exists`, `listFiles`, `getFileList`,
-  `getExportPath`, `copyFile`, `makeDir`, `deleteFile`, `getFileMD5`,
-  `openFilePath`, plus the crashing `getExternalDirPath` / `getImageList`.
-- `NativePluginManager` (23 keys) includes `hasPermission`,
-  `requestPermission`, `showPluginView`, `getOrientation`,
-  `registerConfigButton`.
-- `NativePluginAPI` (95 keys) includes `openFile`, `jumpToPage`,
-  `canHandwrite`, `recognizeElements`, `getPenInfo`, `lassoElements`,
-  `insertTextLink`, `insertKeyWord`, `getCurrentDocText`,
-  `insertPageElements`, `deleteElements`, `getPageSize`.
+**FileUtils (15):** copyFile, deleteDir, deleteFile, exists, getConstants,
+getExportPath, getExternalDirPath (crashes), getFileList (crashes),
+getFileMD5, getImageList (crashes), getStorageAvailableSpace, listFiles,
+makeDir, openFilePath, renameToFile.
+
+**NativePluginManager (23):** closePluginView, getButtonState, getConstants,
+getDeviceType, getOrientation, getPluginDirPath, getPluginName,
+hasPermission, invalidatePluginView, modifyButtonRes, normalize, onMounted,
+onPluginLifeState, onStop, registerButtonRes, registerConfigButton,
+reportSdkVersion, requestPermission, sendPluginEvent, setButtonState,
+setFullAuto, showPluginView, unregisterButtonRes.
+
+**NativePluginAPI (95):** batchUpdatePageElements, canHandwrite,
+cancelRecognize, clearElementCache, clearLayerElements, clearMarkElements,
+convertElement2Sticker, createElement, createNote, deleteElements,
+deleteKeyWord, deleteLassoElements, deleteLayers, deletePageElements,
+fillRegionByPoint, flipLassoElements, generateCurrentDocImage,
+generateLassoPreview, generateLayerPreviewImage, generateMarkThumbnails,
+generateNotePng, generateNoteTemplatePng, generateStickerThumbnail,
+getCacheElement, getConstants, getCurrentDocText, getCurrentFilePath,
+getCurrentPageNum, getCurrentTotalPages, getElement, getElementCounts,
+getElementNumList, getElements, getFileMachineType, getKeyWords,
+getLassoElementTypeCounts, getLassoElements, getLassoGeometries,
+getLassoLinks, getLassoRect, getLassoText, getLassoTitles, getLastElement,
+getLastSelectedText, getLayers, getMarkPages, getNotePageTemplate,
+getNoteSystemTemplates, getNoteTotalPageNum, getNoteType,
+getPageDisplaySize, getPageSize, getPathEncryptionStatus, getPenInfo,
+getStickerSize, getTitles, insertElements, insertFiveStar, insertGeometry,
+insertImage, insertKeyWord, insertLayer, insertNotePage, insertPageElements,
+insertSticker, insertText, insertTextLink, jumpToPage, lassoElements,
+lockPathAccess, modifyElements, modifyLassoGeometry, modifyLassoLink,
+modifyLassoText, modifyLassoTitle, modifyLayers, modifyPageElements,
+opElementPointData, openFile, recognizeElements, recycleElement,
+registerEventListener, reloadFile, removeNotePage, replaceElements,
+resizeLassoRect, saveCurrentNote, saveStickerByLasso, searchFiveStars,
+setLassoBoxState, setLassoStrokeLink, setLassoTitle, sortLayers,
+unlockPathWithPassword, unregisterEventListener.
+
+Undocumented but present: `fillRegionByPoint`, `flipLassoElements`,
+`generateLassoPreview`, `generateLayerPreviewImage`, `getCacheElement`,
+`opElementPointData`, `batchUpdatePageElements`, `deletePageElements`,
+`modifyPageElements`, `lockPathAccess`, `unlockPathWithPassword`,
+`getPathEncryptionStatus`, `normalize`, `setFullAuto`, `sendPluginEvent`,
+`invalidatePluginView`.
 
 ## Device storage
 

@@ -154,7 +154,7 @@ known printed page, read `getCurrentPageNum`, store the offset.
 | 0.4.1 (built) | Entry types: Strong start, Scene, Plot point (dated); Hero, NPC (persistent); legacy Task. Two-step capture; board regrouped; Push +1. Probes: reinstall helper via `openFilePath`, full native method dump. | openFilePath |
 | 0.4.3 (built) | Tonight tab: Strong start, due this session, always-on with one sub-tab per type, overdue. Bookmarks shortened to `REF name` on the page itself; scan documents for bookmarks; keyword-length probe. | getKeyWords over a wide page range |
 | 0.4.4 (built) | Location and Lore persistent types; tome and lasso-quill icons. | |
-| 0.4.5 (built) | Quest (dated) and Treasure (persistent); Back Burner shows Task entries only; "Next up" with glyph badges and a legend. Quick Access add/remove requested but no SDK hook exists; pending the native method dump. | |
+| 0.4.5 (built) | Quest (dated) and Treasure (persistent); Back Burner shows Task entries only; "Next up" with glyph badges and a legend. Quick Access add/remove requested; the complete native method dump confirms no such hook exists, so the request is closed by the platform. | |
 | 0.4.x | Seed table of 5e 2024 monsters/spells/conditions with page offsets per book, calibrated against the user's PDFs; digest page written into the note. | insertNotePage, insertText |
 | 0.4 | Script pages: Markdown → JSON → scene pages with titles and text boxes. | setLassoTitle or title insert, insertText batches, insertNotePage |
 | 0.5 | Polish: config button for campaign settings, session counter, review screen, star sweep. | registerConfigButton, searchFiveStars |

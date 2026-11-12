@@ -156,7 +156,11 @@ SDK 0.1.65 in favour of `getPageSize`.
   `openFilePath` are all present. The TypeError came from our own code
   assuming `listFiles` resolves string paths; 0.2.5 prints the raw shape.
 
-## Native method inventory, Chauvet 3.31.45 (0.2.4)
+## Native method inventory, Chauvet 3.31.45 (complete dump, 0.4.5)
+
+Full list recorded in the skill's `verified-on-device.md`. No method touches
+the device's Quick Access list, favourites, shortcuts, or plugin install, so
+those features are not possible from a plugin. Earlier partial inventory:
 
 Present and therefore usable: `NativePluginManager.hasPermission`,
 `requestPermission`, `showPluginView`, `getOrientation`,
