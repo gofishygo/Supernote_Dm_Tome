@@ -7,8 +7,9 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "build": "bash buildPlugin.sh",
-    "build:win": "powershell -ExecutionPolicy Bypass -File buildPlugin.ps1"
+    "build": "node tools/build-campaign.mjs && bash buildPlugin.sh",
+    "build:win": "node tools/build-campaign.mjs && powershell -ExecutionPolicy Bypass -File buildPlugin.ps1",
+    "campaign": "node tools/build-campaign.mjs"
   },
   "dependencies": {
     "react": "19.0.0",

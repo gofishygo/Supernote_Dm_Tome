@@ -58,6 +58,10 @@ if (-not $NoBuild) {
     if ($LASTEXITCODE -ne 0) { Fail "npm install failed" }
   }
 
+  Step "Compiling campaign\*.md into the plugin"
+  node (Join-Path $root 'tools\build-campaign.mjs')
+  if ($LASTEXITCODE -ne 0) { Fail "campaign compile failed; check the Markdown files under campaign\" }
+
   Step "Building $pluginName $($config.versionName) (versionCode $($config.versionCode))"
   if (Test-Path $built) { Remove-Item $built -Force }
   & (Join-Path $root 'buildPlugin.ps1')

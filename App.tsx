@@ -16,10 +16,11 @@ import {BackBurnerScreen} from './src/screens/BackBurnerScreen';
 import {CaptureScreen} from './src/screens/CaptureScreen';
 import {ProbeConsole} from './src/screens/ProbeConsole';
 import {ReferenceScreen} from './src/screens/ReferenceScreen';
+import {ScriptScreen} from './src/screens/ScriptScreen';
 import {PAPER, styles} from './src/ui';
 
-const VERSION = '0.4.8';
-type Tab = 'tonight' | 'burner' | 'refs' | 'probes';
+const VERSION = '0.5.0';
+type Tab = 'tonight' | 'burner' | 'script' | 'refs' | 'probes';
 
 function Hub(): React.JSX.Element {
   const [tab, setTab] = useState<Tab>('tonight');
@@ -28,10 +29,10 @@ function Hub(): React.JSX.Element {
       <View style={styles.header}>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <Text style={[styles.h1, {marginRight: 20}]}>DM Tome {VERSION}</Text>
-          {(['tonight', 'burner', 'refs', 'probes'] as Tab[]).map(t => (
+          {(['tonight', 'burner', 'script', 'refs', 'probes'] as Tab[]).map(t => (
             <Pressable key={t} style={[styles.tab, tab === t && styles.tabActive]} onPress={() => setTab(t)}>
               <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-                {t === 'tonight' ? 'Tonight' : t === 'burner' ? 'Back Burner' : t === 'refs' ? 'References' : 'Probes'}
+                {{tonight: 'Tonight', burner: 'Back Burner', script: 'Script', refs: 'References', probes: 'Probes'}[t]}
               </Text>
             </Pressable>
           ))}
@@ -44,6 +45,8 @@ function Hub(): React.JSX.Element {
         <BackBurnerScreen mode="tonight" />
       ) : tab === 'burner' ? (
         <BackBurnerScreen mode="ledger" />
+      ) : tab === 'script' ? (
+        <ScriptScreen />
       ) : tab === 'refs' ? (
         <ReferenceScreen />
       ) : (

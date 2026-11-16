@@ -126,14 +126,16 @@ git pull
 
 2. Plug the Manta in over USB and unlock it. It appears in Explorer as
    **This PC → Supernote A5 X2 Manta → Internal shared storage**.
-3. Double-click `tools\deploy.cmd`. It installs dependencies on the first
-   run, builds, finds the Manta, and copies `DmTome-<version>.snplg` into
-   `MyStyle`. The window stays open so you can read any red line.
+3. Write or edit your session scripts in `campaign\*.md` (see
+   `campaign\README.md` for the three rules).
+4. Double-click `tools\deploy.cmd`. It installs dependencies on the first
+   run, compiles the campaign Markdown into the plugin, builds, finds the
+   Manta, and copies `DmTome-<version>.snplg` into `MyStyle`. The window stays open so you can read any red line.
    `tools\send-only.cmd` skips the build and sends the last one.
-4. On the Manta: **Settings → Apps → Plugins → Add Plugin**, pick the
+5. On the Manta: **Settings → Apps → Plugins → Add Plugin**, pick the
    versioned file, **Install**. If the install is refused, remove the old DM
    Tome on that page first.
-5. Open a note and test.
+6. Open a note and test.
 
 Why a script instead of drag and drop: the Manta is an MTP device, so it has
 no drive letter and ordinary copy commands cannot see it. The script asks

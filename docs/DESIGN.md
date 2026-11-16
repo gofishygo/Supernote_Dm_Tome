@@ -86,9 +86,18 @@ This is the one hard problem. `FileUtils` has no `readFile`. Three paths:
 | **B. Read the script from a DOC file.** Export the script to PDF or TXT, sync to the Manta, open it in DOC, and the console pulls text with `PluginDocAPI.getCurrentDocText(page)` and lays it into a note. | Node only | Elegant and no reinstall, but untested. Version 0.1 does not probe it; version 0.2 will. |
 | **C. Native file-read module.** | Android Studio, JDK, Gradle | Reopens the whole toolchain. Last resort. |
 
-Decision: **A for version 0.2**, **test B on-device in the same release**, and
-switch the default to B if `getCurrentDocText` returns clean text from a
-PDF or TXT. C stays off the table unless both fail.
+Decision, revised after the 102 finding: **A is the path** (built in 0.5.0).
+B is weakened by the hosting-app rule: text can be read from a PDF only while
+DOC hosts the plugin, and text boxes can be written only while NOTE hosts it,
+with no file store to carry content between the two. C stays off the table.
+
+How A works: `campaign/*.md` → `tools/build-campaign.mjs` →
+`src/campaign.generated.json` (bundled by Metro) → Script tab → `insertText`
+boxes on the current note page. One scene per tap; heading in bold, body in
+paragraphs, blockquotes in italics for read-aloud text; "Insert below the
+last" chains scenes down the page; box heights are estimated from text length
+and the user can resize with the lasso. `tools\deploy.cmd` runs the compile
+step before every build.
 
 Handwritten prep needs no transport: the plugin reads titles, keywords and
 recognized strokes from the notes you already wrote.
@@ -158,7 +167,8 @@ known printed page, read `getCurrentPageNum`, store the offset.
 | 0.4.6–0.4.7 (built) | Keyword cap at the measured 40; helmet glyph; in-game day tracker (`DM day N` keyword on page 0) at the bottom of Tonight with a 14-day strip and step buttons. | |
 | 0.4.8 (verified) | Calendar events as `Day 12 \| text` keywords on page 0; 14-day grid with event text, week scrolling, tap a day to add/remove events or make it today; events outside the window listed. Quick typed "New DM task" on Back Burner. | |
 | 0.4.x | Seed table of 5e 2024 monsters/spells/conditions with page offsets per book, calibrated against the user's PDFs; digest page written into the note. | insertNotePage, insertText |
-| 0.4 | Script pages: Markdown → JSON → scene pages with titles and text boxes. | setLassoTitle or title insert, insertText batches, insertNotePage |
+| 0.5.0 (built) | Script tab: Markdown → JSON at build time → scenes inserted as text boxes on the current note page, chained down the page. | insertText batches |
+| 0.5.x | Scenes onto new pages (`insertNotePage` + `jumpToPage` + boxes), scene headings as titles, read-aloud boxes with a border. | insertNotePage, setLassoTitle |
 | 0.5 | Polish: config button for campaign settings, session counter, review screen, star sweep. | registerConfigButton, searchFiveStars |
 
 ## E-ink UI rules
