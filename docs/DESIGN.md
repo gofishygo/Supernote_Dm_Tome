@@ -168,7 +168,8 @@ known printed page, read `getCurrentPageNum`, store the offset.
 | 0.4.8 (verified) | Calendar events as `Day 12 \| text` keywords on page 0; 14-day grid with event text, week scrolling, tap a day to add/remove events or make it today; events outside the window listed. Quick typed "New DM task" on Back Burner. | |
 | 0.4.x | Seed table of 5e 2024 monsters/spells/conditions with page offsets per book, calibrated against the user's PDFs; digest page written into the note. | insertNotePage, insertText |
 | 0.5.0 (built) | Script tab: Markdown → JSON at build time → scenes inserted as text boxes on the current note page, chained down the page. | insertText batches |
-| 0.5.x | Scenes onto new pages (`insertNotePage` + `jumpToPage` + boxes), scene headings as titles, read-aloud boxes with a border. | insertNotePage, setLassoTitle |
+| 0.5.1 (built) | Whole session onto new pages: save → `insertNotePage` ×N after the current page (template from `getNotePageTemplate`) → `reloadFile` → per page `jumpToPage`, verify `getCurrentPageNum`, lay the scene → save. Step log on screen. | insertNotePage, reloadFile |
+| 0.5.x | Scene headings as titles, read-aloud boxes with a border. | setLassoTitle |
 | 0.5 | Polish: config button for campaign settings, session counter, review screen, star sweep. | registerConfigButton, searchFiveStars |
 
 ## E-ink UI rules

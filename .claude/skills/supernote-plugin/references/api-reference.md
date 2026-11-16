@@ -152,7 +152,7 @@ Path-based. Works on files that are not open. All `page` are 0-based.
 | Method | Notes |
 |---|---|
 | `getNoteTotalPageNum(notePath)` | |
-| `insertNotePage(notePath, page, template)` | `template` e.g. `'style_blank'` or a name from `getNoteSystemTemplates()`. |
+| `insertNotePage({notePath, page, template})` | Object parameter in SDK 0.2.3 (the April docs showed positional). `template` must be a real name: the current page's from `getNotePageTemplate` or one from `getNoteSystemTemplates()`; a guessed name fails with 802. |
 | `removeNotePage(notePath, page)` | |
 | `createNote({notePath, template, mode, isPortrait})` | `mode` 0 normal, 1 recognition layout. |
 | `getNotePageTemplate(notePath, page)` | `{name, md5}`; system templates have md5 `"0"`. |

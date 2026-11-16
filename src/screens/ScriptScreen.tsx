@@ -4,7 +4,7 @@ import {ScrollView, Text, View} from 'react-native';
 import {PluginCommAPI, PluginManager} from 'sn-plugin-lib';
 import {ensureWrite} from '../permissions';
 import {isDocPath} from '../tasks';
-import {GENERATED_AT, insertScene, Scene, sceneSummary, SESSIONS, Session} from '../script';
+import {GENERATED_AT, insertScene, insertSessionAsPages, Scene, sceneSummary, SESSIONS, Session} from '../script';
 import {Button, Row, styles} from '../ui';
 
 export function ScriptScreen(): React.JSX.Element {
@@ -15,6 +15,7 @@ export function ScriptScreen(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [nextTop, setNextTop] = useState<number | null>(null);
+  const [steps, setSteps] = useState<string[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -46,6 +47,21 @@ export function ScriptScreen(): React.JSX.Element {
     [nextTop],
   );
 
+  const insertPages = useCallback(async (s: Session) => {
+    setBusy(true);
+    setError(null);
+    setSteps([]);
+    try {
+      await ensureWrite();
+      const n = await insertSessionAsPages(s, msg => setSteps(prev => [...prev, msg]));
+      setStatus(`Laid "${s.title}" across ${n} new page(s) after this one. Close to read them.`);
+    } catch (e) {
+      setError(String((e as Error)?.message ?? e));
+    } finally {
+      setBusy(false);
+    }
+  }, []);
+
   return (
     <ScrollView style={styles.screen}>
       <Text style={styles.h1}>Script</Text>
@@ -72,9 +88,25 @@ export function ScriptScreen(): React.JSX.Element {
         </Row>
       )}
 
+      {steps.length > 0 && (
+        <View style={{borderWidth: 2, borderColor: '#000', padding: 8, marginTop: 8}}>
+          {steps.map((m, i) => (
+            <Text key={i} style={styles.mono}>
+              {m}
+            </Text>
+          ))}
+        </View>
+      )}
+
       {session && (
         <View>
           <Text style={styles.h2}>{session.title}</Text>
+          <Button
+            label="Insert whole session as new pages"
+            hint={`${session.intro.length ? 'intro page + ' : ''}${session.scenes.length} scene page(s) after the page you have open`}
+            disabled={busy || inDoc}
+            onPress={() => insertPages(session)}
+          />
           {session.intro.length > 0 && (
             <Text style={[styles.muted, {marginBottom: 8}]} numberOfLines={3}>
               {session.intro.map(b => b.text).join(' ')}
