@@ -24,6 +24,13 @@ re-probe rather than assume.
   symlinked path) and produces a view that never mounts while buttons still
   work.
 
+## Input
+
+- React Native `TextInput` works in the plugin view: the system on-screen
+  keyboard appears on focus and the field stays visible above it (0.4.8,
+  inputs placed in the lower half of a scrolling page). `Pressable` grids,
+  `ScrollView`s and `numberOfLines` all behave normally.
+
 ## Buttons and events
 
 - Toolbar (type 1) and lasso (type 2) buttons register and appear with

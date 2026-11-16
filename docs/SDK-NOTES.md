@@ -204,6 +204,12 @@ NOTE read a document's keywords, and does `getCurrentTotalPages` work.
   `802 Background template file does not exist`. Template names must come
   from `PluginCommAPI.getNoteSystemTemplates()`.
 
+## Confirmed on the Manta (0.4.8, 2026-11-16)
+
+- `TextInput` works; the on-screen keyboard appears and does not cover the
+  field. Calendar grid with `Pressable` cells and inverted "today" renders
+  fine. Keyword-based events and tasks round-trip.
+
 ## Open questions 0.4 answers on-device
 
 - Does a type-2 lasso button registered for `['NOTE','DOC']` appear over a
