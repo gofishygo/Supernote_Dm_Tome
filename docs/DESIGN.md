@@ -128,6 +128,17 @@ on the device, which remain the per-page layer.
 No page numbers ship with the plugin: a wrong page is worse than none, so
 the table starts with example rows under a book that matches no file.
 
+## PDF scenes
+
+A scene can live in a separate document: a module addendum, a one-shot, a
+map. Because DOC cannot write into a note, the entry is stored on the PDF
+page itself (`Scene S12 | The owl den`), and the campaign note lists which
+documents to gather from (`Doc | Death House` on page 0, set from the
+References tab while the note is open). Tonight merges those entries with
+the note's own; a PDF entry shows its file and opens the document at the
+page. Each attached document costs one `getKeyWords` call over a 300-page
+range when the board loads.
+
 ## Session flow
 
 **Prep (PC + Manta)**
@@ -168,6 +179,7 @@ the table starts with example rows under a book that matches no file.
 | 0.5.1 (verified) | Whole session onto new pages: save → `insertNotePage` ×N after the current page (template from `getNotePageTemplate`) → `reloadFile` → per page `jumpToPage`, verify `getCurrentPageNum`, lay the scene → save. Step log on screen. | insertNotePage, reloadFile |
 | 0.5.2 (verified) | Scene headings become Supernote titles: after the heading box is written, `lassoElements(rect)` → `setLassoTitle({style: 2})` → `setLassoBoxState(2)`; a refusal leaves a plain bold heading and is logged. `campaign/TEMPLATE.md` added and excluded from the build. | lassoElements, setLassoTitle |
 | 0.5.3 (verified) | Read-aloud boxes get a border: a `GEO_polygon` geometry (fineliner, pen width 150) drawn around the box with `insertGeometry`, since the text box's own border flag is read-only. | insertGeometry |
+| 0.7.0 (built) | PDF scenes: `Doc \| name` keywords on the note's page 0 attach documents (References → Documents → Attach); a Scene/Quest/etc. keyword written on a PDF page (Capture in DOC, or References → "Scene for tonight" with a session stepper) is gathered by Tonight when the note is open, shown with its file name and an Open button that `openFile`s the PDF at that page. Done/Push rewrite the keyword in the PDF. Per-document errors are listed on the board, which also answers whether NOTE may read a document's keywords. | getKeyWords on documents from NOTE, openFile |
 | 0.6.1 (built) | Campaign content: four Curse of Strahd sessions (41 scenes) in `campaign/`, numbered from file prefixes; `campaign/characters/*.md` compiled the same way and shown under a Characters switch on the Script tab with the same insert actions. Drafts for Torvald, Evander, Batrdlebee, Abraham from the scripts, guesses marked (check). | |
 | 0.6.0 (built) | Reference table: `campaign/references.md` (Books: key, file-name match, offset; Entries: name, book, printed page, tags) compiled to JSON. References tab: look-up box, Open at page (`index = page - 1 + offset`), Insert link, book checker, per-book calibrator. Capture gains Look up. No page numbers are shipped; the user fills them from their PDFs. | openFile, insertTextLink |
 | 0.5 | Polish: config button for campaign settings, session counter, review screen, star sweep. | registerConfigButton, searchFiveStars |

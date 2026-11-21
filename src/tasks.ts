@@ -20,6 +20,10 @@
  *   DM day 7            (days since arrival; day 1 is the arrival)
  * Calendar events are keywords too, on page 0:
  *   Day 12 | Battle w/ Baulder
+ * Attached documents (PDFs whose Scene keywords join the board), on page 0:
+ *   Doc | Death House            (a substring of the file name under Document)
+ * A Scene/Quest/... keyword written on a PDF page (from DOC) carries that page
+ * as its location, and the board opens the PDF there.
  */
 import {PluginCommAPI, PluginDocAPI, PluginFileAPI, PluginNoteAPI} from 'sn-plugin-lib';
 
@@ -65,6 +69,7 @@ export type Task = {
   text: string;
   due: number | null;
   done: boolean;
+  file: string; // the note or document the keyword lives in
   page: number; // 0-based page the keyword sits on
   index: number; // 1-based keyword index within the page
   raw: string;
@@ -77,6 +82,12 @@ const TASK_RE = /^(Strong start|Scene|Plot|Quest|Hero|NPC|Location|Lore|Treasure
 const SESSION_RE = /^DM session (\d+)$/i;
 const DAY_RE = /^DM day (\d+)$/i;
 const DAY_EVENT_RE = /^Day (\d+)\s*\|\s*(.+)$/i;
+const DOC_RE = /^Doc\s*\|\s*(.+)$/i;
+/** Pages to ask a closed document for; the host returns what exists. */
+const DOC_SCAN_PAGES = 300;
+
+/** Last session number seen by loadBoard, so screens hosted by DOC can still default sensibly. */
+export let lastKnownSession = 1;
 
 export type DayEvent = {day: number; text: string; page: number; index: number};
 
@@ -105,7 +116,7 @@ export function formatTask(type: EntryType, text: string, due: number | null, do
   return `${head} | ${clean.slice(0, Math.max(room, 4))}${tail}`;
 }
 
-export function parseTask(kw: KeyWord): Task | null {
+export function parseTask(kw: KeyWord, file = ''): Task | null {
   const m = TASK_RE.exec(kw.keyword.trim());
   if (!m) {
     return null;
@@ -122,6 +133,7 @@ export function parseTask(kw: KeyWord): Task | null {
     text: m[3],
     due: dated && m[2] !== undefined && m[2] !== '?' ? Number(m[2]) : null,
     done: !!m[4],
+    file,
     page: kw.page,
     index: kw.index,
     raw: kw.keyword,
@@ -171,7 +183,23 @@ async function allKeywords(path: string): Promise<KeyWord[]> {
   return res.result ?? [];
 }
 
-export type Board = {path: string; session: number; day: number; tasks: Task[]; events: DayEvent[]; keywordCount: number};
+export type AttachedDoc = {name: string; path: string | null; page: number; index: number};
+export type Board = {
+  path: string;
+  session: number;
+  day: number;
+  tasks: Task[];
+  events: DayEvent[];
+  docs: AttachedDoc[];
+  notes: string[];
+  keywordCount: number;
+};
+
+async function listDocumentPaths(): Promise<string[]> {
+  // Lazy import keeps tasks.ts free of a cycle with refs.ts at module load.
+  const {listDocuments} = await import('./refs');
+  return listDocuments();
+}
 
 export async function loadBoard(): Promise<Board> {
   const path = await currentFile();
@@ -180,29 +208,85 @@ export async function loadBoard(): Promise<Board> {
   let day = 1;
   const tasks: Task[] = [];
   const events: DayEvent[] = [];
+  const docs: AttachedDoc[] = [];
+  const notes: string[] = [];
   for (const kw of kws) {
-    const em = DAY_EVENT_RE.exec(kw.keyword.trim());
+    const text = kw.keyword.trim();
+    const em = DAY_EVENT_RE.exec(text);
     if (em) {
       events.push({day: Number(em[1]), text: em[2], page: kw.page, index: kw.index});
       continue;
     }
-    const sm = SESSION_RE.exec(kw.keyword.trim());
+    const sm = SESSION_RE.exec(text);
     if (sm) {
       session = Number(sm[1]);
       continue;
     }
-    const dm = DAY_RE.exec(kw.keyword.trim());
+    const dm = DAY_RE.exec(text);
     if (dm) {
       day = Number(dm[1]);
       continue;
     }
-    const t = parseTask(kw);
+    const docm = DOC_RE.exec(text);
+    if (docm) {
+      docs.push({name: docm[1].trim(), path: null, page: kw.page, index: kw.index});
+      continue;
+    }
+    const t = parseTask(kw, path);
     if (t) {
       tasks.push(t);
     }
   }
+  lastKnownSession = session;
+
+  // Scenes written on attached documents (from DOC) join the board.
+  if (docs.length > 0 && !isDocPath(path)) {
+    let available: string[] = [];
+    try {
+      available = await listDocumentPaths();
+    } catch (e) {
+      notes.push(`could not list documents: ${String((e as Error)?.message ?? e)}`);
+    }
+    const pages = Array.from({length: DOC_SCAN_PAGES}, (_, i) => i);
+    for (const d of docs) {
+      const needle = d.name.toLowerCase();
+      d.path = available.find(f => (f.split('/').pop() ?? '').toLowerCase().includes(needle)) ?? null;
+      if (!d.path) {
+        notes.push(`attached "${d.name}": no document under Document matches`);
+        continue;
+      }
+      try {
+        const res = (await PluginFileAPI.getKeyWords(d.path, pages)) as ApiResponse<KeyWord[]>;
+        if (!res?.success) {
+          notes.push(`${d.path.split('/').pop()}: ${res?.error?.code ?? '?'} ${res?.error?.message ?? ''}`);
+          continue;
+        }
+        for (const kw of res.result ?? []) {
+          const t = parseTask(kw, d.path);
+          if (t) {
+            tasks.push(t);
+          }
+        }
+      } catch (e) {
+        notes.push(`${d.path.split('/').pop()}: ${String((e as Error)?.message ?? e)}`);
+      }
+    }
+  }
   events.sort((a, b) => a.day - b.day);
-  return {path, session, day, tasks, events, keywordCount: kws.length};
+  return {path, session, day, tasks, events, docs, notes, keywordCount: kws.length};
+}
+
+export async function attachDoc(notePath: string, fileName: string): Promise<string> {
+  const stem = fileName.replace(/\.[^.]+$/, '');
+  const keyword = `Doc | ${stem}`.slice(0, KEYWORD_MAX);
+  await flush();
+  unwrap<boolean>(await PluginFileAPI.insertKeyWord(notePath, 0, keyword), 'insertKeyWord');
+  return keyword;
+}
+
+export async function detachDoc(notePath: string, doc: AttachedDoc): Promise<void> {
+  await flush();
+  unwrap<boolean>(await PluginFileAPI.deleteKeyWord(notePath, doc.page, doc.index), 'deleteKeyWord');
 }
 
 export async function addTask(path: string, page: number, type: EntryType, text: string, due: number | null): Promise<string> {
@@ -215,10 +299,11 @@ export async function addTask(path: string, page: number, type: EntryType, text:
 /** Replace a task's keyword (delete + insert) with new fields. */
 export async function rewriteTask(path: string, task: Task, patch: Partial<Pick<Task, 'due' | 'done' | 'text' | 'type'>>): Promise<void> {
   const next = {...task, ...patch};
+  const file = task.file || path;
   await flush();
-  unwrap<boolean>(await PluginFileAPI.deleteKeyWord(path, task.page, task.index), 'deleteKeyWord');
+  unwrap<boolean>(await PluginFileAPI.deleteKeyWord(file, task.page, task.index), 'deleteKeyWord');
   unwrap<boolean>(
-    await PluginFileAPI.insertKeyWord(path, task.page, formatTask(next.type, next.text, next.due, next.done)),
+    await PluginFileAPI.insertKeyWord(file, task.page, formatTask(next.type, next.text, next.due, next.done)),
     'insertKeyWord',
   );
 }

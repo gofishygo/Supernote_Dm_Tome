@@ -1,7 +1,7 @@
 /** The prep board, read from the open note's keywords. */
 import React, {useCallback, useEffect, useState} from 'react';
 import {Pressable, ScrollView, Text, TextInput, View} from 'react-native';
-import {PluginCommAPI, PluginManager} from 'sn-plugin-lib';
+import {PluginCommAPI, PluginFileAPI, PluginManager} from 'sn-plugin-lib';
 import {ensureRead, ensureWrite} from '../permissions';
 import {
   addDayEvent,
@@ -107,7 +107,14 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
 
   const go = async (task: Task) => {
     try {
-      await PluginCommAPI.jumpToPage(task.page);
+      if (board && task.file && task.file !== board.path) {
+        const res = (await PluginFileAPI.openFile(task.file, task.page)) as {success: boolean; error: {code: number; message: string} | null};
+        if (!res?.success) {
+          throw new Error(`openFile failed: ${res?.error?.code ?? '?'} ${res?.error?.message ?? ''}`);
+        }
+      } else {
+        await PluginCommAPI.jumpToPage(task.page);
+      }
       await PluginManager.closePluginView();
     } catch (e) {
       setError(String((e as Error)?.message ?? e));
@@ -141,7 +148,8 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
         </View>
         <Row>
           <Text style={[styles.muted, {marginRight: 12}]}>
-            {dated ? (t.due === null ? 'someday' : `S${t.due}`) : TYPE_META[t.type].label} · p.{t.page + 1}
+            {dated ? (t.due === null ? 'someday' : `S${t.due}`) : TYPE_META[t.type].label} ·{' '}
+            {t.file && t.file !== board!.path ? `${t.file.split('/').pop()} ` : ''}p.{t.page + 1}
           </Text>
           <Button
             small
@@ -152,7 +160,7 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
           {dated && !t.done && (
             <Button small label="Push +1" disabled={busy} onPress={() => withWrite(() => rewriteTask(path, t, {due: (t.due ?? board!.session) + 1}))} />
           )}
-          <Button small label="Go to page" disabled={busy} onPress={() => go(t)} />
+          <Button small label={t.file && t.file !== board!.path ? 'Open' : 'Go to page'} disabled={busy} onPress={() => go(t)} />
         </Row>
       </View>
     );
@@ -187,6 +195,16 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
           {error}
         </Text>
       )}
+      {board && mode === 'tonight' && board.docs.length > 0 && (
+        <Text style={styles.muted}>
+          attached: {board.docs.map(d => (d.path ? d.path.split('/').pop() : `${d.name} (not found)`)).join(', ')}
+        </Text>
+      )}
+      {board && board.notes.map((n, i) => (
+        <Text key={i} style={styles.muted}>
+          {n}
+        </Text>
+      ))}
       {mode === 'ledger' && board && (
         <View style={{borderWidth: 3, borderColor: '#000', padding: 10, marginTop: 12}}>
           <Text style={styles.h2}>New DM task</Text>

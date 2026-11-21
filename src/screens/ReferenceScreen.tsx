@@ -18,6 +18,7 @@ import {
   whereAmI,
 } from '../refs';
 import {BOOKS, bookOf, Entry, ENTRIES, insertEntryLink, offsetFor, openEntry, resolveBooks, search} from '../lookup';
+import {addTask, attachDoc, detachDoc, lastKnownSession, loadBoard, AttachedDoc} from '../tasks';
 import {Button, Row, styles} from '../ui';
 
 export function ReferenceScreen(): React.JSX.Element {
@@ -35,6 +36,8 @@ export function ReferenceScreen(): React.JSX.Element {
   const [hits, setHits] = useState<Entry[]>([]);
   const [bookPaths, setBookPaths] = useState<Map<string, string | null> | null>(null);
   const [printed, setPrinted] = useState('');
+  const [attached, setAttached] = useState<AttachedDoc[]>([]);
+  const [sceneSession, setSceneSession] = useState<number>(lastKnownSession);
 
   const guard = useCallback(async (fn: () => Promise<void>, write = false) => {
     setBusy(true);
@@ -70,6 +73,17 @@ export function ReferenceScreen(): React.JSX.Element {
         setHere(w);
         setName(`${fileName(w.path).replace(/\.[^.]+$/, '')} p.${w.page + 1}`);
         await reload(w);
+        if (!w.isDoc) {
+          try {
+            const b = await loadBoard();
+            setAttached(b.docs);
+            setSceneSession(b.session);
+          } catch {
+            // board unreadable here; attachments stay empty
+          }
+        } else {
+          setSceneSession(lastKnownSession);
+        }
       }),
     [guard, reload],
   );
@@ -204,6 +218,23 @@ export function ReferenceScreen(): React.JSX.Element {
             <Button label="Save bookmark" disabled={busy || !name.trim()} onPress={bookmark} />
             <Button label="Read page text" hint="the PDF text layer" disabled={busy} onPress={readText} />
           </Row>
+          <Text style={styles.h2}>Scene for tonight</Text>
+          <Text style={styles.muted}>Writes "Scene S{sceneSession} | {name.slice(0, 20)}…" on this PDF page. Attach this PDF to the campaign note so Tonight finds it.</Text>
+          <Row>
+            <Button small label="−" disabled={busy || sceneSession <= 1} onPress={() => setSceneSession(x => x - 1)} />
+            <Text style={[styles.body, {marginHorizontal: 8}]}>S{sceneSession}</Text>
+            <Button small label="+" disabled={busy} onPress={() => setSceneSession(x => x + 1)} />
+            <Button
+              label={`Add as Scene for S${sceneSession}`}
+              disabled={busy || !name.trim() || !here}
+              onPress={() =>
+                guard(async () => {
+                  const kw = await addTask(here!.path, here!.page, 'scene', name, sceneSession);
+                  setStatus(`Saved on this page: ${kw}`);
+                }, true)
+              }
+            />
+          </Row>
           {text !== null && (
             <Text style={[styles.mono, {borderWidth: 1, borderColor: '#000', padding: 8}]} selectable>
               {text.trim() || '(no text layer on this page)'}
@@ -254,6 +285,24 @@ export function ReferenceScreen(): React.JSX.Element {
         </View>
       ))}
 
+      {here && !here.isDoc && (
+        <View>
+          <Text style={styles.h2}>Attached to this campaign ({attached.length})</Text>
+          <Text style={styles.muted}>Scenes written inside these PDFs appear on Tonight.</Text>
+          {attached.map(d => (
+            <Row key={`${d.page}-${d.index}`}>
+              <Text style={[styles.body, {flex: 1}]}>{d.name}</Text>
+              <Button
+                small
+                label="Detach"
+                disabled={busy}
+                onPress={() => guard(async () => { await detachDoc(here.path, d); setAttached((await loadBoard()).docs); }, true)}
+              />
+            </Row>
+          ))}
+        </View>
+      )}
+
       <Text style={styles.h2}>Documents</Text>
       {docs === null ? (
         <Button label="List documents" hint="PDF, EPUB under Document" disabled={busy} onPress={() => guard(async () => setDocs(await listDocuments()))} />
@@ -263,6 +312,19 @@ export function ReferenceScreen(): React.JSX.Element {
         docs.map(d => (
           <Row key={d}>
             <Button small label="Open" disabled={busy} onPress={() => open(d, -1)} />
+            {here && !here.isDoc && (
+              <Button
+                small
+                label="Attach"
+                disabled={busy || attached.some(a => fileName(d).toLowerCase().includes(a.name.toLowerCase()))}
+                onPress={() =>
+                  guard(async () => {
+                    setStatus(`Attached: ${await attachDoc(here.path, fileName(d))}`);
+                    setAttached((await loadBoard()).docs);
+                  }, true)
+                }
+              />
+            )}
             <Text style={[styles.body, {flex: 1, marginLeft: 10}]}>{fileName(d)}</Text>
           </Row>
         ))
