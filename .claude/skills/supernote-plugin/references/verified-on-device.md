@@ -89,6 +89,16 @@ read a note's keywords, or NOTE a document's, is being probed.
 - `createNote` with a made-up template name fails with `802 Background
   template file does not exist`; use `getNoteSystemTemplates()[i].name`.
 
+## Composed operations that work
+
+- One scene per page: `saveCurrentNote` → `insertNotePage({notePath, page,
+  template})` ×N (template from `getNotePageTemplate` of the current page) →
+  `reloadFile` → per page `jumpToPage(n)`, confirm `getCurrentPageNum() === n`,
+  `insertText` boxes.
+- Title from code: `insertText` a box, then `lassoElements(itsRect)` →
+  `PluginNoteAPI.setLassoTitle({style})` → `setLassoBoxState(2)`. There is no
+  direct title-insert call; the lasso APIs act on a programmatic selection.
+
 ## Calls that crash or mislead
 
 - `FileUtils.getExternalDirPath()` **kills the plugin runtime** with no JS

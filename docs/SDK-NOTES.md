@@ -216,11 +216,18 @@ NOTE read a document's keywords, and does `getCurrentTotalPages` work.
   `getCurrentPageNum() === n` → `insertText` works: a whole session lands one
   scene per page on freshly inserted pages.
 
-## Open questions 0.5.2 answers on-device
+## Confirmed on the Manta (0.5.2, 2026-11-21)
 
-- Programmatic lasso of a just-inserted text box: does
-  `lassoElements(rect)` select it, and does `setLassoTitle` then turn it into
-  a title? The step log prints "titled" or the refusing call.
+- `lassoElements(rect)` selects a text box just written by `insertText`,
+  and `setLassoTitle({style: 2})` turns it into a Supernote title. Programmatic
+  lasso → lasso API is a working pattern for anything the lasso toolbar can
+  do to an element.
+
+## Open questions 0.5.3 answers on-device
+
+- `insertGeometry` with a `GEO_polygon` of five pixel points (closed) and
+  `penWidth: 150`: does it draw a visible rectangle, and is 150 a sensible
+  width in the device's pen units?
 - `insertNotePage` takes an object `{notePath, page, template}` in SDK 0.2.3,
   not positional arguments as the April docs showed.
 

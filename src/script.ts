@@ -26,6 +26,9 @@ const LINE_GAP = 1.35;
 const PARA_GAP = 28;
 /** Supernote title style for scene headings: 1 black, 2 light grey, 3 dark grey, 4 shadow. */
 const TITLE_STYLE = 2;
+/** Read-aloud border: a polygon geometry drawn around the box. Pen width is in the device's pen units (minimum 100). */
+const BORDER_PEN_WIDTH = 150;
+const BORDER_PAD = 10;
 
 function estimateLines(text: string, fontPx: number, widthPx: number): number {
   const avgChar = fontPx * 0.52; // rough average glyph advance for a sans font
@@ -74,6 +77,41 @@ async function titleBox(rect: Rect): Promise<string> {
   }
 }
 
+/**
+ * Draw a rectangle around a box with the device's own shape tool. The text
+ * box's border flag is read-only in the SDK, so this is the reliable route.
+ * Returns a note for the log; never throws.
+ */
+async function borderBox(rect: Rect): Promise<string> {
+  const l = rect.left - BORDER_PAD;
+  const t = rect.top - BORDER_PAD;
+  const r = rect.right + BORDER_PAD;
+  const b = rect.bottom + BORDER_PAD;
+  try {
+    const res = (await PluginCommAPI.insertGeometry({
+      showLassoAfterInsert: false,
+      penColor: 0x00,
+      penType: 10,
+      penWidth: BORDER_PEN_WIDTH,
+      type: 'GEO_polygon',
+      points: [
+        {x: l, y: t},
+        {x: r, y: t},
+        {x: r, y: b},
+        {x: l, y: b},
+        {x: l, y: t},
+      ],
+      ellipseCenterPoint: null,
+      ellipseMajorAxisRadius: 0,
+      ellipseMinorAxisRadius: 0,
+      ellipseAngle: 0,
+    } as unknown as Object)) as ApiResponse<boolean>;
+    return res?.success ? 'bordered' : `border skipped: insertGeometry ${res?.error?.code ?? '?'} ${res?.error?.message ?? ''}`;
+  } catch (e) {
+    return `border skipped: ${String((e as Error)?.message ?? e)}`;
+  }
+}
+
 async function insertBox(text: string, top: number, fontPx: number, width: number, bold: boolean, italic: boolean): Promise<number> {
   const lines = estimateLines(text, fontPx, width);
   const height = Math.ceil(lines * fontPx * LINE_GAP) + 16;
@@ -101,7 +139,7 @@ export async function insertScene(
   scene: Scene,
   startTop = TOP,
   makeTitle = true,
-): Promise<{nextTop: number; boxes: number; titleNote: string}> {
+): Promise<{nextTop: number; boxes: number; titleNote: string; borderNote: string}> {
   const size = await pageSize();
   const scale = size.width / 1920;
   const width = size.width - 2 * MARGIN;
@@ -122,10 +160,18 @@ export async function insertScene(
 
   const headingRect = await place(scene.title, HEADING_PX, true, false);
   const titleNote = makeTitle ? await titleBox(headingRect) : 'plain heading';
+  const borderNotes: string[] = [];
   for (const b of scene.blocks) {
-    await place(b.text, BODY_PX, false, b.kind === 'quote');
+    const quote = b.kind === 'quote';
+    const rect = await place(b.text, BODY_PX, false, quote);
+    if (quote) {
+      // leave room for the border below the box
+      borderNotes.push(await borderBox(rect));
+      top += BORDER_PAD;
+    }
   }
-  return {nextTop: top, boxes, titleNote};
+  const borderNote = borderNotes.length === 0 ? 'no read-aloud' : borderNotes.every(n => n === 'bordered') ? `${borderNotes.length} bordered` : borderNotes.find(n => n !== 'bordered')!;
+  return {nextTop: top, boxes, titleNote, borderNote};
 }
 
 function ok<T>(raw: unknown, what: string): T {
@@ -203,7 +249,7 @@ export async function insertSessionAsPages(session: Session, onStep: (msg: strin
     }
     onStep(`page ${page + 1}: writing "${jobs[i].label}"`);
     const r = await insertScene(jobs[i].scene!, TOP, i > 0 || session.intro.length === 0);
-    onStep(`page ${page + 1}: ${r.boxes} boxes, ${r.titleNote}`);
+    onStep(`page ${page + 1}: ${r.boxes} boxes, ${r.titleNote}, ${r.borderNote}`);
   }
   onStep('saving');
   try {
