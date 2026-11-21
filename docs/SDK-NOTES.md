@@ -210,13 +210,17 @@ NOTE read a document's keywords, and does `getCurrentTotalPages` work.
   field. Calendar grid with `Pressable` cells and inverted "today" renders
   fine. Keyword-based events and tasks round-trip.
 
-## Open questions 0.5.1 answers on-device
+## Confirmed on the Manta (0.5.1, 2026-11-21)
 
-- Does `insertNotePage` on the open note take effect, and does `reloadFile`
-  make the new pages visible without losing the view?
-- After `jumpToPage(n)`, does `getCurrentPageNum` report `n` immediately, and
-  does `insertText` land on that page? (The code verifies the page before
-  writing and stops if it does not match.)
+- The chain save → `insertNotePage` ×N → `reloadFile` → `jumpToPage(n)` →
+  `getCurrentPageNum() === n` → `insertText` works: a whole session lands one
+  scene per page on freshly inserted pages.
+
+## Open questions 0.5.2 answers on-device
+
+- Programmatic lasso of a just-inserted text box: does
+  `lassoElements(rect)` select it, and does `setLassoTitle` then turn it into
+  a title? The step log prints "titled" or the refusing call.
 - `insertNotePage` takes an object `{notePath, page, template}` in SDK 0.2.3,
   not positional arguments as the April docs showed.
 

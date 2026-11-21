@@ -65,7 +65,10 @@ function parse(markdown, fallbackNumber, fileName) {
 }
 
 if (!existsSync(srcDir)) mkdirSync(srcDir);
-const files = readdirSync(srcDir).filter(f => f.toLowerCase().endsWith('.md') && f.toLowerCase() !== 'readme.md').sort();
+const skip = new Set(['readme.md', 'template.md']);
+const files = readdirSync(srcDir)
+  .filter(f => f.toLowerCase().endsWith('.md') && !skip.has(f.toLowerCase()) && !f.startsWith('_'))
+  .sort();
 const sessions = files.map((f, i) => parse(readFileSync(join(srcDir, f), 'utf8'), i + 1, f.replace(/\.md$/i, '')));
 sessions.sort((a, b) => a.number - b.number);
 const out = {generatedAt: new Date().toISOString(), sessions};

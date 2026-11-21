@@ -168,8 +168,9 @@ known printed page, read `getCurrentPageNum`, store the offset.
 | 0.4.8 (verified) | Calendar events as `Day 12 \| text` keywords on page 0; 14-day grid with event text, week scrolling, tap a day to add/remove events or make it today; events outside the window listed. Quick typed "New DM task" on Back Burner. | |
 | 0.4.x | Seed table of 5e 2024 monsters/spells/conditions with page offsets per book, calibrated against the user's PDFs; digest page written into the note. | insertNotePage, insertText |
 | 0.5.0 (built) | Script tab: Markdown → JSON at build time → scenes inserted as text boxes on the current note page, chained down the page. | insertText batches |
-| 0.5.1 (built) | Whole session onto new pages: save → `insertNotePage` ×N after the current page (template from `getNotePageTemplate`) → `reloadFile` → per page `jumpToPage`, verify `getCurrentPageNum`, lay the scene → save. Step log on screen. | insertNotePage, reloadFile |
-| 0.5.x | Scene headings as titles, read-aloud boxes with a border. | setLassoTitle |
+| 0.5.1 (verified) | Whole session onto new pages: save → `insertNotePage` ×N after the current page (template from `getNotePageTemplate`) → `reloadFile` → per page `jumpToPage`, verify `getCurrentPageNum`, lay the scene → save. Step log on screen. | insertNotePage, reloadFile |
+| 0.5.2 (built) | Scene headings become Supernote titles: after the heading box is written, `lassoElements(rect)` → `setLassoTitle({style: 2})` → `setLassoBoxState(2)`; a refusal leaves a plain bold heading and is logged. `campaign/TEMPLATE.md` added and excluded from the build. | lassoElements, setLassoTitle |
+| 0.5.x | Read-aloud boxes with a border; seed reference table. | |
 | 0.5 | Polish: config button for campaign settings, session counter, review screen, star sweep. | registerConfigButton, searchFiveStars |
 
 ## E-ink UI rules

@@ -27,6 +27,10 @@ Body paragraphs are plain text. Blank line between paragraphs.
 - `##` starts a scene. Anything before the first `##` is the session intro.
 - Everything else is plain text. Markdown emphasis is left as typed.
 - Files are read in name order; use `01-`, `02-` prefixes if you like.
+- `TEMPLATE.md`, `README.md` and any file starting with `_` are skipped.
+  Copy `TEMPLATE.md` to `02-whatever.md` to start a session.
+- Every `##` heading becomes a Supernote title on the page, so the note's
+  own title navigation lists your scenes.
 
 Then build: `tools\deploy.cmd` on Windows, or `npm run build` elsewhere. The
 Markdown is only read at build time; editing it does nothing until you

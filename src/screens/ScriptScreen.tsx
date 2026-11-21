@@ -37,7 +37,7 @@ export function ScriptScreen(): React.JSX.Element {
         const start = chain && nextTop !== null ? nextTop : undefined;
         const r = await insertScene(scene, start);
         setNextTop(r.nextTop);
-        setStatus(`Inserted "${scene.title}": ${r.boxes} text boxes. Close to see the page; move boxes with the lasso.`);
+        setStatus(`Inserted "${scene.title}": ${r.boxes} text boxes, ${r.titleNote}. Close to see the page; move boxes with the lasso.`);
       } catch (e) {
         setError(String((e as Error)?.message ?? e));
       } finally {

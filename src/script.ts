@@ -24,6 +24,8 @@ const HEADING_PX = 48;
 const BODY_PX = 34;
 const LINE_GAP = 1.35;
 const PARA_GAP = 28;
+/** Supernote title style for scene headings: 1 black, 2 light grey, 3 dark grey, 4 shadow. */
+const TITLE_STYLE = 2;
 
 function estimateLines(text: string, fontPx: number, widthPx: number): number {
   const avgChar = fontPx * 0.52; // rough average glyph advance for a sans font
@@ -37,6 +39,39 @@ async function pageSize(): Promise<{width: number; height: number}> {
     throw new Error(`getPageSize failed: ${res?.error?.code ?? '?'} ${res?.error?.message ?? ''}`);
   }
   return res.result;
+}
+
+type Rect = {left: number; top: number; right: number; bottom: number};
+
+/**
+ * Turn the box just written into a Supernote title: lasso exactly its
+ * rectangle, apply the title style, dismiss the lasso. There is no direct
+ * "insert title" call; this is what a user would do by hand. Returns a note
+ * for the step log; never throws, so a refusal leaves a plain bold heading.
+ */
+async function titleBox(rect: Rect): Promise<string> {
+  try {
+    const pad = 6;
+    const lasso = (await PluginCommAPI.lassoElements({
+      left: rect.left - pad,
+      top: rect.top - pad,
+      right: rect.right + pad,
+      bottom: rect.bottom + pad,
+    })) as ApiResponse<boolean>;
+    if (!lasso?.success) {
+      return `title skipped: lassoElements ${lasso?.error?.code ?? '?'} ${lasso?.error?.message ?? ''}`;
+    }
+    const set = (await PluginNoteAPI.setLassoTitle({style: TITLE_STYLE})) as ApiResponse<boolean>;
+    const note = set?.success ? 'titled' : `title skipped: setLassoTitle ${set?.error?.code ?? '?'} ${set?.error?.message ?? ''}`;
+    try {
+      await PluginCommAPI.setLassoBoxState(2);
+    } catch {
+      // lasso may already be gone
+    }
+    return note;
+  } catch (e) {
+    return `title skipped: ${String((e as Error)?.message ?? e)}`;
+  }
 }
 
 async function insertBox(text: string, top: number, fontPx: number, width: number, bold: boolean, italic: boolean): Promise<number> {
@@ -62,7 +97,11 @@ async function insertBox(text: string, top: number, fontPx: number, width: numbe
  * Returns the y position after the last box, so callers can chain scenes,
  * and the number of boxes written. Stops with an error if the page is full.
  */
-export async function insertScene(scene: Scene, startTop = TOP): Promise<{nextTop: number; boxes: number}> {
+export async function insertScene(
+  scene: Scene,
+  startTop = TOP,
+  makeTitle = true,
+): Promise<{nextTop: number; boxes: number; titleNote: string}> {
   const size = await pageSize();
   const scale = size.width / 1920;
   const width = size.width - 2 * MARGIN;
@@ -70,20 +109,23 @@ export async function insertScene(scene: Scene, startTop = TOP): Promise<{nextTo
   let boxes = 0;
   const limit = size.height - MARGIN;
 
-  const place = async (text: string, fontPx: number, bold: boolean, italic: boolean) => {
+  const place = async (text: string, fontPx: number, bold: boolean, italic: boolean): Promise<Rect> => {
     const px = Math.round(fontPx * scale);
     if (top + px * 2 > limit) {
       throw new Error(`page full after ${boxes} boxes; continue on the next page`);
     }
+    const before = top;
     top = await insertBox(text, top, px, width, bold, italic);
     boxes++;
+    return {left: MARGIN, top: before, right: MARGIN + width, bottom: top - PARA_GAP};
   };
 
-  await place(scene.title, HEADING_PX, true, false);
+  const headingRect = await place(scene.title, HEADING_PX, true, false);
+  const titleNote = makeTitle ? await titleBox(headingRect) : 'plain heading';
   for (const b of scene.blocks) {
     await place(b.text, BODY_PX, false, b.kind === 'quote');
   }
-  return {nextTop: top, boxes};
+  return {nextTop: top, boxes, titleNote};
 }
 
 function ok<T>(raw: unknown, what: string): T {
@@ -160,8 +202,8 @@ export async function insertSessionAsPages(session: Session, onStep: (msg: strin
       throw new Error(`after jumpToPage(${page}) the current page is ${now}; stopping so boxes do not land on the wrong page`);
     }
     onStep(`page ${page + 1}: writing "${jobs[i].label}"`);
-    const r = await insertScene(jobs[i].scene!, TOP);
-    onStep(`page ${page + 1}: ${r.boxes} boxes`);
+    const r = await insertScene(jobs[i].scene!, TOP, i > 0 || session.intro.length === 0);
+    onStep(`page ${page + 1}: ${r.boxes} boxes, ${r.titleNote}`);
   }
   onStep('saving');
   try {
