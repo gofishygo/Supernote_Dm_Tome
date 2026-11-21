@@ -223,6 +223,15 @@ NOTE read a document's keywords, and does `getCurrentTotalPages` work.
   lasso → lasso API is a working pattern for anything the lasso toolbar can
   do to an element.
 
+## Confirmed on the Manta (0.7.0, 2026-11-21)
+
+- NOTE-hosted plugin reads a PDF's keywords with `getKeyWords(pdfPath,
+  0..299)` and opens the PDF at a page with `openFile`. DOC-hosted plugin
+  writes keywords onto the PDF. Scenes stored on PDF pages appear on the
+  board and Open jumps to them. The 102 rule therefore blocks note writes
+  from DOC, not document reads from NOTE.
+- `insertGeometry` polygon borders draw as expected at pen width 150.
+
 ## Open questions 0.5.3 answers on-device
 
 - `insertGeometry` with a `GEO_polygon` of five pixel points (closed) and

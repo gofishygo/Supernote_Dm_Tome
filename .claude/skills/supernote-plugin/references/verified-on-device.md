@@ -77,8 +77,16 @@ With a PDF open in DOC: `getNoteTotalPageNum(pdfPath)` and
 `createNote(...)` / `insertKeyWord(notePath, ...)` on a `.note` return
 `102 This app is not allowed to use this API, please call a different API`.
 The same calls succeed with a note open in NOTE. Use
-`PluginDocAPI.getCurrentTotalPages()` for page counts in DOC. Whether DOC may
-read a note's keywords, or NOTE a document's, is being probed.
+`PluginDocAPI.getCurrentTotalPages()` for page counts in DOC.
+
+What does cross the boundary (verified): with a note open in NOTE,
+`PluginFileAPI.getKeyWords(pdfPath, pages)` reads a closed PDF's keywords
+(asking for a 300-page range on a shorter document is fine), and
+`PluginFileAPI.openFile(pdfPath, page)` opens it at that page. With a PDF
+open in DOC, `insertKeyWord(pdfPath, page, ...)` writes onto the PDF
+itself. So keywords on documents are a store a note-hosted plugin can read,
+which makes "write it where you are, gather it from the note" a working
+pattern.
 
 ## Keywords and templates
 
