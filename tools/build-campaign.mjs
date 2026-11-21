@@ -65,7 +65,7 @@ function parse(markdown, fallbackNumber, fileName) {
 }
 
 if (!existsSync(srcDir)) mkdirSync(srcDir);
-const skip = new Set(['readme.md', 'template.md']);
+const skip = new Set(['readme.md', 'template.md', 'references.md']);
 const files = readdirSync(srcDir)
   .filter(f => f.toLowerCase().endsWith('.md') && !skip.has(f.toLowerCase()) && !f.startsWith('_'))
   .sort();
@@ -74,3 +74,56 @@ sessions.sort((a, b) => a.number - b.number);
 const out = {generatedAt: new Date().toISOString(), sessions};
 writeFileSync(outFile, JSON.stringify(out, null, 2) + '\n');
 console.log(`campaign: ${sessions.length} session(s), ${sessions.reduce((n, s) => n + s.scenes.length, 0)} scene(s) -> src/campaign.generated.json`);
+
+// ---------------------------------------------------------------- references
+// campaign/references.md holds two pipe tables: Books and Entries.
+function parseTables(markdown) {
+  const tables = {};
+  let section = '';
+  let header = null;
+  for (const raw of markdown.replace(/\r\n/g, '\n').split('\n')) {
+    const line = raw.trim();
+    if (/^##\s+/.test(line)) {
+      section = line.replace(/^##\s+/, '').trim().toLowerCase();
+      header = null;
+      continue;
+    }
+    if (!line.startsWith('|')) {
+      header = null;
+      continue;
+    }
+    const cells = line.replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
+    if (cells.every(c => /^:?-{2,}:?$/.test(c))) continue; // separator row
+    if (!header) {
+      header = cells.map(c => c.toLowerCase());
+      continue;
+    }
+    const row = {};
+    header.forEach((h, i) => (row[h] = cells[i] ?? ''));
+    (tables[section] ??= []).push(row);
+  }
+  return tables;
+}
+
+const refFile = join(srcDir, 'references.md');
+const refOut = join(root, 'src', 'references.generated.json');
+let books = [];
+let entries = [];
+let skipped = 0;
+if (existsSync(refFile)) {
+  const t = parseTables(readFileSync(refFile, 'utf8'));
+  books = (t.books ?? [])
+    .filter(r => r.key)
+    .map(r => ({key: r.key.toUpperCase(), match: r['file name contains'] || r.key, offset: Number(r.offset) || 0}));
+  for (const r of t.entries ?? []) {
+    const page = Number(r.page);
+    if (!r.name || !r.book || !Number.isFinite(page)) {
+      skipped++;
+      continue;
+    }
+    entries.push({name: r.name, book: r.book.toUpperCase(), page, tags: r.tags || ''});
+  }
+  entries.sort((a, b) => a.name.localeCompare(b.name));
+}
+writeFileSync(refOut, JSON.stringify({generatedAt: out.generatedAt, books, entries}, null, 2) + '\n');
+console.log(`references: ${books.length} book(s), ${entries.length} entries${skipped ? `, ${skipped} row(s) skipped (no numeric page)` : ''} -> src/references.generated.json`);

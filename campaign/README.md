@@ -32,6 +32,9 @@ Body paragraphs are plain text. Blank line between paragraphs.
 - Every `##` heading becomes a Supernote title on the page, so the note's
   own title navigation lists your scenes.
 
+`references.md` is the look-up table (books and entries); its two tables are
+compiled the same way. See the notes inside that file.
+
 Then build: `tools\deploy.cmd` on Windows, or `npm run build` elsewhere. The
 Markdown is only read at build time; editing it does nothing until you
 rebuild and reinstall.

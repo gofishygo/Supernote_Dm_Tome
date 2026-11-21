@@ -17,6 +17,7 @@ import {
   scanDocumentsForRefs,
   whereAmI,
 } from '../refs';
+import {BOOKS, bookOf, Entry, ENTRIES, insertEntryLink, offsetFor, openEntry, resolveBooks, search} from '../lookup';
 import {Button, Row, styles} from '../ui';
 
 export function ReferenceScreen(): React.JSX.Element {
@@ -30,6 +31,10 @@ export function ReferenceScreen(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [linkSlot, setLinkSlot] = useState(0);
+  const [query, setQuery] = useState('');
+  const [hits, setHits] = useState<Entry[]>([]);
+  const [bookPaths, setBookPaths] = useState<Map<string, string | null> | null>(null);
+  const [printed, setPrinted] = useState('');
 
   const guard = useCallback(async (fn: () => Promise<void>, write = false) => {
     setBusy(true);
@@ -72,6 +77,23 @@ export function ReferenceScreen(): React.JSX.Element {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    setHits(search(query));
+  }, [query]);
+
+  const openHit = (e: Entry) =>
+    guard(async () => {
+      setStatus(await openEntry(e));
+      await PluginManager.closePluginView();
+    });
+
+  const linkHit = (e: Entry) =>
+    guard(async () => {
+      const code = await insertEntryLink(e, linkSlot);
+      setLinkSlot(x => x + 1);
+      setStatus(code === 0 ? `Link inserted: ${e.name}. Move it with the lasso.` : `insertTextLink returned ${code}`);
+    }, true);
 
   const bookmark = () =>
     guard(async () => {
@@ -118,8 +140,58 @@ export function ReferenceScreen(): React.JSX.Element {
         </Text>
       )}
 
+      <Text style={styles.h2}>Look up ({ENTRIES.length} entries)</Text>
+      <TextInput
+        value={query}
+        onChangeText={setQuery}
+        style={{borderWidth: 3, borderColor: '#000', padding: 10, fontSize: 20, color: '#000', marginBottom: 6}}
+        placeholder="monster, spell, condition…"
+        placeholderTextColor="#000"
+      />
+      {query.trim() !== '' && hits.length === 0 && <Text style={styles.muted}>No match. Add it to campaign/references.md and rebuild.</Text>}
+      {hits.map(e => (
+        <View key={`${e.book}-${e.name}`} style={{borderBottomWidth: 1, borderBottomColor: '#000', paddingVertical: 6}}>
+          <Text style={styles.body}>
+            {e.name} <Text style={styles.muted}>· {e.book} p.{e.page}{e.tags ? ` · ${e.tags}` : ''}</Text>
+          </Text>
+          <Row>
+            <Button small label="Open" disabled={busy} onPress={() => openHit(e)} />
+            {here && !here.isDoc && <Button small label="Insert link here" disabled={busy} onPress={() => linkHit(e)} />}
+          </Row>
+        </View>
+      ))}
+      <Row>
+        <Button
+          small
+          label={bookPaths ? 'Books: re-check' : 'Books: check which are on the device'}
+          disabled={busy}
+          onPress={() => guard(async () => setBookPaths(new Map(await resolveBooks(true))))}
+        />
+      </Row>
+      {bookPaths &&
+        BOOKS.map(b => (
+          <Text key={b.key} style={styles.muted}>
+            {b.key}: {bookPaths.get(b.key) ? fileName(bookPaths.get(b.key)!) : `not found (file name containing "${b.match}")`} · offset {b.offset}
+          </Text>
+        ))}
+
       {here?.isDoc && (
         <View>
+          <Text style={styles.h2}>Calibrate this book</Text>
+          <Text style={styles.muted}>PDF page index on screen: {here.page}. Type the printed page number you see:</Text>
+          <Row>
+            <TextInput
+              value={printed}
+              onChangeText={setPrinted}
+              keyboardType="numeric"
+              style={{borderWidth: 3, borderColor: '#000', padding: 10, fontSize: 20, color: '#000', width: 140, marginRight: 12}}
+              placeholder="printed"
+              placeholderTextColor="#000"
+            />
+            {Number.isFinite(Number(printed)) && printed.trim() !== '' && (
+              <Text style={styles.body}>offset = {offsetFor(here.page, Number(printed))} → write it in references.md</Text>
+            )}
+          </Row>
           <Text style={styles.h2}>Bookmark this page</Text>
           <TextInput
             value={name}
@@ -141,6 +213,9 @@ export function ReferenceScreen(): React.JSX.Element {
       )}
 
       <Text style={styles.h2}>Bookmarks ({refs.length})</Text>
+      {bookOf({name: '', book: 'EXAMPLE', page: 0, tags: ''}) && ENTRIES.some(e => e.book === 'EXAMPLE') && (
+        <Text style={styles.muted}>The lookup table still has the example rows; edit campaign/references.md.</Text>
+      )}
       {notes.map((n, i) => (
         <Text key={i} style={styles.muted}>
           {n}

@@ -127,7 +127,8 @@ git pull
 2. Plug the Manta in over USB and unlock it. It appears in Explorer as
    **This PC → Supernote A5 X2 Manta → Internal shared storage**.
 3. Write or edit your session scripts in `campaign\*.md` (see
-   `campaign\README.md` for the three rules).
+   `campaign\README.md` for the three rules) and your reference table in
+   `campaign\references.md`.
 4. Double-click `tools\deploy.cmd`. It installs dependencies on the first
    run, compiles the campaign Markdown into the plugin, builds, finds the
    Manta, and copies `DmTome-<version>.snplg` into `MyStyle`. The window stays open so you can read any red line.

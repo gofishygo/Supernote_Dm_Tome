@@ -6,6 +6,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {ScrollView, Text, TextInput, View} from 'react-native';
 import {PluginCommAPI, PluginFileAPI, PluginManager} from 'sn-plugin-lib';
 import {ensureRead, ensureWrite} from '../permissions';
+import {Entry, openEntry, search} from '../lookup';
 import {addRef, isDocument} from '../refs';
 import {addTask, CAPTURE_TYPES, currentFile, currentPage, EntryType, loadBoard, TYPE_META} from '../tasks';
 import {Button, Row, styles} from '../ui';
@@ -28,6 +29,7 @@ export function CaptureScreen(): React.JSX.Element {
   const [page, setPage] = useState<number>(0);
   const [path, setPath] = useState<string>('');
   const [type, setType] = useState<EntryType | null>(null);
+  const [hits, setHits] = useState<Entry[] | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -99,6 +101,21 @@ export function CaptureScreen(): React.JSX.Element {
 
   const saveRef = () => finish(async () => `Bookmarked: ${await addRef(text, path, page)}`);
 
+  const lookUp = () => setHits(search(text, 8));
+  const openHit = async (e: Entry) => {
+    setSaving(true);
+    setError(null);
+    try {
+      await ensureRead();
+      setStatus(await openEntry(e));
+      await PluginManager.closePluginView();
+    } catch (err) {
+      setError(String((err as Error)?.message ?? err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <ScrollView style={styles.screen}>
       <Text style={styles.h1}>Capture</Text>
@@ -131,8 +148,9 @@ export function CaptureScreen(): React.JSX.Element {
               />
             ))}
           </Row>
-          <Text style={styles.h2}>Or bookmark this page under that name</Text>
+          <Text style={styles.h2}>Or…</Text>
           <Row>
+            <Button label="Look up" hint="search the reference table for this text" disabled={saving || !text.trim()} onPress={lookUp} />
             <Button
               label={isDocument(path) ? 'Save as reference' : 'Save as reference (note page)'}
               hint={`${path.split('/').pop() ?? ''} p.${page + 1}`}
@@ -140,6 +158,15 @@ export function CaptureScreen(): React.JSX.Element {
               onPress={saveRef}
             />
           </Row>
+          {hits !== null && hits.length === 0 && <Text style={styles.muted}>No match in the reference table.</Text>}
+          {hits?.map(e => (
+            <Row key={`${e.book}-${e.name}`}>
+              <Button small label="Open" disabled={saving} onPress={() => openHit(e)} />
+              <Text style={[styles.body, {marginLeft: 8}]}>
+                {e.name} <Text style={styles.muted}>· {e.book} p.{e.page}</Text>
+              </Text>
+            </Row>
+          ))}
         </View>
       ) : (
         <View>

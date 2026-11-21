@@ -14,8 +14,11 @@ calendar (days since arrival) with per-day events; Back Burner has a typed
 quick-add for DM tasks. References
 (new): open PDFs, bookmark the page you are reading, open bookmarks at the
 exact page, insert tappable links into a note, read a PDF page's text layer.
-Script (new in 0.5.0): write sessions as Markdown in `campaign/`, rebuild,
-and insert scenes onto a note page as text boxes from the Script tab.
+Script: write sessions as Markdown in `campaign/`, rebuild, and insert
+scenes onto note pages as text boxes with real titles and bordered
+read-aloud passages. References: a look-up table in `campaign/references.md`
+opens a book at the printed page and inserts links; a calibrator finds each
+book's page offset.
 Bookmarks live as `REF name` keywords on the bookmarked page. The SDK probe
 console remains as the last tab. Target: Manta on Chauvet 3.31.45.
 
@@ -55,7 +58,8 @@ src/ui.tsx        shared e-ink widgets
 src/script.ts     lays compiled scenes onto a note page as text boxes
 src/campaign.generated.json  built from campaign/*.md by tools/build-campaign.mjs
 src/screens/      CaptureScreen, BackBurnerScreen, ScriptScreen, ReferenceScreen, ProbeConsole
-campaign/         your session scripts in Markdown (see campaign/README.md)
+campaign/         session scripts and references.md (see campaign/README.md)
+src/lookup.ts     reference table search, open at page, insert link, calibration
 tools/            deploy.cmd / send-only.cmd for Windows
 PluginConfig.json plugin manifest; never change pluginID
 assets/           icon.png (tome), capture.png (lasso+quill), src/*.svg

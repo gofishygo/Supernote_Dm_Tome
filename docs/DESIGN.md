@@ -104,32 +104,29 @@ recognized strokes from the notes you already wrote.
 
 ## The reference index
 
-A JSON table, maintained on the PC and compiled in (path A), maps a name to a
-file and page:
+`campaign/references.md` holds two Markdown tables, compiled into the plugin
+with the scripts:
 
-```json
-{ "books": { "MM24": "/storage/emulated/0/Supernote/Document/DnD/Monster Manual 2024.pdf" },
-  "entries": [ { "name": "Owlbear", "book": "MM24", "page": 249, "tags": ["beast","CR3"] } ] }
+```
+| key | file name contains | offset |     (Books)
+| MM  | Monster Manual     | 0      |
+
+| name    | book | page | tags            |  (Entries; page is the printed number)
+| Owlbear | MM   | 249  | monstrosity, CR3 |
 ```
 
-Two ways to use it:
+Books resolve to documents on the device by file-name substring. The PDF
+page index is `printed page - 1 + offset`; the References tab's calibrator
+shows the offset after you type the printed number of the page on screen,
+and you write it into the table once per book.
 
-- **In the console**: search, tap, `PluginFileAPI.openFile(path, page)`.
-- **In the note**: "Insert reference" writes `insertTextLink` entries so a scene
-  page carries its own tappable stat-block links. Links must be on layer 0.
+Three ways to use it: the look-up box on the References tab (Open, or
+Insert link onto the current note page), "Look up" on the Capture screen
+(lasso a name in your notes, open the stat block), and `REF` bookmarks made
+on the device, which remain the per-page layer.
 
-Bookmarks made on the device are stored as a short keyword, `REF <name>`,
-on the bookmarked page of the document itself; the file and page are implied
-by the keyword's location. The Reference tab reads them from the open
-document, or scans every document under `Document` from a note. Keywords are
-short on the device (error 1001 past the limit), which rules out storing
-paths in them.
-
-For 5e 2024 the index starts as a seed of common monsters, conditions, and
-spells with page numbers you confirm against your PDFs. Page numbers in a PDF
-viewer are 0-based for the SDK and often offset from the printed page, so the
-console will include a one-time "calibrate book" action: open the PDF to a
-known printed page, read `getCurrentPageNum`, store the offset.
+No page numbers ship with the plugin: a wrong page is worse than none, so
+the table starts with example rows under a book that matches no file.
 
 ## Session flow
 
@@ -170,8 +167,8 @@ known printed page, read `getCurrentPageNum`, store the offset.
 | 0.5.0 (built) | Script tab: Markdown → JSON at build time → scenes inserted as text boxes on the current note page, chained down the page. | insertText batches |
 | 0.5.1 (verified) | Whole session onto new pages: save → `insertNotePage` ×N after the current page (template from `getNotePageTemplate`) → `reloadFile` → per page `jumpToPage`, verify `getCurrentPageNum`, lay the scene → save. Step log on screen. | insertNotePage, reloadFile |
 | 0.5.2 (verified) | Scene headings become Supernote titles: after the heading box is written, `lassoElements(rect)` → `setLassoTitle({style: 2})` → `setLassoBoxState(2)`; a refusal leaves a plain bold heading and is logged. `campaign/TEMPLATE.md` added and excluded from the build. | lassoElements, setLassoTitle |
-| 0.5.3 (built) | Read-aloud boxes get a border: a `GEO_polygon` geometry (fineliner, pen width 150) drawn around the box with `insertGeometry`, since the text box's own border flag is read-only. | insertGeometry |
-| 0.5.x | Seed reference table for the 2024 core books. | |
+| 0.5.3 (verified) | Read-aloud boxes get a border: a `GEO_polygon` geometry (fineliner, pen width 150) drawn around the box with `insertGeometry`, since the text box's own border flag is read-only. | insertGeometry |
+| 0.6.0 (built) | Reference table: `campaign/references.md` (Books: key, file-name match, offset; Entries: name, book, printed page, tags) compiled to JSON. References tab: look-up box, Open at page (`index = page - 1 + offset`), Insert link, book checker, per-book calibrator. Capture gains Look up. No page numbers are shipped; the user fills them from their PDFs. | openFile, insertTextLink |
 | 0.5 | Polish: config button for campaign settings, session counter, review screen, star sweep. | registerConfigButton, searchFiveStars |
 
 ## E-ink UI rules

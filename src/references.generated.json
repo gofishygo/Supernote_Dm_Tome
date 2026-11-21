@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-11-21T03:39:32.444Z",
+  "books": [
+    {
+      "key": "MM",
+      "match": "Monster Manual",
+      "offset": 0
+    },
+    {
+      "key": "PHB",
+      "match": "Player's Handbook",
+      "offset": 0
+    },
+    {
+      "key": "DMG",
+      "match": "Dungeon Master's Guide",
+      "offset": 0
+    },
+    {
+      "key": "EXAMPLE",
+      "match": "no-such-file",
+      "offset": 0
+    }
+  ],
+  "entries": [
+    {
+      "name": "Example: Fireball",
+      "book": "EXAMPLE",
+      "page": 2,
+      "tags": "spell, 3rd level, example row"
+    },
+    {
+      "name": "Example: Grappled",
+      "book": "EXAMPLE",
+      "page": 3,
+      "tags": "condition, example row"
+    },
+    {
+      "name": "Example: Owlbear",
+      "book": "EXAMPLE",
+      "page": 1,
+      "tags": "monstrosity, example row, replace me"
+    }
+  ]
+}
