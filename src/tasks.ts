@@ -276,6 +276,47 @@ export async function loadBoard(): Promise<Board> {
   return {path, session, day, tasks, events, docs, notes, keywordCount: kws.length};
 }
 
+export type WrapUpPlan = {toPush: Task[]; strongDone: Task[]; nextSession: number};
+
+/** What "End session" will do, so the UI can show it before confirming. */
+export function planWrapUp(board: Board): WrapUpPlan {
+  const dueNow = board.tasks.filter(t => !t.done && TYPE_META[t.type].dated && t.due === board.session);
+  return {
+    strongDone: dueNow.filter(t => t.type === 'strong'),
+    toPush: dueNow.filter(t => t.type !== 'strong'),
+    nextSession: board.session + 1,
+  };
+}
+
+/**
+ * End the session: unfinished dated entries for this session move to the
+ * next, the Strong start is marked done, the counter advances, and the
+ * in-game day moves by `daysPassed`. Nothing is deleted. Entries living in
+ * attached PDFs are rewritten where they are.
+ */
+export async function wrapUpSession(board: Board, daysPassed: number, onStep: (msg: string) => void): Promise<void> {
+  const plan = planWrapUp(board);
+  for (const t of plan.strongDone) {
+    onStep(`strong start done: ${t.text}`);
+    await rewriteTask(board.path, t, {done: true});
+  }
+  // Rewriting deletes and re-inserts keywords, which can renumber later
+  // keywords on the same page. Process pushes from the highest index down so
+  // the indices we hold stay valid.
+  const pushes = [...plan.toPush].sort((a, b) => (a.file === b.file && a.page === b.page ? b.index - a.index : 0));
+  for (const t of pushes) {
+    onStep(`→ S${plan.nextSession}: ${t.text}`);
+    await rewriteTask(board.path, t, {due: plan.nextSession});
+  }
+  onStep(`session ${board.session} → ${plan.nextSession}`);
+  const loc = await findSessionKeyword(board.path);
+  await setSession(board.path, loc, plan.nextSession);
+  if (daysPassed > 0) {
+    onStep(`day ${board.day} → ${board.day + daysPassed}`);
+    await setDay(board.path, board.day + daysPassed);
+  }
+}
+
 export async function attachDoc(notePath: string, fileName: string): Promise<string> {
   const stem = fileName.replace(/\.[^.]+$/, '');
   const keyword = `Doc | ${stem}`.slice(0, KEYWORD_MAX);

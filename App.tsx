@@ -19,7 +19,7 @@ import {ReferenceScreen} from './src/screens/ReferenceScreen';
 import {ScriptScreen} from './src/screens/ScriptScreen';
 import {PAPER, styles} from './src/ui';
 
-const VERSION = '0.7.0';
+const VERSION = '0.7.1';
 type Tab = 'tonight' | 'burner' | 'script' | 'refs' | 'probes';
 
 function Hub(): React.JSX.Element {

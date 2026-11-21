@@ -14,7 +14,9 @@ import {
   findSessionKeyword,
   isNotAllowed,
   loadBoard,
+  planWrapUp,
   removeDayEvent,
+  wrapUpSession,
   rewriteTask,
   setDay,
   setSession,
@@ -57,6 +59,10 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
   const [eventText, setEventText] = useState('');
   // quick task
   const [quickText, setQuickText] = useState('');
+  // end of session
+  const [wrapOpen, setWrapOpen] = useState(false);
+  const [daysPassed, setDaysPassed] = useState(1);
+  const [wrapLog, setWrapLog] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [showDone, setShowDone] = useState(false);
@@ -139,7 +145,7 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
       <View key={`${t.page}-${t.index}`} style={{borderBottomWidth: 1, borderBottomColor: '#000', paddingVertical: 8}}>
         <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
           <View style={{borderWidth: 2, borderColor: '#000', minWidth: 36, paddingHorizontal: 6, paddingVertical: 2, marginRight: 10, alignItems: 'center'}}>
-            <Text style={{fontSize: 20, color: '#000'}}>{TYPE_META[t.type].glyph}</Text>
+            <Text style={{fontSize: 24, color: '#000'}}>{TYPE_META[t.type].glyph}</Text>
           </View>
           <Text style={[styles.body, {flex: 1}, t.done && {textDecorationLine: 'line-through'}]}>
             {b !== 'always' && b !== 'strongNow' ? `${TYPE_META[t.type].label}: ` : ''}
@@ -181,7 +187,44 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
         <Button small label="+" disabled={busy || !board} onPress={() => bumpSession(1)} />
         <View style={{width: 16}} />
         <Button small label="Refresh" disabled={busy} onPress={refresh} />
+        {mode === 'tonight' && board && (
+          <Button small label={wrapOpen ? 'Cancel' : 'End session…'} disabled={busy} onPress={() => { setWrapOpen(o => !o); setWrapLog([]); }} />
+        )}
       </Row>
+      {mode === 'tonight' && board && wrapOpen && (() => {
+        const plan = planWrapUp(board);
+        return (
+          <View style={{borderWidth: 3, borderColor: '#000', padding: 12, marginTop: 8}}>
+            <Text style={styles.h2}>End session {board.session}</Text>
+            <Text style={styles.body}>
+              {plan.strongDone.length} strong start → done · {plan.toPush.length} unfinished → S{plan.nextSession} · counter → {plan.nextSession}. Overdue entries stay overdue. Nothing is deleted.
+            </Text>
+            <Row>
+              <Text style={[styles.body, {marginRight: 8}]}>In-game days passed:</Text>
+              <Button small label="−" disabled={busy || daysPassed <= 0} onPress={() => setDaysPassed(d => d - 1)} />
+              <Text style={[styles.body, {marginHorizontal: 10}]}>{daysPassed}</Text>
+              <Button small label="+" disabled={busy} onPress={() => setDaysPassed(d => d + 1)} />
+            </Row>
+            {wrapLog.map((m, i) => (
+              <Text key={i} style={styles.mono}>
+                {m}
+              </Text>
+            ))}
+            <Row>
+              <Button
+                label={`Confirm: end session ${board.session}`}
+                disabled={busy}
+                onPress={() =>
+                  withWrite(async () => {
+                    await wrapUpSession(board, daysPassed, m => setWrapLog(l => [...l, m]));
+                    setWrapOpen(false);
+                  })
+                }
+              />
+            </Row>
+          </View>
+        );
+      })()}
       {board && (
         <Text style={styles.muted}>
           {board.tasks.filter(visible).length} entries · {board.path.split('/').pop()}
@@ -335,9 +378,9 @@ export function BackBurnerScreen({mode = 'ledger'}: {mode?: BoardMode}): React.J
                       padding: 6,
                       backgroundColor: now ? '#000' : '#fff',
                     }}>
-                    <Text style={{fontSize: 20, fontWeight: '700', color: now ? '#fff' : '#000'}}>{d}</Text>
+                    <Text style={{fontSize: 22, fontWeight: '700', color: now ? '#fff' : '#000'}}>{d}</Text>
                     {evs.map(ev => (
-                      <Text key={ev.index} style={{fontSize: 14, color: now ? '#fff' : '#000', marginTop: 2}} numberOfLines={3}>
+                      <Text key={ev.index} style={{fontSize: 16, color: now ? '#fff' : '#000', marginTop: 2}} numberOfLines={3}>
                         {ev.text}
                       </Text>
                     ))}
