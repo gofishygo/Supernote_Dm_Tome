@@ -94,7 +94,7 @@ export function ScriptScreen(): React.JSX.Element {
             <Button
               small
               key={`${kind}-${s.number}`}
-              label={kind === 'sessions' ? `S${s.number}` : s.title.replace(/^Character:\s*/i, '').split(/\s/)[0]}
+              label={kind === 'sessions' ? (s.number === 0 ? 'Someday' : `S${s.number}`) : s.title.replace(/^Character:\s*/i, '').split(/\s/)[0]}
               disabled={busy}
               onPress={() => { setSession(s); setOpen(null); }}
             />

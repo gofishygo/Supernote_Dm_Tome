@@ -28,6 +28,10 @@ Body paragraphs are plain text. Blank line between paragraphs.
 - `##` starts a scene. Anything before the first `##` is the session intro.
 - Everything else is plain text. Markdown emphasis is left as typed.
 - Files are read in name order; use `01-`, `02-` prefixes if you like.
+- A file named `someday-…` or `anytime-…`, or a title starting with
+  `Someday:` or `Anytime:`, gets no session number: it sorts last and shows as
+  "Someday" on the Script tab. Use it for scripts that apply across sessions,
+  such as a book the party can open on any floor.
 - `TEMPLATE.md`, `README.md` and any file starting with `_` are skipped.
   Copy `TEMPLATE.md` to `02-whatever.md` to start a session.
 - Every `##` heading becomes a Supernote title on the page, so the note's

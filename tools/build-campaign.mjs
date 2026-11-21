@@ -69,12 +69,21 @@ const skip = new Set(['readme.md', 'template.md', 'references.md']);
 const files = readdirSync(srcDir)
   .filter(f => f.toLowerCase().endsWith('.md') && !skip.has(f.toLowerCase()) && !f.startsWith('_'))
   .sort();
+// Session number 0 means "someday / anytime": a script used across sessions
+// (a book, a recurring set piece). Triggered by a file name starting with
+// "someday" or "anytime", or a title starting with "Someday:" / "Anytime:".
 const numberFromName = (f, i) => {
+  if (/^(someday|anytime)/i.test(f)) return 0;
   const m = /^(\d+)/.exec(f);
   return m ? Number(m[1]) : i + 1;
 };
-const sessions = files.map((f, i) => parse(readFileSync(join(srcDir, f), 'utf8'), numberFromName(f, i), f.replace(/\.md$/i, '')));
-sessions.sort((a, b) => a.number - b.number);
+const sessions = files.map((f, i) => {
+  const s = parse(readFileSync(join(srcDir, f), 'utf8'), numberFromName(f, i), f.replace(/\.md$/i, ''));
+  if (/^(someday|anytime)\s*:/i.test(s.title)) s.number = 0;
+  return s;
+});
+// numbered sessions first, someday scripts last
+sessions.sort((a, b) => (a.number === 0 ? 1e9 : a.number) - (b.number === 0 ? 1e9 : b.number));
 const out = {generatedAt: new Date().toISOString(), sessions};
 writeFileSync(outFile, JSON.stringify(out, null, 2) + '\n');
 console.log(`campaign: ${sessions.length} session(s), ${sessions.reduce((n, s) => n + s.scenes.length, 0)} scene(s) -> src/campaign.generated.json`);
