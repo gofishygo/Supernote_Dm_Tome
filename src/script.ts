@@ -6,6 +6,7 @@
  */
 import {PluginCommAPI, PluginFileAPI, PluginNoteAPI} from 'sn-plugin-lib';
 import campaign from './campaign.generated.json';
+import characters from './characters.generated.json';
 import {currentFile, currentPage} from './tasks';
 
 export type Block = {kind: 'text' | 'quote'; text: string};
@@ -13,6 +14,8 @@ export type Scene = {title: string; blocks: Block[]};
 export type Session = {number: number; title: string; intro: Block[]; scenes: Scene[]};
 
 export const SESSIONS: Session[] = (campaign as {sessions: Session[]}).sessions;
+/** Player characters use the same shape: title, intro, sections as "scenes". */
+export const CHARACTERS: Session[] = (characters as {characters: Session[]}).characters;
 export const GENERATED_AT: string = (campaign as {generatedAt: string}).generatedAt;
 
 type ApiResponse<T> = {success: boolean; result: T | null; error: {code: number; message: string} | null};

@@ -69,11 +69,28 @@ const skip = new Set(['readme.md', 'template.md', 'references.md']);
 const files = readdirSync(srcDir)
   .filter(f => f.toLowerCase().endsWith('.md') && !skip.has(f.toLowerCase()) && !f.startsWith('_'))
   .sort();
-const sessions = files.map((f, i) => parse(readFileSync(join(srcDir, f), 'utf8'), i + 1, f.replace(/\.md$/i, '')));
+const numberFromName = (f, i) => {
+  const m = /^(\d+)/.exec(f);
+  return m ? Number(m[1]) : i + 1;
+};
+const sessions = files.map((f, i) => parse(readFileSync(join(srcDir, f), 'utf8'), numberFromName(f, i), f.replace(/\.md$/i, '')));
 sessions.sort((a, b) => a.number - b.number);
 const out = {generatedAt: new Date().toISOString(), sessions};
 writeFileSync(outFile, JSON.stringify(out, null, 2) + '\n');
 console.log(`campaign: ${sessions.length} session(s), ${sessions.reduce((n, s) => n + s.scenes.length, 0)} scene(s) -> src/campaign.generated.json`);
+
+// ---------------------------------------------------------------- characters
+const charDir = join(srcDir, 'characters');
+const charOut = join(root, 'src', 'characters.generated.json');
+let characters = [];
+if (existsSync(charDir)) {
+  const cfiles = readdirSync(charDir)
+    .filter(f => f.toLowerCase().endsWith('.md') && !skip.has(f.toLowerCase()) && !f.startsWith('_'))
+    .sort();
+  characters = cfiles.map((f, i) => parse(readFileSync(join(charDir, f), 'utf8'), i + 1, f.replace(/\.md$/i, '')));
+}
+writeFileSync(charOut, JSON.stringify({generatedAt: out.generatedAt, characters}, null, 2) + '\n');
+console.log(`characters: ${characters.length} -> src/characters.generated.json`);
 
 // ---------------------------------------------------------------- references
 // campaign/references.md holds two pipe tables: Books and Entries.

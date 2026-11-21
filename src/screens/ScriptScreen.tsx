@@ -4,11 +4,13 @@ import {ScrollView, Text, View} from 'react-native';
 import {PluginCommAPI, PluginManager} from 'sn-plugin-lib';
 import {ensureWrite} from '../permissions';
 import {isDocPath} from '../tasks';
-import {GENERATED_AT, insertScene, insertSessionAsPages, Scene, sceneSummary, SESSIONS, Session} from '../script';
+import {CHARACTERS, GENERATED_AT, insertScene, insertSessionAsPages, Scene, sceneSummary, SESSIONS, Session} from '../script';
 import {Button, Row, styles} from '../ui';
 
 export function ScriptScreen(): React.JSX.Element {
+  const [kind, setKind] = useState<'sessions' | 'characters'>('sessions');
   const [session, setSession] = useState<Session | null>(SESSIONS[0] ?? null);
+  const list = kind === 'sessions' ? SESSIONS : CHARACTERS;
   const [open, setOpen] = useState<number | null>(null);
   const [inDoc, setInDoc] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
@@ -64,9 +66,13 @@ export function ScriptScreen(): React.JSX.Element {
 
   return (
     <ScrollView style={styles.screen}>
-      <Text style={styles.h1}>Script</Text>
+      <Row>
+        <Text style={[styles.h1, {marginRight: 16}]}>Script</Text>
+        <Button small label={`Sessions (${SESSIONS.length})`} disabled={busy} onPress={() => { setKind('sessions'); setSession(SESSIONS[0] ?? null); setOpen(null); }} />
+        <Button small label={`Characters (${CHARACTERS.length})`} disabled={busy} onPress={() => { setKind('characters'); setSession(CHARACTERS[0] ?? null); setOpen(null); }} />
+      </Row>
       <Text style={styles.muted}>
-        {SESSIONS.length} session{SESSIONS.length === 1 ? '' : 's'} compiled {GENERATED_AT.slice(0, 16).replace('T', ' ')} · edit campaign/*.md on the PC, rebuild, reinstall
+        compiled {GENERATED_AT.slice(0, 16).replace('T', ' ')} · edit campaign/*.md and campaign/characters/*.md on the PC, rebuild, reinstall
       </Text>
       {inDoc && <Text style={[styles.body, {marginTop: 8}]}>Text boxes can only be inserted into a note. Open your campaign note first.</Text>}
       {status && <Text style={[styles.body, {marginTop: 8}]}>{status}</Text>}
@@ -76,14 +82,22 @@ export function ScriptScreen(): React.JSX.Element {
         </Text>
       )}
 
-      {SESSIONS.length === 0 && (
-        <Text style={[styles.body, {marginTop: 12}]}>No scripts yet. Add a Markdown file under campaign/ and rebuild.</Text>
+      {list.length === 0 && (
+        <Text style={[styles.body, {marginTop: 12}]}>
+          {kind === 'sessions' ? 'No scripts yet. Add a Markdown file under campaign/ and rebuild.' : 'No characters yet. Add a Markdown file under campaign/characters/ and rebuild.'}
+        </Text>
       )}
 
-      {SESSIONS.length > 1 && (
+      {list.length > 1 && (
         <Row>
-          {SESSIONS.map(s => (
-            <Button small key={s.number} label={`S${s.number}`} disabled={busy} onPress={() => { setSession(s); setOpen(null); }} />
+          {list.map(s => (
+            <Button
+              small
+              key={`${kind}-${s.number}`}
+              label={kind === 'sessions' ? `S${s.number}` : s.title.replace(/^Character:\s*/i, '').split(/\s/)[0]}
+              disabled={busy}
+              onPress={() => { setSession(s); setOpen(null); }}
+            />
           ))}
         </Row>
       )}
@@ -102,8 +116,8 @@ export function ScriptScreen(): React.JSX.Element {
         <View>
           <Text style={styles.h2}>{session.title}</Text>
           <Button
-            label="Insert whole session as new pages"
-            hint={`${session.intro.length ? 'intro page + ' : ''}${session.scenes.length} scene page(s) after the page you have open`}
+            label={kind === 'sessions' ? 'Insert whole session as new pages' : 'Insert character as new pages'}
+            hint={`${session.intro.length ? 'intro page + ' : ''}${session.scenes.length} page(s) after the page you have open`}
             disabled={busy || inDoc}
             onPress={() => insertPages(session)}
           />

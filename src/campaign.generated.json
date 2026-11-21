@@ -1,60 +1,1486 @@
 {
-  "generatedAt": "2026-11-21T03:39:32.444Z",
+  "generatedAt": "2026-11-21T04:15:50.685Z",
   "sessions": [
     {
-      "number": 1,
-      "title": "Session 1: Arrival at Saltmarsh",
+      "number": 2,
+      "title": "Session: The Rooms of Weeping",
       "intro": [
         {
           "kind": "text",
-          "text": "The party arrives by the evening ferry. Rain. The harbour bell is silent, which the locals notice and the party will not, yet."
+          "text": "Castle Ravenloft, the floor above the Count's court (K35 to K46). Dinner is over. Strahd is at the organ below, and the party is upstairs with his stolen Tome in somebody's pack."
+        },
+        {
+          "kind": "text",
+          "text": "Abraham, Batrdlebee, Evander and Torvald. Gertruda, the clockwork gunslinger, goes where she pleases and tonight that may be with them."
+        },
+        {
+          "kind": "text",
+          "text": "The music is the clock. While the organ plays, they know where he is. When it stops, he knows what they took."
+        },
+        {
+          "kind": "text",
+          "text": "Room numbers are from the book. It has the last word on traps and stats."
         }
       ],
       "scenes": [
         {
-          "title": "Strong start: The ferryman will not take their coin",
+          "title": "Strong start: The organ is still playing",
           "blocks": [
             {
               "kind": "quote",
-              "text": "The ferryman holds up a hand before you can pay. \"Keep it. You'll need it for the priest.\" He will not say more, and poles away into the dark."
+              "text": "The music comes up through the floor, vast and patient. He has been playing since the plates were cleared and he has not repeated a phrase. Every candle on this floor trembles in time with it."
+            },
+            {
+              "kind": "quote",
+              "text": "Whoever carries the Tome feels it grow warm against their back, the way a hand warms when its owner is thinking of you."
             },
             {
               "kind": "text",
-              "text": "If pressed: he lost a son to the chapel. He is afraid, not rude."
+              "text": "• Batrdlebee, Performance or History DC 13: this is a long piece with a clear shape. Perhaps an hour of it is left. He is playing a requiem, and it is not for himself."
+            },
+            {
+              "kind": "text",
+              "text": "• Abraham's training says it plainly. A vampire that lets you wander is counting what you touch."
+            },
+            {
+              "kind": "text",
+              "text": "• Evander's pulse has fallen into step with the bass notes. The dhampir half of him is at home here, and he hates that."
+            },
+            {
+              "kind": "text",
+              "text": "• Torvald knows a hall when the lord is busy. The servants are watching to see what the guests do unwatched."
+            },
+            {
+              "kind": "text",
+              "text": "• Gertruda, if present: \"Observation: the master is occupied. Recommendation: we rob him further.\""
+            },
+            {
+              "kind": "text",
+              "text": "Start a tracker of five boxes. Tick one for each loud or greedy act. When the last is ticked, run The music stops."
             }
           ]
         },
         {
-          "title": "Scene: The Drowned Anchor inn",
+          "title": "Scene: The wedding table (K36)",
           "blocks": [
             {
-              "kind": "text",
-              "text": "Mira the fence is in the corner booth. She wants the party to notice her without approaching. She knows where the bell went."
+              "kind": "quote",
+              "text": "A long table set for a feast nobody ate. Dust lies on the plates like a second cloth. At the centre a tall cake has slumped under years of cobweb, and one small figure of a bride still stands on top."
             },
             {
               "kind": "text",
-              "text": "• Rooms are 5 sp. The innkeeper overcharges strangers by double."
+              "text": "The groom figure is on the floor under the table, face down. It was thrown, not dropped."
             },
             {
               "kind": "text",
-              "text": "• A notice on the wall: \"Lost: church bell. Reward from Father Orm.\""
+              "text": "• Nothing here attacks. Let the music from below do the work."
             },
             {
               "kind": "text",
-              "text": "• If anyone asks about the chapel, the room goes quiet."
+              "text": "• Investigation DC 12: place cards. One reads Sergei. One reads Tatyana. The host's own card is missing."
+            },
+            {
+              "kind": "text",
+              "text": "• If anyone has read the Tome, these are no longer just names. Whoever carries it finds it has opened itself to the page about the wedding day."
+            },
+            {
+              "kind": "text",
+              "text": "• Abraham, Survival DC 13: the dust on one chair is disturbed. Strahd sits at this table alone, and often."
             }
           ]
         },
         {
-          "title": "Scene: Father Orm at the chapel steps",
+          "title": "Scene: The study (K37)",
           "blocks": [
             {
               "kind": "quote",
-              "text": "The chapel door is chained from the outside. The chain is new."
+              "text": "A fire is burning, and it is the first warm room in the castle. Books to the ceiling. Over the mantel hangs a portrait of a young woman, painted with more care than anything else you have seen here."
             },
             {
               "kind": "text",
-              "text": "Orm admits the bell was stolen a week ago and the tides have been wrong since. He offers 50 gp and a blessing. He is lying about the blessing."
+              "text": "The woman is Tatyana. The Tome has already told them who she was. The portrait tells them he has never stopped looking at her."
+            },
+            {
+              "kind": "text",
+              "text": "Strahd is downstairs, so the room is theirs, for now."
+            },
+            {
+              "kind": "text",
+              "text": "• On the desk, a ledger of hunter families, most names struck through. Abraham's family name is there. It is not struck. There is a date beside it, and the date is this year."
+            },
+            {
+              "kind": "text",
+              "text": "• A reading stand by the fire, empty, with a ribbon marker laid across it. He has not yet come up to read tonight. When he does, he will know."
+            },
+            {
+              "kind": "text",
+              "text": "• Esmeralda has been here. Abraham can tell: a hunter's chalk mark low on the door frame, fresh. It means safe for now, do not linger."
+            },
+            {
+              "kind": "text",
+              "text": "• Investigation DC 15 near the fireplace finds the hidden way on to K38."
+            },
+            {
+              "kind": "text",
+              "text": "• Taking the ledger ticks a box. Lingering more than a few minutes brings Rahadin to bank the fire."
+            },
+            {
+              "kind": "text",
+              "text": "Rahadin does not fight unless attacked. He looks at each of them, looks at the empty stand, and says only, \"The master will want to say goodnight.\""
+            }
+          ]
+        },
+        {
+          "title": "Scene: The false treasury (K38)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "A small vault. Coins glint on the floor, too evenly scattered. A skeleton in rotted leather lies with one arm stretched toward a chest."
+            },
+            {
+              "kind": "text",
+              "text": "The room is bait. Run the chest trap from the book. Springing it ticks a box."
+            },
+            {
+              "kind": "text",
+              "text": "• Abraham knows a baited snare when he sees one. Give him advantage to spot it."
+            },
+            {
+              "kind": "text",
+              "text": "• Gertruda: \"Statement: I was shown this room on my first night. I was told it was a test. I passed by not being greedy. I have regretted it since.\""
+            },
+            {
+              "kind": "text",
+              "text": "• The dead adventurer carries a hunter's token, a wolf's tooth on a cord. Esmeralda wears the same. So, somewhere at home, does Abraham's family."
+            },
+            {
+              "kind": "text",
+              "text": "• The real treasury (K41) is close and is not reached from here. Let them work that out."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The hall of webs and the belfry (K39, K40)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "The corridor ahead is white from wall to wall. Web, thick as wool, and none of it old. Something in it shifts when your light touches it."
+            },
+            {
+              "kind": "text",
+              "text": "Giant spiders. Start with four and add one each round the fight is loud, up to six."
+            },
+            {
+              "kind": "text",
+              "text": "• Giant spider: AC 14, HP 26, bite +5 for 1d8+3 plus 2d8 poison, Con DC 11 for half."
+            },
+            {
+              "kind": "text",
+              "text": "• Webbed squares are difficult terrain. Torvald can tear a path with a Strength check, DC 12."
+            },
+            {
+              "kind": "text",
+              "text": "• The webs burn. Fire clears a 5 foot square per round and ticks a box."
+            },
+            {
+              "kind": "text",
+              "text": "• Gunfire ticks a box. Gertruda knows this and resents it. \"Complaint: I am being asked to kill quietly. This is a waste of craftsmanship.\""
+            },
+            {
+              "kind": "text",
+              "text": "• Beyond the webs, the belfry: a great bell wrapped in silk, rope hanging."
+            },
+            {
+              "kind": "quote",
+              "text": "The bell rope hangs within reach, halfling height. It has been tied in a neat bow."
+            },
+            {
+              "kind": "text",
+              "text": "If the bell rings, tick every box that is left. The organ stops in the middle of a chord. Batrdlebee will want to ring it. Let them choose."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The king's bedchamber (K42)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "A vast bed hung in red. The linen is fresh and has never been slept in. On the pillow lies a hairbrush, and beside it a small brass key of the kind that winds a clock."
+            },
+            {
+              "kind": "text",
+              "text": "This was the room Strahd kept for Gertruda, before she was what she is now. How much she remembers of it is yours to decide."
+            },
+            {
+              "kind": "text",
+              "text": "• The wardrobe holds dresses in her size, none worn. Under them, a gun case lined in velvet, empty, shaped for the pistols she carries."
+            },
+            {
+              "kind": "text",
+              "text": "• If she is with the party she goes still, which for her is a loud noise. \"Statement: I do not remember this room. Correction: I do not wish to.\""
+            },
+            {
+              "kind": "text",
+              "text": "• The brass key fits a port at the nape of her neck. What it does is up to you. Whoever holds it, she will not thank them, and she will not leave their side."
+            },
+            {
+              "kind": "text",
+              "text": "• If she is not with the party, she is found here, sitting on the bed with her back to the door and a pistol already pointed over her shoulder."
+            },
+            {
+              "kind": "text",
+              "text": "• Evander, Medicine or Arcana DC 14: under the brass at her throat are two old punctures, plated over. Someone made her this way so that she could not be turned."
+            },
+            {
+              "kind": "text",
+              "text": "Fated companion test. She follows whoever tells her the truth about this room, and mocks whoever is kind about it."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The bath (K43)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "A tiled room, a claw footed tub, and the smell of iron. The tub is full to the brim, and it is not water."
+            },
+            {
+              "kind": "text",
+              "text": "Short room. Run the tub from the book. Its purpose is to make them regret looking, then move on."
+            },
+            {
+              "kind": "text",
+              "text": "• Evander smells it from the corridor. Ask his player what the hunger feels like, and whether the others notice him swallow. No roll. Just the question."
+            },
+            {
+              "kind": "text",
+              "text": "• Gertruda: \"Observation: this is what you are all full of. It explains the leaking.\""
+            }
+          ]
+        },
+        {
+          "title": "Scene: The hall of heroes (K45)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "Stone figures line a long hall, kings and knights with their faces worn soft. Their eyes are not worn at all. They follow you."
+            },
+            {
+              "kind": "text",
+              "text": "The statues hold the spirits of the Count's ancestors, their wits long gone. They answer questions, and the answers are true and nearly useless."
+            },
+            {
+              "kind": "text",
+              "text": "• Each character gets one question. Answer in riddles, sideways, with one real fact buried in it."
+            },
+            {
+              "kind": "text",
+              "text": "• Good facts to bury: the heart of the castle beats in a tower. The Count sleeps below, not above. His brother is not at rest."
+            },
+            {
+              "kind": "text",
+              "text": "• The statues react to the Tome. They lean toward its carrier and whisper, all at once, \"He wrote us out of it.\""
+            },
+            {
+              "kind": "text",
+              "text": "• One stone king speaks to Torvald unasked: \"I led ten thousand. Count who stands with me now.\" Then nothing more."
+            },
+            {
+              "kind": "text",
+              "text": "• The statues will not answer Evander. They turn their eyes away from him, every one."
+            },
+            {
+              "kind": "text",
+              "text": "• They do not see Gertruda at all. She finds this restful."
+            },
+            {
+              "kind": "text",
+              "text": "• A statue near the end has Abraham's jaw and brow. A hunter in the bloodline once came here, and stayed."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The music stops",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "Run this the moment the last box is ticked, wherever the party is."
+            },
+            {
+              "kind": "quote",
+              "text": "The organ stops in the middle of a chord. The silence that follows is the loudest thing you have heard in this castle. Every candle on the floor stands up straight."
+            },
+            {
+              "kind": "quote",
+              "text": "Then, from the stairs, unhurried footsteps. He is not running. He has never needed to."
+            },
+            {
+              "kind": "text",
+              "text": "Strahd arrives in three rounds. He wants his book, and he wants to see who hands it over. He does not open with violence."
+            },
+            {
+              "kind": "text",
+              "text": "• To the Tome's carrier: \"You have something of mine. I do not mind that you read it. I mind that you did not ask.\""
+            },
+            {
+              "kind": "text",
+              "text": "• To Abraham: \"Four years on the road, is it not? I have guests who have stayed four hundred.\""
+            },
+            {
+              "kind": "text",
+              "text": "• To Batrdlebee: \"You heard where I stopped. Tell me how it should end.\" He means it, and a good answer buys the party a favour."
+            },
+            {
+              "kind": "text",
+              "text": "• To Evander, quietly: \"Who made you? I should like to know which of my kind was so careless.\""
+            },
+            {
+              "kind": "text",
+              "text": "• To Torvald, as one ruler to another: \"You lead a people. So do I. Would you let a guest walk out with your history under his arm?\""
+            },
+            {
+              "kind": "text",
+              "text": "• To Gertruda he says nothing. He holds out a hand for her to come back. Whether she moves depends on who holds the key, and how they have treated her."
+            },
+            {
+              "kind": "text",
+              "text": "Ways out, none of them free."
+            },
+            {
+              "kind": "text",
+              "text": "• Give the Tome back. He is gracious, and they have lost the best weapon they have found."
+            },
+            {
+              "kind": "text",
+              "text": "• Bargain. He will trade a truthful answer per character for it. He keeps his word."
+            },
+            {
+              "kind": "text",
+              "text": "• Run. Esmeralda has a rope down from the parapets at K46 and has been waiting for exactly this. She did not plan on five passengers."
+            },
+            {
+              "kind": "text",
+              "text": "• Fight. He laughs, the candles go out, and it becomes a chase through the dark with Rahadin at the far door."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The parapets and the choice (K46)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "A door opens onto rain and a narrow walk along the wall. A thousand feet of dark below. Above you one tower window glows red, slow, like breathing."
+            },
+            {
+              "kind": "text",
+              "text": "End of the floor, and a good place to end the night."
+            },
+            {
+              "kind": "text",
+              "text": "• Esmeralda is here if they need her, crouched by a grapnel, furious that they stole the Tome before she could. \"You took it on the night he was home?\""
+            },
+            {
+              "kind": "text",
+              "text": "• Up, toward the red light and the spires."
+            },
+            {
+              "kind": "text",
+              "text": "• Down, toward the catacombs and where he sleeps."
+            },
+            {
+              "kind": "text",
+              "text": "• Out, over the wall, with the Tome and a hunt behind them."
+            },
+            {
+              "kind": "quote",
+              "text": "Behind you the organ begins again. It is the same piece, from the start. He has decided the evening is not over."
+            }
+          ]
+        },
+        {
+          "title": "Notes: Gertruda's voice",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• She labels her sentences: Statement, Observation, Query, Complaint, Correction. Flat delivery, perfect manners, open contempt."
+            },
+            {
+              "kind": "text",
+              "text": "• Her word for living people is leakers. She uses it fondly about nobody."
+            },
+            {
+              "kind": "text",
+              "text": "• She is hostile, not treacherous. She will insult the party all night and shoot whatever threatens them."
+            },
+            {
+              "kind": "text",
+              "text": "• She never says what she wants. What she wants is for someone to explain what was done to her without flinching."
+            },
+            {
+              "kind": "text",
+              "text": "• At the table: twin pistols, +6 to hit, 1d10+3 piercing, two shots a turn. Every shot ticks a box."
+            }
+          ]
+        },
+        {
+          "title": "Notes: Secrets and clues",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "Hand these out wherever they fit. None is tied to one room."
+            },
+            {
+              "kind": "text",
+              "text": "• Strahd knew a hunter was coming. The ledger was open before dinner."
+            },
+            {
+              "kind": "text",
+              "text": "• The Tome is missing pages. They were cut out, neatly, by the author."
+            },
+            {
+              "kind": "text",
+              "text": "• He is still setting a place at table for a bride who died centuries ago."
+            },
+            {
+              "kind": "text",
+              "text": "• Something in this castle beats like a heart, and wounding it wounds him."
+            },
+            {
+              "kind": "text",
+              "text": "• Rahadin hears the screams of everyone he has killed. Stand close and so do you."
+            },
+            {
+              "kind": "text",
+              "text": "• Gertruda walked in through the front doors by choice. What walked out of the workshop was not consulted."
+            },
+            {
+              "kind": "text",
+              "text": "• Esmeralda has been inside these walls before, and left something behind that she wants back."
+            },
+            {
+              "kind": "text",
+              "text": "• The bell has not rung since the wedding day."
+            }
+          ]
+        },
+        {
+          "title": "Notes: Running the night",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Four characters and a gunslinger can win a room here, not the castle. Strahd knows it, so he plays with them instead."
+            },
+            {
+              "kind": "text",
+              "text": "• The tracker is the session. Tell the players it exists. Tick it in front of them. Dread needs to be visible."
+            },
+            {
+              "kind": "text",
+              "text": "• Every fight should have an exit: a door to bar, webs to burn, stairs to take."
+            },
+            {
+              "kind": "text",
+              "text": "• Poison is the killer in the spider hall. Leave an antitoxin on the skeleton in K38."
+            },
+            {
+              "kind": "text",
+              "text": "• Split the spotlight. Abraham gets the ledger and the chalk mark, Batrdlebee the bell and the unfinished music, Evander the bath and the Count's question, Torvald the stone king, Gertruda the bedchamber."
+            },
+            {
+              "kind": "text",
+              "text": "• Evander's Turn Undead works on lesser dead. On Strahd in his own house, it earns a smile."
+            },
+            {
+              "kind": "text",
+              "text": "• Strahd's goals tonight, in order: recover the Tome, learn Abraham's family secrets, win the bard, find out who sired Evander, see if Torvald bends, call Gertruda home. Killing them is not on the list yet."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "title": "Session: The Spires of Ravenloft",
+      "intro": [
+        {
+          "kind": "text",
+          "text": "Up from the Rooms of Weeping into the towers (K47 to K60, and the Heart of Sorrow at K20). The red light in the window has been waiting all night."
+        },
+        {
+          "kind": "text",
+          "text": "The heartbeat is the engine. Everything up here pulses in time with it, and whatever wounds the heart wounds the Count."
+        },
+        {
+          "kind": "text",
+          "text": "If the party still holds the Tome, Strahd is hunting and the towers are a dead end he is happy to let them climb. If they gave it back, they are guests again, and guests may wander."
+        },
+        {
+          "kind": "text",
+          "text": "Room numbers are from the book. It has the last word on traps and stats."
+        }
+      ],
+      "scenes": [
+        {
+          "title": "Strong start: The portrait blinks",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "The stair opens on a landing hung with one great painting. The Count, younger, in armour, one hand on a sword. The rug beneath it is deep red and very clean. As you step off the last stair, the painted eyes move to whoever carries his book."
+            },
+            {
+              "kind": "text",
+              "text": "K47. The portrait is a guardian and the rug is alive. They wake if anyone touches either, or tries to pass with the Tome."
+            },
+            {
+              "kind": "text",
+              "text": "• Guardian portrait: AC 5, HP 22, cannot move, casts from the frame. Run its spells from the book."
+            },
+            {
+              "kind": "text",
+              "text": "• Rug of smothering: AC 12, HP 33. It takes whoever is standing nearest the wall."
+            },
+            {
+              "kind": "text",
+              "text": "• Abraham, Investigation DC 13: the rug has no wear. Nobody walks on it. Nobody who still walks, anyway."
+            },
+            {
+              "kind": "text",
+              "text": "• Gertruda: \"Observation: the furniture is armed. Statement: I approve of this household.\""
+            },
+            {
+              "kind": "text",
+              "text": "• Cutting the canvas is loud. If Strahd is hunting, he arrives one scene sooner."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The lounge (K49)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "Velvet chairs, a cold hearth, and a handsome man lying full length on a divan with a glass he is not drinking from. He does not get up. \"Oh, thank the dark. Company.\""
+            },
+            {
+              "kind": "text",
+              "text": "Escher. Vampire spawn, consort, bored past bearing and afraid he is being replaced. He would rather talk than fight."
+            },
+            {
+              "kind": "text",
+              "text": "• Vampire spawn: AC 15, HP 82. He fights only if cornered or insulted."
+            },
+            {
+              "kind": "text",
+              "text": "• He wants gossip. What did the Count say at dinner? Did he look at anyone for long?"
+            },
+            {
+              "kind": "text",
+              "text": "• He trades truth for attention. One answer per good story, and Batrdlebee gets two."
+            },
+            {
+              "kind": "text",
+              "text": "• He knows the heart in the tower takes the Count's wounds for him. He will say so if he is made to feel pitied, and regret it at once."
+            },
+            {
+              "kind": "text",
+              "text": "• To Evander, delighted and cruel: \"Half! How economical. Do you get half the hunger, or all of it and half the teeth?\""
+            },
+            {
+              "kind": "text",
+              "text": "• He will not help against Strahd. He will, however, forget to mention he saw them."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The broom and the guest room (K50, K51)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "A bedchamber made up for visitors, with turned-down sheets and a basin of water gone to ice. Your names are written on a card on the pillow. All of them. The ink is dry."
+            },
+            {
+              "kind": "text",
+              "text": "A place to rest, offered in bad faith. A short rest here is safe. A long rest is interrupted, your choice by what."
+            },
+            {
+              "kind": "text",
+              "text": "• The closet next door holds a broom that attacks whoever opens the door. AC 15, HP 17. It is a joke. Let it be one."
+            },
+            {
+              "kind": "text",
+              "text": "• Torvald breaking a broom over his knee is a fine moment. Give it to him."
+            },
+            {
+              "kind": "text",
+              "text": "• The card lists Gertruda last, in a different hand, under the word returned."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The witches' tower (K54, K55, K56)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "Cats. Dozens, on every stair, all of them watching you with the same flat patience. Above, women's voices and the smell of something boiling that used to be several things."
+            },
+            {
+              "kind": "text",
+              "text": "Barovian witches at their cauldron, with their familiars below. They serve the Count for scraps of power and they are not brave."
+            },
+            {
+              "kind": "text",
+              "text": "• Barovian witch: AC 10, HP 16. Seven is the book number. Four is enough if the party is tired."
+            },
+            {
+              "kind": "text",
+              "text": "• The cats run to warn them. Stealth past the cats is DC 14, at disadvantage for anyone in metal."
+            },
+            {
+              "kind": "text",
+              "text": "• The witches bargain before they fight. They want hair, a tooth, a true name. They offer a potion, or the way to the heart."
+            },
+            {
+              "kind": "text",
+              "text": "• Evander's symbol frightens them more than Torvald's axe. They have seen axes."
+            },
+            {
+              "kind": "text",
+              "text": "• Batrdlebee can pass as a client. Witches love a customer."
+            },
+            {
+              "kind": "text",
+              "text": "• In the element room, among the jars: a brass gear, labelled with a girl's name and a date. Gertruda takes it without a word and does not say where it goes."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The clockwork fool (K59)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "The top of the high tower is open to the weather through a broken roof. In the corner, sitting very still among the leaves, is a doll the size of a child, dressed as a jester. Its painted smile is cracked. Its head turns toward you with a small clean click."
+            },
+            {
+              "kind": "text",
+              "text": "Pidlwick II. A clockwork copy of a long-dead fool. It cannot speak. It wants to be liked and it pushes people down stairs."
+            },
+            {
+              "kind": "text",
+              "text": "• Pidlwick II: AC 14, HP 10. Harmless in a fight, deadly at the top of a staircase."
+            },
+            {
+              "kind": "text",
+              "text": "• It attaches itself to whoever is kind to it, and waits for a high place."
+            },
+            {
+              "kind": "text",
+              "text": "• Gertruda meets something made the way she was. \"Query: is this what I am to you? Clarification: answer carefully.\""
+            },
+            {
+              "kind": "text",
+              "text": "• If the party is kind to it in front of her, she softens by one degree. If they smash it, she notes how quickly."
+            },
+            {
+              "kind": "text",
+              "text": "• It knows the castle. It will lead them to the heart if asked with gestures, by the worst possible route."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The Heart of Sorrow (K20)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "The stair winds up inside a hollow tower, and in the middle of the shaft hangs the thing you saw from the wall. A crystal heart, taller than a man, glowing red and beating. Each beat shakes dust from the steps under your feet."
+            },
+            {
+              "kind": "text",
+              "text": "The set piece. While the heart is whole, wounds dealt to Strahd go to it instead."
+            },
+            {
+              "kind": "text",
+              "text": "• Heart of Sorrow: AC 15, HP 50. It hangs ten feet out from the stair. Reaching it means a thrown weapon, a shot, a spell, or a jump."
+            },
+            {
+              "kind": "text",
+              "text": "• The jump is Athletics DC 15 to land and cling. Failing is a long fall. Torvald will want to. Let him know the odds."
+            },
+            {
+              "kind": "text",
+              "text": "• Each round the heart is attacked the stair bucks. Dex save DC 10 or fall prone, and prone near the edge is a second save."
+            },
+            {
+              "kind": "text",
+              "text": "• The halberds on the wall are its guards. Use four, flying, AC 17, HP 17, +3 to hit for 1d10+1."
+            },
+            {
+              "kind": "text",
+              "text": "• Evander's pulse is its pulse. Every hit on the heart costs him 1 hit point, and he has advantage on attacks against it. Ask him if he keeps going."
+            },
+            {
+              "kind": "text",
+              "text": "• Gertruda finally gets to be loud. \"Statement: at last.\""
+            },
+            {
+              "kind": "text",
+              "text": "When it breaks, the red light goes out all over the castle."
+            },
+            {
+              "kind": "quote",
+              "text": "Far below, something screams. It is not pain. It is the sound of a man who has just been made mortal by his dinner guests."
+            },
+            {
+              "kind": "text",
+              "text": "Strahd comes at once, with whatever spawn are near. This is the fight if the party wants it, and the only time tonight he is truly angry."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The bridge (K57, K58)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "A stone span between two towers, no rail, slick with rain. The courtyard is a long way down. Halfway across, the wind stops."
+            },
+            {
+              "kind": "text",
+              "text": "The way out of the spires, and the place Strahd catches them if they are running."
+            },
+            {
+              "kind": "text",
+              "text": "• Crossing in a fight: Dex save DC 10 each round to keep footing, or drop prone."
+            },
+            {
+              "kind": "text",
+              "text": "• If the heart is broken he fights here himself, on foot, like the soldier in the portrait."
+            },
+            {
+              "kind": "text",
+              "text": "• If the heart is whole he does not bother. He stands at the far end and asks, pleasantly, where they thought they were going."
+            },
+            {
+              "kind": "text",
+              "text": "• Esmeralda's rope, if she is still in play, hangs from the far tower."
+            }
+          ]
+        },
+        {
+          "title": "Secrets and clues",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• The heart was a gift from the powers he made his bargain with. It is not his heart. His own stopped at a wedding."
+            },
+            {
+              "kind": "text",
+              "text": "• Escher has seen the Count weep once, in front of the portrait in the study."
+            },
+            {
+              "kind": "text",
+              "text": "• The witches have been asked to brew something for a guest with half a vampire's blood. They do not know why."
+            },
+            {
+              "kind": "text",
+              "text": "• Pidlwick II pushed the first Pidlwick down the stairs. Nobody ever asked it why."
+            },
+            {
+              "kind": "text",
+              "text": "• The gear from the witches' jars is from Gertruda, taken out when she was made. She runs perfectly well without it. She would still like it back."
+            },
+            {
+              "kind": "text",
+              "text": "• The portrait on the landing was painted from life, before. It is the only image in the castle where he looks tired."
+            },
+            {
+              "kind": "text",
+              "text": "• Someone has climbed the high tower recently, by rope, from outside."
+            }
+          ]
+        },
+        {
+          "title": "Treasure and rewards",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• The witches' shelf: two potions of healing and one unlabelled bottle. The unlabelled one is your choice."
+            },
+            {
+              "kind": "text",
+              "text": "• Escher's rings, if he is destroyed. He would much rather give one away for a compliment."
+            },
+            {
+              "kind": "text",
+              "text": "• A shard of the heart, if it is broken. It is warm, it still beats faintly, and Strahd will always know where it is."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "title": "Session: The Larders of Ill Omen",
+      "intro": [
+        {
+          "kind": "text",
+          "text": "Below stairs (K61 to K72). Kitchens, cellars, guard rooms, and the people who have kept this house running for a master who does not eat."
+        },
+        {
+          "kind": "text",
+          "text": "Manners are the engine. Down here the party is either guests or intruders, and the servants decide which. Guests are fed and shown about. Intruders are reported."
+        },
+        {
+          "kind": "text",
+          "text": "Start them as guests. Each rude, violent or thieving act in front of a servant ticks one of three boxes. At three they are intruders, and the dead soldiers in the guard rooms get up."
+        },
+        {
+          "kind": "text",
+          "text": "Room numbers are from the book. It has the last word on traps and stats."
+        }
+      ],
+      "scenes": [
+        {
+          "title": "Strong start: The lift that is not a lift",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "A plain stone corridor, and under your feet a soft click. The walls begin to move. No. The floor does. A sweet smell comes up through the cracks, and the ceiling is getting closer very quickly."
+            },
+            {
+              "kind": "text",
+              "text": "K61, the elevator trap. Run the gas and the ride from the book. Used well it splits the party. Used kindly it only frightens them."
+            },
+            {
+              "kind": "text",
+              "text": "• Abraham hears the click a breath early. He may shout one word before it goes."
+            },
+            {
+              "kind": "text",
+              "text": "• Whoever is caught rides to the top of the castle asleep. Whoever is not hears them go."
+            },
+            {
+              "kind": "text",
+              "text": "• Gertruda does not breathe. \"Observation: you have all fallen over. Query: is this the plan?\""
+            },
+            {
+              "kind": "text",
+              "text": "• If the party just came from the spires, run it backward. The trap is how they arrive down here, waking in a heap with a cook standing over them."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The kitchen (K62, K65)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "Heat, steam, and the first good smell in this castle. A huge pot is on the boil. The cook turns round, and he is put together wrong: one arm furred, one ear like a bat's, a smile with too many kinds of teeth. He is overjoyed to see you."
+            },
+            {
+              "kind": "text",
+              "text": "Cyrus Belview, the Count's servant. Cheerful, loyal, quite mad, and the most useful person in the building if treated as staff treat a guest."
+            },
+            {
+              "kind": "text",
+              "text": "• He offers food. Do not say what is in the pot. Let them ask."
+            },
+            {
+              "kind": "text",
+              "text": "• He will show guests to a room, the wine, the way down, anywhere they name. He will not go into the catacombs."
+            },
+            {
+              "kind": "text",
+              "text": "• He reports everything to the master, without malice, the way a clock reports the time."
+            },
+            {
+              "kind": "text",
+              "text": "• He has served long enough to remember Gertruda arriving. \"The young miss! You've had work done.\""
+            },
+            {
+              "kind": "text",
+              "text": "• Torvald understands him at once. Every hall has one man who really runs it. Persuasion at advantage if Torvald speaks to him as a chief speaks to a steward."
+            },
+            {
+              "kind": "text",
+              "text": "• Striking Cyrus ticks two boxes. Everything down here is fond of him."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The wine cellar (K63)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "Barrels the size of carts, racked in the dark. The floor is sticky. Somewhere a tap is dripping, slow as a clock."
+            },
+            {
+              "kind": "text",
+              "text": "The casks carry the Wizard of Wines mark. One of them is not holding wine. Run the cellar's surprise from the book."
+            },
+            {
+              "kind": "text",
+              "text": "• If the party helped the Martikovs, they know these labels, and know one vintage has not been delivered in years."
+            },
+            {
+              "kind": "text",
+              "text": "• Batrdlebee, Perception DC 12: one barrel sounds wrong when knocked. Full, but not of liquid."
+            },
+            {
+              "kind": "text",
+              "text": "• Drinking the Count's wine as his guest is fine. Carrying it off ticks a box."
+            },
+            {
+              "kind": "text",
+              "text": "• Hidden behind the last rack, a hunter's cache: stakes, a mirror, holy water gone flat. Esmeralda's, from an earlier visit, or someone's who did not come back for it."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The hall of bones (K67)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "A dining hall for soldiers, and every stick of furniture in it is bone. Chairs of ribs, a table of thigh bones lashed with wire, a chandelier of skulls. Over the far door hangs the skull of a dragon, long as a boat."
+            },
+            {
+              "kind": "text",
+              "text": "The dragon is Argynvost. His skull belongs in the beacon of his own keep, and the knights there cannot rest without it."
+            },
+            {
+              "kind": "text",
+              "text": "• If the party has been to Argynvostholt, they know exactly what this is. If not, Abraham knows no hunter ever took a trophy like that."
+            },
+            {
+              "kind": "text",
+              "text": "• It weighs 250 pounds. Getting it out of the castle is a session of its own."
+            },
+            {
+              "kind": "text",
+              "text": "• Taking it down ticks every box at once. The household may forgive theft. It does not forgive this one."
+            },
+            {
+              "kind": "text",
+              "text": "• Torvald looks at a hall furnished with the enemy dead and understands the man who built it better than he wants to."
+            },
+            {
+              "kind": "text",
+              "text": "• Evander can feel that none of these bones are at rest. Turn Undead in here makes the chairs flinch."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The guard rooms (K68 to K71)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "Bunks in rows, blankets squared, boots under each bed. On every bunk lies a soldier, hands folded, long past dead. Their weapons are oiled."
+            },
+            {
+              "kind": "text",
+              "text": "The Count's old garrison. They lie still for guests. They rise for intruders, or if anyone takes a weapon from the racks."
+            },
+            {
+              "kind": "text",
+              "text": "• Skeletons: AC 13, HP 13. Use eight. In the officers' hall add two wights, AC 14, HP 45."
+            },
+            {
+              "kind": "text",
+              "text": "• They fight as a unit: shield line at the door, archers behind. Torvald will recognise drilled men."
+            },
+            {
+              "kind": "text",
+              "text": "• Evander's Turn Undead breaks the line. This is his room."
+            },
+            {
+              "kind": "text",
+              "text": "• If the party are still guests, an officer sits up, salutes Torvald as a visiting lord, and lies back down."
+            },
+            {
+              "kind": "text",
+              "text": "• Their banner is the raven of the old kingdom, from before the Count was anything but a general."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The man who keeps the books (K72)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "A cramped office heaped with ledgers to the ceiling. At a desk sits a thin old man with a quill, chained by one ankle to the floor. He does not look up. \"If it's about the candle allowance, I've told Cyrus.\""
+            },
+            {
+              "kind": "text",
+              "text": "Lief Lipsiege, accountant. Chained here for so long he has stopped minding. He knows where everything in the castle is kept, because he wrote it down."
+            },
+            {
+              "kind": "text",
+              "text": "• He wants company and a small kindness. He is not sure he wants freedom."
+            },
+            {
+              "kind": "text",
+              "text": "• For either, he will look up one thing in his books. The treasury, the heart, the crypt of any name they give him."
+            },
+            {
+              "kind": "text",
+              "text": "• Abraham asks about the ledger of hunters. Lief keeps the fair copy. He turns to the family's page and goes quiet. There is an entry for an ancestor, marked received, and a crypt number."
+            },
+            {
+              "kind": "text",
+              "text": "• He has an entry for Gertruda too. It is filed under repairs."
+            },
+            {
+              "kind": "text",
+              "text": "• He has an entry for the Tome. It is filed under missing, in fresh ink, and he looks at the party over his spectacles."
+            },
+            {
+              "kind": "text",
+              "text": "• Freeing him ticks a box. He will thank them and then sit back down."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The household turns",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "Run this when the third box is ticked."
+            },
+            {
+              "kind": "quote",
+              "text": "The kitchen fire goes out. All through the cellars, in the dark, comes the sound of boots being put on."
+            },
+            {
+              "kind": "text",
+              "text": "• The garrison rises and holds the stairs up. The only open way is down."
+            },
+            {
+              "kind": "text",
+              "text": "• Cyrus is heartbroken. \"And I'd made up the good room.\""
+            },
+            {
+              "kind": "text",
+              "text": "• Rahadin comes from above with the roll of the guard. He is not here to talk this time."
+            },
+            {
+              "kind": "text",
+              "text": "• The chase ends at the dungeon stair, with the party going where they were always going to go."
+            }
+          ]
+        },
+        {
+          "title": "Secrets and clues",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Cyrus has seen the Count carry a coffin down to the catacombs by himself, twice a century, and come back up alone."
+            },
+            {
+              "kind": "text",
+              "text": "• The garrison died in one night, at their posts, on the wedding day."
+            },
+            {
+              "kind": "text",
+              "text": "• Lief's books show the castle buys nothing and sells nothing. Only the wine comes in."
+            },
+            {
+              "kind": "text",
+              "text": "• A hunter was received here generations ago and lies in the catacombs under a name Abraham knows."
+            },
+            {
+              "kind": "text",
+              "text": "• Gertruda's making was billed to the household. Lief knows who was paid, and it was not the Count."
+            },
+            {
+              "kind": "text",
+              "text": "• The dragon's skull was hung by Strahd himself, the day he took the valley. It is the only thing in the castle he ever nailed up with his own hands."
+            },
+            {
+              "kind": "text",
+              "text": "• The gas trap was built to catch thieves alive. He likes to talk to them first."
+            }
+          ]
+        },
+        {
+          "title": "Treasure and rewards",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• A cask of the good vintage, if they are still guests when they leave. Cyrus insists."
+            },
+            {
+              "kind": "text",
+              "text": "• The hunter's cache: four stakes, a silvered mirror, two flasks of holy water that Evander can bless again."
+            },
+            {
+              "kind": "text",
+              "text": "• One true answer from Lief's ledgers."
+            },
+            {
+              "kind": "text",
+              "text": "• The skull of Argynvost, if they can carry it, and the gratitude of an order of dead knights."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "title": "Session: The Dungeon and the Catacombs",
+      "intro": [
+        {
+          "kind": "text",
+          "text": "The bottom of Castle Ravenloft (K73 to K88). Flooded cells, then the long dark where the family is buried and the Count sleeps."
+        },
+        {
+          "kind": "text",
+          "text": "The dead are the engine. Every crypt is a door with a name on it, and every door opened lets something out: a fact, a treasure, or a tenant. The party chooses how many."
+        },
+        {
+          "kind": "text",
+          "text": "Count the crypts they open. The first three are free. From the fourth on, each one also wakes something elsewhere in the catacombs, and it comes looking."
+        },
+        {
+          "kind": "text",
+          "text": "Room numbers are from the book. It has the last word on traps and stats."
+        }
+      ],
+      "scenes": [
+        {
+          "title": "Strong start: The water is waist deep",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "The stair ends in black water, cold enough to hurt. An arched hall runs off into the dark with barred doors down both sides. Something under the surface shifts against your leg, and from one of the cells a man's voice says, very quietly, \"Don't walk in the middle.\""
+            },
+            {
+              "kind": "text",
+              "text": "K73. The flooded hall hides trapdoors that drop walkers into the cells. Run them from the book."
+            },
+            {
+              "kind": "text",
+              "text": "• The water is three feet deep. Batrdlebee is swimming. Someone should offer a shoulder, and Torvald has two."
+            },
+            {
+              "kind": "text",
+              "text": "• The voice is Emil, in the north cells. He is telling the truth about the floor."
+            },
+            {
+              "kind": "text",
+              "text": "• Gertruda: \"Complaint: I rust. Statement: one of you will carry me. Clarification: this is not a request.\""
+            },
+            {
+              "kind": "text",
+              "text": "• Whoever falls lands in a locked cell alone. Getting them out is the first puzzle of the night."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The prisoner (K74)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "A big man, half starved, gripping the bars. His eyes catch your light and throw it back green, the way a dog's do."
+            },
+            {
+              "kind": "text",
+              "text": "Emil Toranescu. A werewolf, locked up by Strahd for defying the pack's leader. He wants out, and he wants his wife."
+            },
+            {
+              "kind": "text",
+              "text": "• He admits what he is if asked directly. He will not hide it from a hunter, because a hunter would know."
+            },
+            {
+              "kind": "text",
+              "text": "• Abraham was raised to kill exactly this. Emil is unarmed, behind bars, and asking for help. Let the table sit in that."
+            },
+            {
+              "kind": "text",
+              "text": "• If they met the werewolves or Zuleika, Emil is the husband she is waiting for."
+            },
+            {
+              "kind": "text",
+              "text": "• Freed, he fights beside them until they are out of the castle. Werewolf: AC 12, HP 58. Then he goes home, whatever home has become."
+            },
+            {
+              "kind": "text",
+              "text": "• Left behind, he does not beg. He says, \"Then tell her where I am.\""
+            },
+            {
+              "kind": "text",
+              "text": "• Gertruda has an opinion. \"Recommendation: release the wolf. Rationale: it will bite someone, and it might be someone I dislike.\""
+            }
+          ]
+        },
+        {
+          "title": "Scene: The drowned chamber (K76, K77)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "A wide room, flooded like the rest. Racks and iron frames stand up out of the water. On a balcony above sit two tall chairs, placed for a good view."
+            },
+            {
+              "kind": "text",
+              "text": "The torture chamber. The dead under the water rise when someone reaches the middle of the room."
+            },
+            {
+              "kind": "text",
+              "text": "• Strahd zombies: AC 8, HP 30. Use six. Run their coming-apart from the book. The parts keep fighting."
+            },
+            {
+              "kind": "text",
+              "text": "• The water is difficult terrain for everyone on foot and for none of them."
+            },
+            {
+              "kind": "text",
+              "text": "• Evander's Turn Undead buys two clear rounds. Gunfire does little. Fire does nothing down here."
+            },
+            {
+              "kind": "text",
+              "text": "• The balcony is dry and climbable, Athletics DC 12. From there the room is a shooting gallery."
+            },
+            {
+              "kind": "text",
+              "text": "• One chair is worn. The other has never been sat in."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The brazier (K78)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "A square room and a brazier burning with white fire that gives no heat. Around its rim sit seven stones, each a different colour. An hourglass hangs above it, and the sand is running."
+            },
+            {
+              "kind": "text",
+              "text": "The castle's shortcut. A stone thrown in the flame sends the thrower somewhere. Run the colours and the guardians from the book."
+            },
+            {
+              "kind": "text",
+              "text": "• Abraham, Arcana or Investigation DC 14: there is a verse cut round the rim. Each colour names a place."
+            },
+            {
+              "kind": "text",
+              "text": "• This is the fast way to the heart, the study, the chapel, or out. It is also how the party gets separated if they throw at random."
+            },
+            {
+              "kind": "text",
+              "text": "• Batrdlebee reads the verse aloud and gets the rhyme. Advantage on choosing right."
+            },
+            {
+              "kind": "text",
+              "text": "• The hourglass is for the visitor, not the master. When it runs out, the guardians wake."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The catacombs (K84)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "The ceiling is alive. Bats, thousands, packed like fruit. The floor is soft with what they leave. Away into the dark run rows of stone doors, each with a name cut over it, and you cannot see where they end."
+            },
+            {
+              "kind": "text",
+              "text": "Forty crypts. Do not run them all. Offer the names, let the party choose, and count what they open."
+            },
+            {
+              "kind": "text",
+              "text": "• Loud noise brings the bats down. Everyone is blinded and deafened for a round. Gertruda's pistols are loud."
+            },
+            {
+              "kind": "text",
+              "text": "• Near the stair is a snare that swaps a walker with a wight sealed in a crypt. Run it from the book. Abraham gets a check to see the floor is too clean."
+            },
+            {
+              "kind": "text",
+              "text": "• Wight: AC 14, HP 45. Use these as what wakes from the fourth crypt on."
+            },
+            {
+              "kind": "text",
+              "text": "• Evander is on consecrated ground of the wrong kind. His holy symbol is cold. It still works."
+            },
+            {
+              "kind": "text",
+              "text": "Crypts worth offering by name. Check each number in the book."
+            },
+            {
+              "kind": "text",
+              "text": "• A hunter with Abraham's family name. Inside, bones laid out with respect, a silvered weapon of your choice, and a letter that begins, \"If you are reading this, he let me write it.\""
+            },
+            {
+              "kind": "text",
+              "text": "• Patrina Velikovna. A banshee. Her wail can drop a character outright, Con save DC 13. Warn them with cold and weeping first. She wants to be reunited with her brother Kasimir."
+            },
+            {
+              "kind": "text",
+              "text": "• A general called Mad Dog. He kept hounds. They are still here. Hell hounds: AC 15, HP 45."
+            },
+            {
+              "kind": "text",
+              "text": "• A bride, walled in for boring him. Vampire spawn. She will say anything to be let out."
+            },
+            {
+              "kind": "text",
+              "text": "• An empty crypt with fresh carving over the door. It carries the name of whichever character Strahd has liked best so far."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The brother (K85)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "A white marble tomb behind a gate. On the slab lies a young man in shining armour, hands on his sword, unmarked by time. He looks as though he lay down an hour ago. He looks like the Count would, if the Count had ever been happy."
+            },
+            {
+              "kind": "text",
+              "text": "Sergei. The Tome told them who he was and what was done to him."
+            },
+            {
+              "kind": "text",
+              "text": "• The gate is heavy. Strength DC 20 to lift, or find the lever."
+            },
+            {
+              "kind": "text",
+              "text": "• His armour is the finest in the valley, plate +2. Taking it is not a sin. Sergei would have given it."
+            },
+            {
+              "kind": "text",
+              "text": "• Abraham's own suit was built for this work. Sergei's was built for a wedding, and it is better."
+            },
+            {
+              "kind": "text",
+              "text": "• If the Tome is here, it opens to its last written page. Below Strahd's hand, in a different one, is a single line that was not there before. Choose what Sergei says."
+            },
+            {
+              "kind": "text",
+              "text": "• Evander can feel that this one tomb is at peace. It is the only quiet place in the castle. A long rest here is safe."
+            }
+          ]
+        },
+        {
+          "title": "Scene: The parents (K88)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "Two great tombs side by side, a king and a queen in stone. The roof has come down across one of them. No one has cleared it."
+            },
+            {
+              "kind": "text",
+              "text": "King Barov and Queen Ravenovia. He has never repaired it."
+            },
+            {
+              "kind": "text",
+              "text": "• Torvald stands in front of a king who built a kingdom and a son who buried it. The stone king upstairs told him to count who stands with him. Here is the answer."
+            },
+            {
+              "kind": "text",
+              "text": "• Evander asked himself all night who made him. Here is who made the Count. The queen's face has been worn smooth by a hand touching it."
+            },
+            {
+              "kind": "text",
+              "text": "• The rubble hides something. This is a good place for a treasure your Tarokka reading has not yet delivered."
+            }
+          ]
+        },
+        {
+          "title": "Scene: Where he sleeps (K86)",
+          "blocks": [
+            {
+              "kind": "quote",
+              "text": "Down a last flight of steps, a tomb with no name on it. A black coffin stands open on a dais, lined with earth. Around the walls are three smaller alcoves, and their doors are ajar."
+            },
+            {
+              "kind": "text",
+              "text": "Strahd's tomb, and the brides who guard it."
+            },
+            {
+              "kind": "text",
+              "text": "• Three vampire spawn: AC 15, HP 82 each. For this party use two awake, and the third rising on round three."
+            },
+            {
+              "kind": "text",
+              "text": "• The stair down is trapped to throw intruders elsewhere. Run it from the book."
+            },
+            {
+              "kind": "text",
+              "text": "• The coffin is empty at night. If the Heart of Sorrow is broken and the sun is up, it is not."
+            },
+            {
+              "kind": "text",
+              "text": "• Spoiling the earth with holy water denies him his rest here. Evander knows the rite. It takes three uninterrupted rounds."
+            },
+            {
+              "kind": "text",
+              "text": "• Abraham knows the rest. Stake, sunlight, running water. This is what four years on the road were for."
+            },
+            {
+              "kind": "text",
+              "text": "• If Strahd is present he does not rage. He sits up, sees what they are holding, and says, \"You read it. Then you know I have tried everything else.\""
+            },
+            {
+              "kind": "text",
+              "text": "• Gertruda, to the coffin: \"Statement: I have a complaint about the workmanship.\" She will take the first shot if no one stops her."
+            }
+          ]
+        },
+        {
+          "title": "Secrets and clues",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Emil was jailed for refusing to hunt children. The pack leader who gave him up is still loyal to the Count."
+            },
+            {
+              "kind": "text",
+              "text": "• The second chair on the torture balcony was meant for Tatyana."
+            },
+            {
+              "kind": "text",
+              "text": "• A hunter of Abraham's blood got this far, lost, and was buried with honours. Strahd respects very few people. That was one."
+            },
+            {
+              "kind": "text",
+              "text": "• Patrina tried to marry the Count for his power and was stoned by her own people. Her brother still means to bring her back."
+            },
+            {
+              "kind": "text",
+              "text": "• Sergei's spirit is not in the tomb. It walks somewhere on the land, and it is waiting for the bride."
+            },
+            {
+              "kind": "text",
+              "text": "• The empty crypt has been recarved many times. There are older names under the new one."
+            },
+            {
+              "kind": "text",
+              "text": "• Strahd has not looked at his mother's tomb since the roof fell. He had it come down himself."
+            },
+            {
+              "kind": "text",
+              "text": "• The earth in the coffin is from the valley as it was before the mists. There is no more of it anywhere."
+            }
+          ]
+        },
+        {
+          "title": "Treasure and rewards",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Sergei's plate armour, +2."
+            },
+            {
+              "kind": "text",
+              "text": "• The hunter's silvered weapon and letter."
+            },
+            {
+              "kind": "text",
+              "text": "• Whatever the Tarokka reading placed in the catacombs."
+            },
+            {
+              "kind": "text",
+              "text": "• Emil's debt, or Zuleika's, if he walks out alive."
+            },
+            {
+              "kind": "text",
+              "text": "• A night's true rest in the one place in Ravenloft that allows it."
             }
           ]
         }

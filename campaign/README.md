@@ -23,7 +23,8 @@ Body paragraphs are plain text. Blank line between paragraphs.
 ```
 
 - `#` once per file for the session title. If it contains a number, that is
-  the session number; otherwise files are numbered in name order.
+  the session number; otherwise the file name's leading number is used
+  (`02-rooms-of-weeping.md` → session 2), else name order.
 - `##` starts a scene. Anything before the first `##` is the session intro.
 - Everything else is plain text. Markdown emphasis is left as typed.
 - Files are read in name order; use `01-`, `02-` prefixes if you like.
@@ -32,7 +33,8 @@ Body paragraphs are plain text. Blank line between paragraphs.
 - Every `##` heading becomes a Supernote title on the page, so the note's
   own title navigation lists your scenes.
 
-`references.md` is the look-up table (books and entries); its two tables are
+`characters/` holds one file per player character in the same format; see
+`characters/README.md`. `references.md` is the look-up table (books and entries); its two tables are
 compiled the same way. See the notes inside that file.
 
 Then build: `tools\deploy.cmd` on Windows, or `npm run build` elsewhere. The

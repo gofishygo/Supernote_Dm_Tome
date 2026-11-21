@@ -58,7 +58,7 @@ src/ui.tsx        shared e-ink widgets
 src/script.ts     lays compiled scenes onto a note page as text boxes
 src/campaign.generated.json  built from campaign/*.md by tools/build-campaign.mjs
 src/screens/      CaptureScreen, BackBurnerScreen, ScriptScreen, ReferenceScreen, ProbeConsole
-campaign/         session scripts and references.md (see campaign/README.md)
+campaign/         session scripts, characters/, references.md (see campaign/README.md)
 src/lookup.ts     reference table search, open at page, insert link, calibration
 tools/            deploy.cmd / send-only.cmd for Windows
 PluginConfig.json plugin manifest; never change pluginID

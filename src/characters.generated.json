@@ -1,0 +1,425 @@
+{
+  "generatedAt": "2026-11-21T04:15:50.685Z",
+  "characters": [
+    {
+      "number": 1,
+      "title": "Abraham",
+      "intro": [
+        {
+          "kind": "text",
+          "text": "A hunter from a family of hunters, four years on the road to reach this door. His name is in the Count's ledger, and it is not struck through."
+        }
+      ],
+      "scenes": [
+        {
+          "title": "At a glance",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Vampire hunter by family trade; Investigation and Survival; a suit built for this work."
+            },
+            {
+              "kind": "text",
+              "text": "• Reads hunters' chalk marks (Esmeralda's) and knows a baited snare on sight."
+            },
+            {
+              "kind": "text",
+              "text": "• Class: (check) ranger, fighter or a hunter build; the scripts give him advantage against baited traps and the training to read a vampire's patience."
+            },
+            {
+              "kind": "text",
+              "text": "• Player: (fill in)"
+            }
+          ]
+        },
+        {
+          "title": "Hooks in Ravenloft",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• The study ledger of hunter families: most struck through. His family is there, not struck, with a date beside it. The date is this year."
+            },
+            {
+              "kind": "text",
+              "text": "• Strahd: \"Four years on the road, is it not? I have guests who have stayed four hundred.\""
+            },
+            {
+              "kind": "text",
+              "text": "• Esmeralda's chalk mark on the study door frame: safe for now, do not linger."
+            },
+            {
+              "kind": "text",
+              "text": "• The dead adventurer in the false treasury wears a wolf's-tooth hunter token. So does Esmeralda. So does his family."
+            },
+            {
+              "kind": "text",
+              "text": "• A statue in the hall of heroes has his jaw and brow. A hunter of his blood came here and stayed."
+            },
+            {
+              "kind": "text",
+              "text": "• Lief's fair copy of the ledger: an ancestor marked received, with a crypt number."
+            },
+            {
+              "kind": "text",
+              "text": "• A crypt with his family name: bones laid out with respect, a silvered weapon, a letter that begins, \"If you are reading this, he let me write it.\""
+            }
+          ]
+        },
+        {
+          "title": "Wants",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• To finish what his family started, and to learn what happened to the one who got this far."
+            },
+            {
+              "kind": "text",
+              "text": "• To decide what a hunter does with Emil, a werewolf unarmed behind bars and asking for help."
+            }
+          ]
+        },
+        {
+          "title": "Secrets the DM holds",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Strahd knew a hunter was coming. The ledger was open before dinner."
+            },
+            {
+              "kind": "text",
+              "text": "• The Count respects very few people. The buried ancestor was one."
+            },
+            {
+              "kind": "text",
+              "text": "• Strahd's goal for him: learn the family's secrets."
+            }
+          ]
+        },
+        {
+          "title": "Table notes",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• He hears the elevator trap a breath early: one word before it goes."
+            },
+            {
+              "kind": "text",
+              "text": "• Give him advantage to spot the treasury snare, and a check to see the catacomb floor is too clean."
+            },
+            {
+              "kind": "text",
+              "text": "• Spotlight: the ledger, the chalk mark, the statue, the crypt, the coffin (\"stake, sunlight, running water\")."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "title": "Batrdlebee",
+      "intro": [
+        {
+          "kind": "text",
+          "text": "Halfling bard. Hears the shape of a piece of music and wants, very badly, to ring the bell."
+        }
+      ],
+      "scenes": [
+        {
+          "title": "At a glance",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Halfling (bell rope \"at halfling height\"; swimming in three feet of water)."
+            },
+            {
+              "kind": "text",
+              "text": "• Bard: Performance and History; passes as a witches' customer; reads verse aloud and gets the rhyme."
+            },
+            {
+              "kind": "text",
+              "text": "• Spelling: the scripts say Batrdlebee; the player may spell it Bardlebee. (check)"
+            },
+            {
+              "kind": "text",
+              "text": "• Player: (fill in)"
+            }
+          ]
+        },
+        {
+          "title": "Hooks in Ravenloft",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• The organ: Performance or History DC 13 tells him it is a long requiem, an hour left, and not for the Count himself."
+            },
+            {
+              "kind": "text",
+              "text": "• Strahd: \"You heard where I stopped. Tell me how it should end.\" A good answer buys the party a favour."
+            },
+            {
+              "kind": "text",
+              "text": "• Escher trades truth for stories, and Batrdlebee gets two answers per story."
+            },
+            {
+              "kind": "text",
+              "text": "• The brazier verse: he reads it aloud and gets the rhyme, advantage on choosing right."
+            },
+            {
+              "kind": "text",
+              "text": "• The bell in the belfry, tied in a neat bow, within his reach. If it rings, every box ticks."
+            }
+          ]
+        },
+        {
+          "title": "Wants",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• To finish the Count's unfinished music, or to be the one who gets to say how it ends."
+            },
+            {
+              "kind": "text",
+              "text": "• An audience, including the one at the organ."
+            }
+          ]
+        },
+        {
+          "title": "Secrets the DM holds",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• The bell has not rung since the wedding day."
+            },
+            {
+              "kind": "text",
+              "text": "• Strahd's goal for him: win the bard."
+            }
+          ]
+        },
+        {
+          "title": "Table notes",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Spotlight: the bell, the unfinished music, Escher's gossip, the verse."
+            },
+            {
+              "kind": "text",
+              "text": "• Let him choose about the bell. Do not take it away from him."
+            },
+            {
+              "kind": "text",
+              "text": "• One barrel in the wine cellar sounds wrong when knocked: Perception DC 12 is his."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "title": "Evander",
+      "intro": [
+        {
+          "kind": "text",
+          "text": "Half vampire, wholly devout. His pulse falls into step with the organ and he hates that it does. The castle keeps asking him who made him."
+        }
+      ],
+      "scenes": [
+        {
+          "title": "At a glance",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Dhampir; holy symbol; Turn Undead; Medicine and Arcana (from the scripts)."
+            },
+            {
+              "kind": "text",
+              "text": "• Class: (check) cleric or paladin; the scripts use Turn Undead and a blessing of holy water."
+            },
+            {
+              "kind": "text",
+              "text": "• Player: (fill in)"
+            }
+          ]
+        },
+        {
+          "title": "Hooks in Ravenloft",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Strahd, quietly: \"Who made you? I should like to know which of my kind was so careless.\""
+            },
+            {
+              "kind": "text",
+              "text": "• Escher: \"Half! How economical. Do you get half the hunger, or all of it and half the teeth?\""
+            },
+            {
+              "kind": "text",
+              "text": "• The bath: he smells it from the corridor. Ask his player what the hunger feels like, and whether the others notice him swallow."
+            },
+            {
+              "kind": "text",
+              "text": "• The witches have been asked to brew something for a guest with half a vampire's blood."
+            },
+            {
+              "kind": "text",
+              "text": "• The Heart of Sorrow beats with his pulse: every hit on it costs him a hit point, and he has advantage against it."
+            },
+            {
+              "kind": "text",
+              "text": "• The statues in the hall of heroes turn their eyes away from him, every one."
+            }
+          ]
+        },
+        {
+          "title": "Wants",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• An answer to who made him, and the strength not to need it."
+            },
+            {
+              "kind": "text",
+              "text": "• To be useful against the dead without becoming more like them."
+            }
+          ]
+        },
+        {
+          "title": "Secrets the DM holds",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Sergei's tomb is the one place in the castle at peace. Evander feels it. A long rest there is safe."
+            },
+            {
+              "kind": "text",
+              "text": "• His symbol is cold on the catacombs' wrong consecrated ground. It still works."
+            },
+            {
+              "kind": "text",
+              "text": "• The Count's goal for him: find out who sired him."
+            }
+          ]
+        },
+        {
+          "title": "Table notes",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Turn Undead is his room in the guard barracks and buys two rounds in the drowned chamber. On Strahd in his own house it earns a smile."
+            },
+            {
+              "kind": "text",
+              "text": "• Spoiling the coffin's earth with holy water is his rite: three uninterrupted rounds."
+            },
+            {
+              "kind": "text",
+              "text": "• Spotlight: the bath, the Count's question, the heart, the tomb."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "title": "Torvald",
+      "intro": [
+        {
+          "kind": "text",
+          "text": "Chief of a people, and the party's front line. He reads a hall the way a hunter reads a trail: who really runs it, who is watching, when the lord is busy."
+        }
+      ],
+      "scenes": [
+        {
+          "title": "At a glance",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Leader of a people back home; speaks to lords and stewards as an equal (from the scripts)."
+            },
+            {
+              "kind": "text",
+              "text": "• Fights with an axe; strong enough to tear a path through webs and break a broom over his knee."
+            },
+            {
+              "kind": "text",
+              "text": "• Class and ancestry: (check) the scripts imply a martial chief, likely fighter or barbarian."
+            },
+            {
+              "kind": "text",
+              "text": "• Player: (fill in)"
+            }
+          ]
+        },
+        {
+          "title": "Hooks in Ravenloft",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Strahd addresses him as one ruler to another: \"You lead a people. So do I.\""
+            },
+            {
+              "kind": "text",
+              "text": "• The stone king in the hall of heroes speaks to him unasked: \"I led ten thousand. Count who stands with me now.\""
+            },
+            {
+              "kind": "text",
+              "text": "• King Barov's tomb is the answer to that line: a king who built a kingdom and a son who buried it."
+            },
+            {
+              "kind": "text",
+              "text": "• The garrison officer salutes him as a visiting lord. Drilled men recognise him."
+            },
+            {
+              "kind": "text",
+              "text": "• Cyrus the cook responds to him as a steward to a chief: Persuasion at advantage when he speaks that way."
+            }
+          ]
+        },
+        {
+          "title": "Wants",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• To bring his people through, which tonight means bringing this party through."
+            },
+            {
+              "kind": "text",
+              "text": "• To be seen as a leader by the only other ruler in the valley, and to be ashamed of wanting that."
+            }
+          ]
+        },
+        {
+          "title": "Secrets the DM holds",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• The hall of bones is a hall furnished with the enemy dead. He understands the man who built it better than he wants to."
+            },
+            {
+              "kind": "text",
+              "text": "• The Count's goal for him: see if Torvald bends."
+            }
+          ]
+        },
+        {
+          "title": "Table notes",
+          "blocks": [
+            {
+              "kind": "text",
+              "text": "• Spotlight: the stone king, the garrison, the king's tomb, the broom."
+            },
+            {
+              "kind": "text",
+              "text": "• He will want to jump for the Heart of Sorrow. Tell him the odds, then let him."
+            },
+            {
+              "kind": "text",
+              "text": "• The bridge in the rain is his kind of fight: footing, no rail, a soldier on foot at the far end."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
